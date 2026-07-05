@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ห้องเรียนออนไลน์ครูแวนด้า</title>
+
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap");
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Prompt", "Kanit", "Segoe UI", sans-serif;
+        }
+
+        :root {
+            --orange: #ff8a00;
+            --orange-2: #ffb000;
+            --gold: #ffd36a;
+            --deep: #2d1b0b;
+            --brown: #5d3b16;
+            --soft: #fff8ea;
+            --white: #ffffff;
+            --glass: rgba(255, 255, 255, .78);
+            --border: rgba(255, 255, 255, .48);
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 26px;
+            overflow-x: hidden;
+            color: var(--deep);
+            background:
+                radial-gradient(circle at 12% 10%, rgba(255, 196, 81, .46), transparent 28%),
+                radial-gradient(circle at 88% 78%, rgba(255, 138, 0, .32), transparent 31%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .95), transparent 42%),
+                linear-gradient(135deg, #fffaf0 0%, #ffe8bd 52%, #ffffff 100%);
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 138, 0, .08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 138, 0, .08) 1px, transparent 1px);
+            background-size: 46px 46px;
+            mask-image: radial-gradient(circle at center, black, transparent 75%);
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            width: 520px;
+            height: 520px;
+            right: -180px;
+            top: -170px;
+            border-radius: 50%;
+            background: conic-gradient(from 120deg, rgba(255, 138, 0, .22), rgba(255, 211, 106, .30), rgba(255, 255, 255, .12), rgba(255, 138, 0, .22));
+            filter: blur(10px);
+            pointer-events: none;
+            animation: slowSpin 18s linear infinite;
+        }
+
+        @keyframes slowSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+
+        .tech-rain {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .tech-rain span {
+            position: absolute;
+            top: -90px;
+            left: var(--x);
+            font-size: var(--size);
+            font-weight: 900;
+            color: rgba(255, 138, 0, .20);
+            text-shadow: 0 0 18px rgba(255, 176, 0, .20);
+            opacity: var(--opacity);
+            animation: techFall var(--duration) linear infinite;
+            animation-delay: var(--delay);
+            transform: translateY(-120px) rotate(var(--rotate));
+            user-select: none;
+            filter: blur(.1px);
+        }
+
+        @keyframes techFall {
+            0% {
+                transform: translateY(-120px) rotate(var(--rotate));
+                opacity: 0;
+            }
+
+            12% {
+                opacity: var(--opacity);
+            }
+
+            100% {
+                transform: translateY(calc(100vh + 140px)) rotate(calc(var(--rotate) + 70deg));
+                opacity: 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .tech-rain span {
+                animation: none;
+                opacity: .10;
+            }
+        }
+
+
+        .container {
+            width: min(1060px, 100%);
+            min-height: 640px;
+            display: grid;
+            grid-template-columns: 1.08fr .92fr;
+            background: rgba(255, 255, 255, .56);
+            border: 1px solid rgba(255, 255, 255, .66);
+            border-radius: 42px;
+            overflow: hidden;
+            box-shadow:
+                0 42px 110px rgba(133, 78, 9, .28),
+                0 0 0 10px rgba(255, 255, 255, .22),
+                inset 0 0 0 1px rgba(255, 255, 255, .75);
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(18px);
+            animation: pageIn .8s ease both;
+        }
+
+        @keyframes pageIn {
+            from {
+                opacity: 0;
+                transform: translateY(22px) scale(.985);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            inset: 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 211, 106, .28);
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        .left-panel {
+            color: white;
+            padding: clamp(34px, 5vw, 66px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 20% 15%, rgba(255, 255, 255, .38), transparent 22%),
+                radial-gradient(circle at 85% 18%, rgba(255, 229, 147, .55), transparent 20%),
+                radial-gradient(circle at 50% 110%, rgba(88, 43, 0, .22), transparent 38%),
+                linear-gradient(145deg, #ff7a00 0%, #ffac00 48%, #ffd36a 100%);
+        }
+
+        .left-panel::before {
+            content: "";
+            position: absolute;
+            inset: -30%;
+            background:
+                linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, .16) 45%, transparent 55%),
+                repeating-linear-gradient(90deg, rgba(255, 255, 255, .08) 0 1px, transparent 1px 38px);
+            transform: rotate(-8deg);
+            animation: lightMove 8s ease-in-out infinite;
+        }
+
+        .left-panel::after {
+            content: "";
+            position: absolute;
+            width: 520px;
+            height: 520px;
+            border: 1px solid rgba(255, 255, 255, .20);
+            border-radius: 50%;
+            bottom: -260px;
+            right: -220px;
+            box-shadow:
+                0 0 0 38px rgba(255, 255, 255, .055),
+                0 0 0 82px rgba(255, 255, 255, .035);
+        }
+
+        @keyframes lightMove {
+
+            0%,
+            100% {
+                transform: translateX(-40px) rotate(-8deg);
+            }
+
+            50% {
+                transform: translateX(40px) rotate(-8deg);
+            }
+        }
+
+        .brand-badge {
+            position: relative;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            margin-bottom: 22px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .22);
+            border: 1px solid rgba(255, 255, 255, .36);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .10);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .5px;
+            backdrop-filter: blur(12px);
+        }
+
+        .teacher-frame {
+            width: clamp(178px, 25vw, 250px);
+            height: clamp(178px, 25vw, 250px);
+            border-radius: 50%;
+            padding: 10px;
+            background: transparent;
+            box-shadow:
+                0 0 35px rgba(255, 255, 255, .8),
+                0 0 55px rgba(255, 138, 0, .45),
+                0 24px 58px rgba(75, 35, 0, .32);
+            margin-bottom: 28px;
+            animation: avatarFloat 4.2s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        .teacher-frame::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: conic-gradient(#ff0000, #ff8a00, #ffee00, #00ff88, #00d9ff, #356bff, #9b5cff, #ff4dcd, #ff0000);
+            animation: rainbowSpin 3.5s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rainbowSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes avatarFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-9px);
+            }
+        }
+
+        .teacher-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 7px solid white;
+            background: white;
+            display: block;
+        }
+
+        .brand-title {
+            position: relative;
+            z-index: 2;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .brand-title .start {
+            display: inline-block;
+            margin-bottom: 14px;
+            font-size: clamp(14px, 2vw, 16px);
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: #ff7a00;
+            background: #ffffff;
+            padding: 6px 22px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-title .classroom {
+            display: block;
+            font-size: clamp(32px, 4.5vw, 46px);
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            color: #ffe7e7;
+            text-shadow:
+                0 0 10px rgba(255, 255, 255, .55),
+                0 0 22px rgba(255, 255, 255, .25),
+                0 3px 6px rgba(90, 40, 0, .55),
+                0 12px 28px rgba(90, 40, 0, .45);
+            -webkit-text-stroke: 1px rgba(120, 55, 0, .35);
+        }
+
+        .tagline {
+            position: relative;
+            z-index: 2;
+            max-width: 440px;
+            font-size: clamp(15px, 1.8vw, 18px);
+            line-height: 1.6;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 4px 12px rgba(74, 31, 0, 0.3);
+            margin-bottom: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .school-pill {
+            position: relative;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 24px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            color: #ffe8e8;
+            box-shadow:
+                0 12px 26px rgba(0, 0, 0, .08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .right-panel {
+            padding: clamp(34px, 5vw, 60px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            background:
+                radial-gradient(circle at 80% 10%, rgba(255, 213, 106, .24), transparent 34%),
+                rgba(255, 255, 255, .86);
+            backdrop-filter: blur(18px);
+        }
+
+        .right-panel::before {
+            content: "";
+            position: absolute;
+            top: 24px;
+            left: 52px;
+            right: 52px;
+            height: 5px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #ff7a00, #ffb000, #ffd36a, #ff7a00);
+            box-shadow: 0 0 24px rgba(255, 176, 0, .55);
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 2;
+            padding: 8px;
+            animation: formIn .9s ease .12s both;
+        }
+
+        @keyframes formIn {
+            from {
+                opacity: 0;
+                transform: translateX(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .welcome small {
+            display: inline-flex;
+            padding: 5px 14px;
+            border-radius: 999px;
+            background: #fff2d8;
+            color: #a8550d;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            box-shadow: inset 0 0 0 1px rgba(255, 138, 0, .16);
+        }
+
+        .login-title {
+            font-size: clamp(34px, 4vw, 40px);
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #2d1b0b 0%, #ff7a00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome p {
+            margin-top: 10px;
+            color: #7b5a30;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 9px;
+            color: #5c4122;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .field-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            color: #bf5b00;
+            background: #fff9ec;
+            pointer-events: none;
+        }
+
+        .field-icon svg,
+        .eye-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2.15;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 17px 56px 17px 62px;
+            border: 2px solid rgba(255, 188, 36, .42);
+            border-radius: 21px;
+            outline: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: .25s;
+            background: rgba(255, 255, 255, .86);
+            color: var(--deep);
+            box-shadow:
+                0 10px 24px rgba(255, 138, 0, .08),
+                inset 0 1px 0 rgba(255, 255, 255, .85);
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #ff8a00;
+            background: #fff;
+            box-shadow:
+                0 0 0 6px rgba(255, 138, 0, .13),
+                0 18px 36px rgba(255, 138, 0, .15);
+            transform: translateY(-1px);
+        }
+
+        .eye-btn {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 50%;
+            background: #fff0d1;
+            color: #a8550d;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: .2s;
+            box-shadow: inset 0 0 0 1px rgba(255, 138, 0, .12);
+        }
+
+        .eye-btn:hover {
+            background: #ffe3a6;
+            color: #ff7a00;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .eye-off {
+            display: none;
+        }
+
+        .eye-btn.showing .eye-on {
+            display: none;
+        }
+
+        .eye-btn.showing .eye-off {
+            display: block;
+        }
+
+        .options {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 8px 0 26px;
+            font-size: 14px;
+            color: #6f5030;
+        }
+
+        .options label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            line-height: 1;
+            font-weight: 600;
+        }
+
+        .options input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 7px;
+            border: 2px solid #ffb000;
+            background: white;
+            flex: 0 0 auto;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .options input[type="checkbox"]:checked {
+            background: linear-gradient(135deg, #ff7a00, #ffbc24);
+            border-color: #ff8a00;
+            box-shadow: 0 5px 14px rgba(255, 138, 0, .28);
+        }
+
+        .options input[type="checkbox"]:checked::after {
+            content: "✓";
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 23px;
+            background: linear-gradient(135deg, #ff7a00, #ffb000 55%, #ffd36a);
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-shadow: 0 2px 4px rgba(93, 41, 0, 0.4);
+            box-shadow:
+                0 15px 35px rgba(255, 138, 0, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .login-btn::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, .4), transparent 80%);
+            transform: translateX(-120%);
+            transition: .6s;
+        }
+
+        .login-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid rgba(255, 255, 255, .35);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: btnSpin .8s linear infinite;
+            display: none;
+        }
+
+        @keyframes btnSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .login-btn.loading .login-spinner {
+            display: block;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 22px 45px rgba(255, 138, 0, 0.45),
+                0 0 0 6px rgba(255, 176, 0, 0.2);
+        }
+
+        .login-btn:hover::before {
+            transform: translateX(120%);
+        }
+
+
+        .login-btn:disabled {
+            cursor: wait;
+            pointer-events: none;
+            opacity: .92;
+            filter: brightness(.9);
+        }
+
+
+        .login-btn:disabled:hover {
+            transform: none;
+            box-shadow:
+                0 10px 25px rgba(255, 138, 0, .35),
+                inset 0 1px 0 rgba(255, 255, 255, .25);
+        }
+
+        .login-btn:disabled::before {
+            display: none;
+        }
+
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            max-width: min(380px, calc(100vw - 32px));
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px 18px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, .94);
+            border: 1px solid rgba(255, 255, 255, .76);
+            box-shadow:
+                0 20px 50px rgba(70, 38, 0, .22),
+                inset 0 1px 0 rgba(255, 255, 255, .85);
+            backdrop-filter: blur(16px);
+            color: #3a2612;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.55;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-14px) scale(.98);
+            transition: .28s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .toast-icon {
+            width: 34px;
+            height: 34px;
+            flex: 0 0 34px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff7a00, #ffb000);
+            box-shadow: 0 8px 18px rgba(255, 138, 0, .28);
+        }
+
+        .toast.error .toast-icon {
+            background: linear-gradient(135deg, #e03131, #ff6b6b);
+            box-shadow: 0 8px 18px rgba(224, 49, 49, .22);
+        }
+
+        .toast.success .toast-icon {
+            background: linear-gradient(135deg, #2f9e44, #69db7c);
+            box-shadow: 0 8px 18px rgba(47, 158, 68, .22);
+        }
+
+        .toast-title {
+            font-size: 14px;
+            font-weight: 900;
+            margin-bottom: 2px;
+            color: #2d1b0b;
+        }
+
+        .toast-message {
+            color: #6b4a25;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .toast {
+                top: 14px;
+                right: 14px;
+                left: 14px;
+                max-width: none;
+            }
+        }
+
+        .mini-note {
+            margin-top: 20px;
+            text-align: center;
+            color: #8a6a40;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                align-items: flex-start;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+                min-height: auto;
+                border-radius: 32px;
+            }
+
+            .left-panel {
+                min-height: 440px;
+                padding-top: 52px;
+                padding-bottom: 52px;
+            }
+
+            .right-panel {
+                padding: 44px 30px 36px;
+            }
+
+            .right-panel::before {
+                left: 34px;
+                right: 34px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 13px;
+            }
+
+            .container {
+                border-radius: 26px;
+            }
+
+            .left-panel {
+                min-height: 390px;
+            }
+
+            .brand-title .classroom {
+                font-size: 26px;
+            }
+
+            .right-panel {
+                padding: 38px 20px 28px;
+            }
+
+            input[type="text"],
+            input[type="password"],
+            .login-btn {
+                font-size: 15px;
+            }
+
+            input[type="text"],
+            input[type="password"] {
+                padding-left: 58px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="tech-rain" aria-hidden="true">
+        <span style="--x:6%;--size:34px;--duration:13s;--delay:0s;--opacity:.68;--rotate:-12deg;">&lt;/&gt;</span>
+        <span style="--x:14%;--size:22px;--duration:16s;--delay:-5s;--opacity:.54;--rotate:10deg;">Dev</span>
+        <span style="--x:22%;--size:30px;--duration:18s;--delay:-9s;--opacity:.52;--rotate:-20deg;">{ }</span>
+        <.span style="--x:31%;--size:24px;--duration:14s;--delay:-3s;--opacity:.55;--rotate:16deg;">C+</span>
+        <span style="--x:40%;--size:28px;--duration:17s;--delay:-11s;--opacity:.50;--rotate:-8deg;">JS</span>
+        <span style="--x:49%;--size:24px;--duration:15s;--delay:-7s;--opacity:.54;--rotate:12deg;">Database</span>
+        <span style="--x:58%;--size:30px;--duration:19s;--delay:-14s;--opacity:.50;--rotate:-16deg;">🖥️</span>
+        <span style="--x:66%;--size:25px;--duration:16s;--delay:-2s;--opacity:.53;--rotate:18deg;">Canva</span>
+        <span style="--x:75%;--size:31px;--duration:18s;--delay:-8s;--opacity:.54;--rotate:-10deg;">🛒</span>
+        <span style="--x:84%;--size:29px;--duration:14s;--delay:-4s;--opacity:.54;--rotate:14deg;">📘</span>
+        <span style="--x:92%;--size:32px;--duration:20s;--delay:-12s;--opacity:.52;--rotate:-18deg;">COMPUTER</span>
+        <span style="--x:3%;--size:25px;--duration:21s;--delay:-15s;--opacity:.46;--rotate:8deg;">KruVanda</span>
+        <span style="--x:36%;--size:22px;--duration:22s;--delay:-17s;--opacity:.48;--rotate:-6deg;">E-Commerce</span>
+        <span style="--x:70%;--size:24px;--duration:23s;--delay:-19s;--opacity:.47;--rotate:20deg;">E-Book</span>
+    </div>
+
+
+    <main class="container">
+
+        <section class="left-panel">
+            <div class="teacher-frame">
+                <img src="Kruvanda.png" alt="KruVanda">
+            </div>
+
+            <h1 class="brand-title">
+                <span class="start">Start Learning</span>
+                <span class="classroom">ห้องเรียนออนไลน์<br>ครูแวนด้า</span>
+            </h1>
+
+            <p class="tagline">เว็บไซต์เพื่อการเรียนรู้แห่งอนาคต</p>
+            <div class="school-pill">โรงเรียนเทศบาลบูรพาอุบล</div>
+        </section>
+
+        <section class="right-panel">
+            <div class="login-card">
+
+                <div class="welcome">
+                    <small>Welcome Back</small>
+                    <h2 class="login-title">เข้าสู่ระบบ</h2>
+                    <p>กรอกชื่อผู้ใช้และรหัสผ่านเพื่อเข้าสู่ห้องเรียนออนไลน์</p>
+                </div>
+
+                <form onsubmit="login(event)">
+                    <div class="input-group">
+                        <label for="username">ชื่อผู้ใช้</label>
+                        <div class="input-wrap">
+                            <span class="field-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </span>
+                            <input type="text" id="username" placeholder="กรอกชื่อผู้ใช้" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">รหัสผ่าน</label>
+                        <div class="input-wrap">
+                            <span class="field-icon">
+                                <svg viewBox="0 0 24 24">
+                                    <rect x="4" y="11" width="16" height="10" rx="2"></rect>
+                                    <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+                                </svg>
+                            </span>
+                            <input type="password" id="password" placeholder="กรอกรหัสผ่าน" required>
+                            <button type="button" class="eye-btn" id="eyeBtn" onclick="togglePassword()"
+                                aria-label="แสดงหรือซ่อนรหัสผ่าน">
+                                <svg class="eye-on" viewBox="0 0 24 24">
+                                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-off" viewBox="0 0 24 24">
+                                    <path d="M3 3l18 18"></path>
+                                    <path d="M10.6 10.6A3 3 0 0 0 13.4 13.4"></path>
+                                    <path d="M9.9 5.2A10.5 10.5 0 0 1 12 5c6.5 0 10 7 10 7a17.5 17.5 0 0 1-3.1 4">
+                                    </path>
+                                    <path d="M6.1 6.8C3.5 8.6 2 12 2 12s3.5 7 10 7a10.4 10.4 0 0 0 4.1-.8"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="options">
+                        <label>
+                            <input type="checkbox" id="rememberMe">
+                            <span>จดจำฉัน</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        <span class="login-spinner"></span>
+                        <span>เข้าสู่ระบบ</span>
+                    </button>
+                    <p class="mini-note">ห้องเรียนออนไลน์ครูแวนด้า · KruVanda Classroom</p>
+                </form>
+            </div>
+        </section>
+    </main>
+
+
+    <div class="toast" id="toast" role="status" aria-live="polite">
+        <div class="toast-icon" id="toastIcon">!</div>
+        <div>
+            <div class="toast-title" id="toastTitle">แจ้งเตือน</div>
+            <div class="toast-message" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener("load", function () {
+            const savedUser = localStorage.getItem("username");
+            const savedPassword = localStorage.getItem("password");
+            const remember = localStorage.getItem("rememberMe");
+
+            if (remember === "true") {
+                document.getElementById("username").value = savedUser || "";
+                document.getElementById("password").value = savedPassword || "";
+                document.getElementById("rememberMe").checked = true;
+            }
+        });
+
+        document.getElementById("rememberMe").addEventListener("change", function () {
+            if (!this.checked) {
+                localStorage.removeItem("username");
+                localStorage.removeItem("password");
+                localStorage.removeItem("rememberMe");
+            }
+        });
+
+        function togglePassword() {
+            const password = document.getElementById("password");
+            const eyeBtn = document.getElementById("eyeBtn");
+
+            if (password.type === "password") {
+                password.type = "text";
+                eyeBtn.classList.add("showing");
+            } else {
+                password.type = "password";
+                eyeBtn.classList.remove("showing");
+            }
+        }
+
+        let toastTimer;
+
+        function resetLoginButton() {
+            const loginBtn = document.querySelector(".login-btn");
+            if (loginBtn) {
+                loginBtn.disabled = false;
+                loginBtn.classList.remove("loading");
+            }
+        }
+
+        window.addEventListener("pageshow", resetLoginButton);
+
+        function showToast(type, title, message) {
+            const toast = document.getElementById("toast");
+            const toastIcon = document.getElementById("toastIcon");
+            const toastTitle = document.getElementById("toastTitle");
+            const toastMessage = document.getElementById("toastMessage");
+
+            clearTimeout(toastTimer);
+
+            toast.className = "toast " + type;
+            toastIcon.textContent = type === "success" ? "✓" : "!";
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+
+            toast.classList.add("show");
+
+            toastTimer = setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3600);
+        }
+
+        async function login(event) {
+            event.preventDefault();
+
+            const usernameInput = document.getElementById("username").value.trim();
+            const passwordInput = document.getElementById("password").value;
+            const rememberMe = document.getElementById("rememberMe").checked;
+            const loginBtn = document.querySelector(".login-btn");
+
+            loginBtn.disabled = true;
+            loginBtn.classList.add("loading");
+
+            if (rememberMe) {
+                localStorage.setItem("username", usernameInput);
+                localStorage.setItem("password", passwordInput);
+                localStorage.setItem("rememberMe", "true");
+            } else {
+                localStorage.removeItem("username");
+                localStorage.removeItem("password");
+                localStorage.setItem("rememberMe", "false");
+            }
+
+            const gasURL = "https://script.google.com/macros/s/AKfycbwHBaaP7QK1WJibVcotVm0uteHMPZsV8EEGha0forRblA7xGuVqngrcZlZ-As6lGEoHHw/exec";
+
+            try {
+                const response = await fetch(gasURL, {
+                    method: "POST",
+                    mode: "cors",
+                    headers: {
+                        "Content-Type": "text/plain"
+                    },
+                    body: JSON.stringify({
+                        username: usernameInput,
+                        password: passwordInput
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    sessionStorage.setItem("userData", JSON.stringify(result.data));
+
+                    if (result.data.role === "teacher") {
+                        window.location.href = "teacher.html";
+                    } else if (result.data.role === "student") {
+                        window.location.href = "student.html";
+                    } else {
+                        showToast("error", "ไม่สามารถเข้าสู่ระบบ", "บัญชีผู้ใช้ยังไม่ได้รับสิทธิ์เข้าใช้งาน");
+                        resetLoginButton();
+                    }
+                } else {
+                    showToast("error", "เข้าสู่ระบบไม่สำเร็จ", result.message || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+                    loginBtn.disabled = false;
+                    loginBtn.classList.remove("loading");
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                showToast("error", "เกิดข้อผิดพลาดในการเชื่อมต่อ", "โปรดลองใหม่อีกครั้ง");
+                loginBtn.disabled = false;
+                loginBtn.classList.remove("loading");
+            }
+        }
+    </script>
+
+</body>
+
+</html>
