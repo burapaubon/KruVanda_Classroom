@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ห้องเรียนออนไลน์ครูแวนด้า | KruVanda Classroom</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap");
+
+    :root{
+      --orange:#ff7a00;
+      --orange2:#ffad18;
+      --gold:#ffd36a;
+      --cream:#fff7e8;
+      --paper:#fffdfa;
+      --deep:#2d1b0b;
+      --brown:#664119;
+      --muted:#8a6a40;
+      --line:rgba(255,176,0,.22);
+      --glass:rgba(255,255,255,.72);
+      --shadow:0 20px 58px rgba(133,78,9,.13);
+      --soft-shadow:0 10px 26px rgba(133,78,9,.08);
+      --radius:24px;
+    }
+    *{box-sizing:border-box;font-family:"Prompt","Kanit","Segoe UI",sans-serif;}
+    html{scroll-behavior:smooth;}
+    body{
+      margin:0; min-height:100vh; color:var(--deep); overflow-x:hidden;
+      background:
+        radial-gradient(circle at 10% 12%, rgba(255,196,81,.38), transparent 25%),
+        radial-gradient(circle at 92% 76%, rgba(255,122,0,.20), transparent 30%),
+        radial-gradient(circle at 45% 42%, rgba(255,255,255,.92), transparent 38%),
+        linear-gradient(135deg,#fffaf0 0%,#ffe8bd 48%,#fff 100%);
+    }
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background-image:linear-gradient(rgba(255,138,0,.055) 1px, transparent 1px),linear-gradient(90deg,rgba(255,138,0,.055) 1px,transparent 1px);
+      background-size:44px 44px; mask-image:radial-gradient(circle at center, black, transparent 80%);
+    }
+    body::after{
+      content:""; position:fixed; width:560px; height:560px; right:-220px; top:-190px; border-radius:50%; pointer-events:none; z-index:0;
+      background:conic-gradient(from 120deg,rgba(255,122,0,.18),rgba(255,211,106,.28),rgba(255,255,255,.12),rgba(255,122,0,.18));
+      filter:blur(14px); animation:slowSpin 22s linear infinite;
+    }
+    @keyframes slowSpin{to{transform:rotate(360deg)}}
+    .tech-rain{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:1;}
+    .tech-rain span{position:absolute;top:-90px;left:var(--x);font-size:var(--size);font-weight:900;color:rgba(255,122,0,.11);opacity:var(--opacity);animation:techFall var(--duration) linear infinite;animation-delay:var(--delay);transform:translateY(-120px) rotate(var(--rotate));user-select:none;}
+    @keyframes techFall{0%{transform:translateY(-120px) rotate(var(--rotate));opacity:0}12%{opacity:var(--opacity)}100%{transform:translateY(calc(100vh + 150px)) rotate(calc(var(--rotate) + 70deg));opacity:0}}
+
+    .app{position:relative;z-index:2;min-height:100vh;padding:18px;}
+    .wrap{width:min(1480px,100%);margin:0 auto;}
+    .glass{background:var(--glass);border:1px solid rgba(255,255,255,.82);box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.86);backdrop-filter:blur(20px);}
+    .panel{background:radial-gradient(circle at 92% 0%, rgba(255,211,106,.18), transparent 32%), rgba(255,255,255,.84);border:1px solid rgba(255,255,255,.82);box-shadow:var(--soft-shadow), inset 0 1px 0 rgba(255,255,255,.86);border-radius:var(--radius);}
+    .card{background:rgba(255,255,255,.74);border:1px solid var(--line);border-radius:22px;box-shadow:0 8px 22px rgba(133,78,9,.06);}
+    .brand-gradient{background:linear-gradient(135deg,#ff7a00,#ffb000 56%,#ffd36a);color:#fff;text-shadow:0 2px 4px rgba(93,41,0,.30);box-shadow:0 14px 30px rgba(255,138,0,.24), inset 0 1px 0 rgba(255,255,255,.42);}
+    .text-gradient{background:linear-gradient(135deg,#2d1b0b 0%,#ff7a00 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .btn{border:0;border-radius:16px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.18s ease;cursor:pointer;white-space:nowrap;line-height:1;}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-main{background:linear-gradient(135deg,#ff7a00,#ffb000 56%,#ffd36a);color:#fff;box-shadow:0 12px 26px rgba(255,138,0,.24), inset 0 1px 0 rgba(255,255,255,.42);text-shadow:0 2px 4px rgba(93,41,0,.30);}
+    .btn-soft{background:#fff2d8;color:#965100;box-shadow:inset 0 0 0 1px rgba(255,138,0,.14)}
+    .btn-soft:hover{background:#ffe7bd}
+    .btn-dark{background:#2d1b0b;color:#fff;box-shadow:0 10px 22px rgba(45,27,11,.15)}
+    .btn-danger{background:#fff1f1;color:#d63031;box-shadow:inset 0 0 0 1px rgba(214,48,49,.14)}
+    .btn-icon{width:38px;height:38px;padding:0;border-radius:14px;}
+    .input,.select,.textarea{width:100%;border:2px solid rgba(255,188,36,.42);border-radius:16px;outline:none;background:rgba(255,255,255,.90);color:var(--deep);padding:12px 14px;font-weight:700;transition:.18s;box-shadow:0 8px 18px rgba(255,138,0,.04), inset 0 1px 0 rgba(255,255,255,.85);}
+    .textarea{min-height:105px;resize:vertical;line-height:1.65;}
+    .input:focus,.select:focus,.textarea:focus{border-color:#ff8a00;background:#fff;box-shadow:0 0 0 5px rgba(255,138,0,.11),0 12px 26px rgba(255,138,0,.10);}
+    .label{display:block;margin:0 0 7px;color:#5c4122;font-size:13px;font-weight:900;}
+    .pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 11px;border-radius:999px;background:#fff2d8;color:#a8550d;font-size:12px;font-weight:900;box-shadow:inset 0 0 0 1px rgba(255,138,0,.12)}
+    .pill.green{background:#eafaf0;color:#2f9e44;box-shadow:inset 0 0 0 1px rgba(47,158,68,.12)}
+    .pill.red{background:#fff1f1;color:#d63031;box-shadow:inset 0 0 0 1px rgba(214,48,49,.12)}
+    .pill.blue{background:#eef6ff;color:#1971c2;box-shadow:inset 0 0 0 1px rgba(25,113,194,.12)}
+    .pill.gray{background:#f2f2f2;color:#707070;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
+
+    .topbar{min-height:78px;border-radius:30px;padding:12px 14px;display:grid;grid-template-columns:330px minmax(240px,1fr) auto;gap:16px;align-items:center;position:sticky;top:16px;z-index:50;overflow:hidden;}
+    .topbar::before{content:"";position:absolute;left:20px;right:20px;top:0;height:4px;border-radius:999px;background:linear-gradient(90deg,#ff7a00,#ffb000,#ffd36a,#ff7a00);box-shadow:0 0 24px rgba(255,176,0,.55);}
+    .logo{width:50px;height:50px;border-radius:19px;display:grid;place-items:center;font-weight:900;position:relative;font-size:18px;}
+    .logo::before{content:"";position:absolute;inset:-5px;border-radius:24px;background:conic-gradient(#ff0000,#ff8a00,#ffee00,#00ff88,#00d9ff,#356bff,#9b5cff,#ff4dcd,#ff0000);z-index:-1;animation:rainbowSpin 4.8s linear infinite;opacity:.62;}
+    @keyframes rainbowSpin{to{transform:rotate(360deg)}}
+    .avatar{border-radius:50%;object-fit:cover;background:#fff2d8;border:3px solid #fff;box-shadow:0 8px 18px rgba(133,78,9,.12);}
+
+    .layout{margin-top:18px;display:grid;grid-template-columns:238px minmax(0,1fr);gap:18px;align-items:start;}
+    .sidebar{border-radius:30px;padding:12px;position:sticky;top:112px;max-height:calc(100vh - 130px);overflow:auto;scrollbar-width:thin;}
+    .nav-item{width:100%;text-align:left;border-radius:18px;padding:12px;display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:center;color:#67431c;transition:.16s;border:1px solid transparent;}
+    .nav-item:hover{background:rgba(255,245,225,.86);border-color:rgba(255,176,0,.18);}
+    .nav-item.active{background:linear-gradient(135deg,rgba(255,122,0,.16),rgba(255,211,106,.34));border-color:rgba(255,176,0,.32);box-shadow:0 12px 24px rgba(255,138,0,.09), inset 0 1px 0 rgba(255,255,255,.78);}
+    .icon-box{width:38px;height:38px;border-radius:15px;display:grid;place-items:center;background:#fff6e5;color:#bf5b00;box-shadow:inset 0 0 0 1px rgba(255,138,0,.10);font-weight:900;}
+    .main{min-width:0;display:grid;gap:16px;}
+    .hero{position:relative;overflow:hidden;border-radius:30px;padding:24px;background:radial-gradient(circle at 18% 15%, rgba(255,255,255,.34), transparent 22%),radial-gradient(circle at 92% 0%, rgba(255,229,147,.62), transparent 28%),linear-gradient(145deg,#ff7a00 0%,#ffac00 48%,#ffd36a 100%);color:white;box-shadow:0 26px 58px rgba(255,138,0,.22), inset 0 1px 0 rgba(255,255,255,.32);}
+    .hero::before{content:"";position:absolute;inset:-35%;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.15) 45%,transparent 55%),repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 1px,transparent 1px 38px);transform:rotate(-8deg);animation:lightMove 8s ease-in-out infinite;}
+    .hero>*{position:relative;z-index:1;}
+    @keyframes lightMove{0%,100%{transform:translateX(-40px) rotate(-8deg)}50%{transform:translateX(40px) rotate(-8deg)}}
+    .hero-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end;}
+    .stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+    .stat{min-height:104px;border-radius:22px;padding:16px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.78);box-shadow:0 12px 30px rgba(133,78,9,.08);}
+    .workspace-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start;}
+    .right-panel{position:sticky;top:112px;display:grid;gap:12px;}
+    .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:14px;}
+    .list{display:grid;gap:10px;}
+    .item{border-radius:20px;background:rgba(255,255,255,.76);border:1px solid var(--line);padding:13px;box-shadow:0 8px 20px rgba(133,78,9,.055);}
+    .item.active{border-color:rgba(255,122,0,.42);box-shadow:0 10px 28px rgba(255,138,0,.11);background:#fffaf1;}
+    .table-scroll{overflow:auto;}
+    .table{min-width:760px;width:100%;border-collapse:separate;border-spacing:0 9px;}
+    .table th{font-size:12px;color:#815625;text-align:left;padding:0 12px;font-weight:900;}
+    .table td{background:rgba(255,255,255,.74);padding:11px 12px;border-top:1px solid rgba(255,176,0,.12);border-bottom:1px solid rgba(255,176,0,.12);font-weight:700;vertical-align:middle;}
+    .table td:first-child{border-left:1px solid rgba(255,176,0,.12);border-radius:17px 0 0 17px;}
+    .table td:last-child{border-right:1px solid rgba(255,176,0,.12);border-radius:0 17px 17px 0;}
+    .progress{height:9px;border-radius:999px;background:#ffefd0;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,138,0,.08);}
+    .progress span{display:block;height:100%;width:var(--w,0%);border-radius:inherit;background:linear-gradient(90deg,#ff7a00,#ffb000,#ffd36a);box-shadow:0 0 18px rgba(255,138,0,.36);}
+    .step-card{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start;}
+    .empty{border:1px dashed rgba(255,138,0,.28);background:rgba(255,248,234,.68);border-radius:22px;padding:22px;text-align:center;}
+    .hidden-soft{opacity:.55;filter:grayscale(.25);}
+
+    .modal-backdrop{position:fixed;inset:0;background:rgba(45,27,11,.34);backdrop-filter:blur(10px);z-index:90;display:none;align-items:center;justify-content:center;padding:18px;}
+    .modal-backdrop.show{display:flex;animation:fadeIn .16s ease both;}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .modal-card{width:min(860px,100%);max-height:90vh;overflow:auto;border-radius:30px;animation:modalIn .22s ease both;}
+    .modal-small{width:min(520px,100%);}
+    @keyframes modalIn{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .toast{position:fixed;top:24px;right:24px;z-index:999;max-width:min(430px,calc(100vw - 32px));display:flex;align-items:flex-start;gap:12px;padding:15px 18px;border-radius:20px;background:rgba(255,255,255,.94);border:1px solid rgba(255,255,255,.76);box-shadow:0 18px 46px rgba(70,38,0,.20),inset 0 1px 0 rgba(255,255,255,.85);backdrop-filter:blur(16px);font-size:14px;font-weight:700;line-height:1.55;opacity:0;pointer-events:none;transform:translateY(-14px) scale(.98);transition:.24s ease;}
+    .toast.show{opacity:1;transform:translateY(0) scale(1);}
+    .toast-icon{width:34px;height:34px;flex:0 0 34px;border-radius:14px;display:grid;place-items:center;color:#fff;font-size:18px;font-weight:900;background:linear-gradient(135deg,#ff7a00,#ffb000);box-shadow:0 8px 18px rgba(255,138,0,.24);}
+    .toast.success .toast-icon{background:linear-gradient(135deg,#2f9e44,#69db7c)}
+    .toast.error .toast-icon{background:linear-gradient(135deg,#e03131,#ff6b6b)}
+    .wheel-wrap{width:310px;height:310px;border-radius:50%;margin-inline:auto;padding:10px;background:conic-gradient(#ff7a00,#ffb000,#ffd36a,#fff0d1,#ff7a00);box-shadow:0 20px 48px rgba(255,138,0,.22), inset 0 1px 0 rgba(255,255,255,.55);position:relative;}
+    .wheel-wrap::after{content:"";position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:26px solid #2d1b0b;filter:drop-shadow(0 5px 6px rgba(45,27,11,.18));z-index:4;}
+    .wheel{position:relative;width:100%;height:100%;border-radius:50%;background:repeating-conic-gradient(from 0deg,#fff7e8 0 30deg,#ffe7ba 30deg 60deg);border:7px solid white;transition:transform 1.1s cubic-bezier(.17,.67,.18,1.18);box-shadow:inset 0 0 0 1px rgba(255,138,0,.10);overflow:hidden;}
+    .wheel-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:124px;height:124px;border-radius:50%;background:rgba(255,255,255,.92);border:1px solid rgba(255,176,0,.24);display:grid;place-items:center;text-align:center;padding:12px;box-shadow:0 10px 24px rgba(133,78,9,.13);z-index:3;}
+    .wheel-label{position:absolute;left:50%;top:50%;width:128px;transform-origin:0 0;font-size:11px;font-weight:900;color:#6c4318;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .slot-box{height:120px;border-radius:24px;background:#fff7e8;border:1px solid var(--line);display:grid;place-items:center;text-align:center;font-size:26px;font-weight:900;box-shadow:inset 0 0 0 1px rgba(255,255,255,.75);}
+
+    @media(max-width:1200px){.workspace-grid{grid-template-columns:1fr}.right-panel{position:relative;top:0;grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{grid-template-columns:300px 1fr auto}.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:900px){.app{padding:10px}.topbar{grid-template-columns:1fr auto;top:10px;border-radius:24px}.top-search{grid-column:1/-1;order:3}.layout{grid-template-columns:1fr}.sidebar{position:relative;top:0;max-height:none}.nav-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.hero-grid{grid-template-columns:1fr}.right-panel{grid-template-columns:1fr}.section-head{align-items:flex-start;flex-direction:column}.stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:620px){.brand-sub{display:none}.nav-list{grid-template-columns:1fr}.stat-grid{grid-template-columns:1fr}.hero{padding:20px}.wheel-wrap{width:245px;height:245px}.wheel-label{width:96px;font-size:10px}.modal-card{border-radius:24px}.table{min-width:700px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <div class="tech-rain" aria-hidden="true">
+    <span style="--x:6%;--size:34px;--duration:13s;--delay:0s;--opacity:.50;--rotate:-12deg;">&lt;/&gt;</span>
+    <span style="--x:18%;--size:22px;--duration:16s;--delay:-5s;--opacity:.42;--rotate:10deg;">Classroom</span>
+    <span style="--x:31%;--size:30px;--duration:18s;--delay:-9s;--opacity:.42;--rotate:-20deg;">{ }</span>
+    <span style="--x:46%;--size:28px;--duration:17s;--delay:-11s;--opacity:.38;--rotate:-8deg;">Quiz</span>
+    <span style="--x:59%;--size:24px;--duration:15s;--delay:-7s;--opacity:.42;--rotate:12deg;">Database</span>
+    <span style="--x:73%;--size:25px;--duration:16s;--delay:-2s;--opacity:.40;--rotate:18deg;">Canva</span>
+    <span style="--x:88%;--size:32px;--duration:20s;--delay:-12s;--opacity:.40;--rotate:-18deg;">KruVanda</span>
+  </div>
+
+  <div class="app">
+    <div class="wrap">
+      <nav class="topbar glass">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="logo brand-gradient">KV</div>
+          <div class="min-w-0">
+            <h1 class="text-xl font-black leading-tight text-gradient truncate">ห้องเรียนออนไลน์ครูแวนด้า</h1>
+            <p class="brand-sub text-xs font-bold text-[#8a6a40] truncate">KruVanda Classroom · Teacher Control Center</p>
+          </div>
+        </div>
+        <div class="top-search relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#bf5b00]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+          <input id="searchInput" class="input !pl-12 !rounded-[22px]" placeholder="ค้นหา ห้องเรียน รายวิชา หน่วย งาน นักเรียน..." oninput="App.search(this.value)" />
+        </div>
+        <button class="flex items-center gap-3 rounded-[24px] bg-white/75 hover:bg-white transition px-3 py-2 shadow-[inset_0_0_0_1px_rgba(255,138,0,.12)]" onclick="App.openProfile()" title="แก้ไขข้อมูลครู">
+          <img id="teacherAvatar" class="avatar w-12 h-12" alt="รูปโปรไฟล์ครู" />
+          <span class="hidden md:block text-left leading-tight">
+            <b id="teacherName" class="block text-sm text-[#2d1b0b]">ครูแวนด้า</b>
+            <small id="teacherUser" class="text-xs font-bold text-[#8a6a40]">@kruvanda</small>
+          </span>
+        </button>
+      </nav>
+
+      <div class="layout">
+        <aside class="sidebar glass">
+          <div class="px-2 pb-3">
+            <p class="pill mb-2">เมนูหลัก</p>
+            <h2 class="text-2xl font-black text-gradient leading-tight">Control</h2>
+          </div>
+          <div id="mainNav" class="nav-list grid gap-2"></div>
+        </aside>
+
+        <main class="main">
+          <section id="hero" class="hero"></section>
+          <section id="stats" class="stat-grid"></section>
+          <section class="workspace-grid">
+            <div id="content"></div>
+            <aside id="rightPanel" class="right-panel"></aside>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal-backdrop" onclick="App.closeOnBackdrop(event,'modal')">
+    <div class="modal-card glass p-5">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div><p id="modalKicker" class="pill mb-2">Modal</p><h2 id="modalTitle" class="text-2xl font-black text-gradient">Title</h2><p id="modalSub" class="text-sm font-semibold text-[#7b5a30] mt-1"></p></div>
+        <button class="btn btn-soft px-4 py-2" onclick="App.closeModal('modal')">ปิด</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal-backdrop" onclick="App.closeOnBackdrop(event,'confirmModal')">
+    <div class="modal-card modal-small glass p-5">
+      <p class="pill red mb-3">ยืนยันก่อนทำรายการ</p>
+      <h2 id="confirmTitle" class="text-2xl font-black text-gradient mb-2">ยืนยัน</h2>
+      <p id="confirmMessage" class="text-sm font-semibold text-[#6f5030] leading-6"></p>
+      <div class="flex justify-end gap-2 mt-5">
+        <button class="btn btn-soft px-5 py-3" onclick="App.closeModal('confirmModal')">ยกเลิก</button>
+        <button id="confirmOk" class="btn btn-danger px-5 py-3">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <div id="toastIcon" class="toast-icon">✓</div>
+    <div><div id="toastTitle" class="font-black text-[#2d1b0b]">แจ้งเตือน</div><div id="toastText" class="text-[#6b4a25]"></div></div>
+  </div>
+
+<script>
+/*
+  KruVanda Classroom Prototype
+  --------------------------------------------------------------------
+  เฟสนี้ยังไม่ต่อฐานข้อมูลจริง: LocalStorage ทำหน้าที่เป็นฐานข้อมูลจำลอง
+  Data model แยกชัดเจนเพื่อย้ายไป Google Sheets/AppScript ภายหลัง:
+  - classrooms: ห้องเรียน/ปีการศึกษา/นักเรียน
+  - subjects: รายวิชา/ห้องที่เข้าเรียน/หน่วยการเรียนรู้/สื่อ/ใบงาน/แบบทดสอบ
+  - submissions: งานที่นักเรียนส่ง คะแนน ไฟล์แนบ Preview
+  จุดต่อ API ในอนาคต: แทน App.load() และ App.save() ด้วย fetch ไปยัง AppScript/SheetDB
+*/
+const App = (() => {
+  const STORAGE_KEY = "kruvanda_classroom_v3";
+  const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop stop-color='%23f3f3f3'/%3E%3Cstop offset='1' stop-color='%23d8d8d8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='160' height='160' rx='80' fill='url(%23g)'/%3E%3Ccircle cx='80' cy='62' r='28' fill='%23a8a8a8'/%3E%3Cpath d='M32 135c7-30 27-46 48-46s41 16 48 46' fill='%23b6b6b6'/%3E%3C/svg%3E";
+  const $ = id => document.getElementById(id);
+  const nav = [
+    {id:"overview", label:"ภาพรวม", icon:"⌂", hint:"เริ่มต้นระบบ"},
+    {id:"classes", label:"ห้องเรียน / รหัสนักเรียน", icon:"👥", hint:"สร้างห้องและบัญชี"},
+    {id:"subjects", label:"รายวิชา / ห้องที่เรียน", icon:"📚", hint:"แอดทั้งห้องเข้าเรียน"},
+    {id:"units", label:"หน่วย / สื่อ / งาน / Quiz", icon:"▦", hint:"จัดบทเรียน"},
+    {id:"grading", label:"ตรวจงาน", icon:"✓", hint:"คะแนนและไฟล์ส่ง"},
+    {id:"tools", label:"เครื่องมือสอน", icon:"🎲", hint:"สุ่มชื่อ / จัดกลุ่ม"}
+  ];
+  let state = load();
+  let view = state.ui.view || "overview";
+  let selectedClassroomId = state.ui.selectedClassroomId || state.classrooms[0]?.id || null;
+  let selectedSubjectId = state.ui.selectedSubjectId || state.subjects[0]?.id || null;
+  let selectedUnitId = state.ui.selectedUnitId || state.subjects[0]?.units[0]?.id || null;
+  let searchText = "";
+  let confirmCallback = null;
+  let toastTimer = null;
+  let wheelRotation = 0;
+  let slotTimer = null;
+
+  function uid(prefix="id"){ return prefix + "_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-4); }
+  function today(){ return new Date().toISOString().slice(0,10); }
+  function nextDate(days){ const d = new Date(); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+  function esc(v=""){ return String(v ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
+  function load(){
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved){ try { return JSON.parse(saved); } catch(e){ console.warn(e); } }
+    return seed();
+  }
+  function save(){
+    state.ui = {view, selectedClassroomId, selectedSubjectId, selectedUnitId};
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+  function seed(){
+    const c1=uid("class"), c2=uid("class"), c3=uid("class");
+    const s1=uid("stu"), s2=uid("stu"), s3=uid("stu"), s4=uid("stu"), s5=uid("stu"), s6=uid("stu");
+    const sub1=uid("sub"), sub2=uid("sub");
+    const u1=uid("unit"), u2=uid("unit"), u3=uid("unit");
+    const w1=uid("work"), q1=uid("quiz"), w2=uid("work");
+    return {
+      teacher:{fullName:"ครูแวนด้า ปารวงค์", username:"kruvanda", password:"teacher@2569", avatarUrl:""},
+      classrooms:[
+        {id:c1, name:"ม.2/1", year:"2569", adviser:"ครูแวนด้า", hidden:false, students:[
+          {id:s1,no:1,firstName:"กมลชนก",lastName:"ใจดี",username:"std690201",password:"std@2569",avatarUrl:"",hidden:false},
+          {id:s2,no:2,firstName:"ธนกฤต",lastName:"ตั้งใจ",username:"std690202",password:"std@2569",avatarUrl:"",hidden:false},
+          {id:s3,no:3,firstName:"ปภาวดี",lastName:"เรียนรู้",username:"std690203",password:"std@2569",avatarUrl:"",hidden:false},
+          {id:s4,no:4,firstName:"ณัฐวุฒิ",lastName:"สร้างสรรค์",username:"std690204",password:"std@2569",avatarUrl:"",hidden:false}
+        ], pickerHistory:[]},
+        {id:c2, name:"ม.6/1", year:"2569", adviser:"ครูแวนด้า", hidden:false, students:[
+          {id:s5,no:1,firstName:"อชิรญา",lastName:"ดิจิทัล",username:"std690601",password:"std@2569",avatarUrl:"",hidden:false},
+          {id:s6,no:2,firstName:"ภาคิน",lastName:"โค้ดดิ้ง",username:"std690602",password:"std@2569",avatarUrl:"",hidden:false}
+        ], pickerHistory:[]},
+        {id:c3, name:"ปวช.2", year:"2569", adviser:"ครูแวนด้า", hidden:true, students:[], pickerHistory:[]}
+      ],
+      subjects:[
+        {id:sub1,name:"การออกแบบสื่อดิจิทัล",code:"ว22201",year:"2569",hidden:false,enrolledClassroomIds:[c1],units:[
+          {id:u1,title:"หน่วยที่ 1",topic:"พื้นฐานการออกแบบด้วย Canva",order:1,materials:[{id:uid("mat"),title:"ใบความรู้: หลักการจัดวางภาพและข้อความ",type:"link",url:"https://drive.google.com/",fileName:"",hidden:false}],worksheets:[{id:w1,title:"ใบงาน Canva Poster",mode:"link",url:"https://drive.google.com/",dueDate:nextDate(4),totalScore:10,latePenalty:1,hidden:false,submissions:{[s1]:{status:"submitted",submittedAt:today(),score:10,fileName:"poster-kamonchanok.png",fileUrl:""},[s2]:{status:"submitted",submittedAt:today(),score:9,fileName:"poster-thanakrit.pdf",fileUrl:""},[s3]:{status:"pending",submittedAt:"",score:0,fileName:"",fileUrl:""}}}],quizzes:[{id:q1,title:"Quiz เกม: องค์ประกอบงานกราฟิก",gameMode:"adventure",dueDate:nextDate(2),hidden:false,questions:[{id:uid("q"),text:"ข้อใดคือหลักสำคัญของโปสเตอร์ที่ดี",score:2,choices:["สื่อสารชัดเจน","ใส่ทุกอย่างให้แน่น","ใช้สีมากที่สุด","ไม่ต้องสนใจกลุ่มเป้าหมาย"],answerIndex:0},{id:uid("q"),text:"การใช้สีควรคำนึงถึงอะไร",score:2,choices:["อารมณ์และความหมาย","ความชอบส่วนตัวเท่านั้น","สุ่มสี","ใช้สีสะท้อนแสงทั้งหมด"],answerIndex:0}],submissions:{[s1]:{status:"submitted",submittedAt:today(),score:4,fileName:"",fileUrl:""},[s2]:{status:"pending",submittedAt:"",score:0,fileName:"",fileUrl:""}}}]},
+          {id:u2,title:"หน่วยที่ 2",topic:"ออกแบบสื่อประชาสัมพันธ์",order:2,materials:[],worksheets:[],quizzes:[]}
+        ]},
+        {id:sub2,name:"วิทยาการคำนวณและ AI",code:"ว30291",year:"2569",hidden:false,enrolledClassroomIds:[c2],units:[
+          {id:u3,title:"หน่วยที่ 1",topic:"Prompt Engineering เบื้องต้น",order:1,materials:[],worksheets:[{id:w2,title:"Mini Project: Prompt ช่วยเรียน",mode:"file",url:"",dueDate:nextDate(7),totalScore:15,latePenalty:1,hidden:false,submissions:{[s5]:{status:"pending",submittedAt:"",score:0,fileName:"",fileUrl:""},[s6]:{status:"submitted",submittedAt:today(),score:15,fileName:"prompt-project.pdf",fileUrl:""}}}],quizzes:[]}
+        ]}
+      ],
+      ui:{view:"overview",selectedClassroomId:c1,selectedSubjectId:sub1,selectedUnitId:u1}
+    };
+  }
+
+  function render(){
+    updateProfile(); renderNav(); renderHero(); renderStats(); renderContent(); renderRightPanel(); save();
+  }
+  function updateProfile(){
+    $("teacherName").textContent = state.teacher.fullName || "ครูผู้สอน";
+    $("teacherUser").textContent = "@" + (state.teacher.username || "teacher");
+    $("teacherAvatar").src = imgUrl(state.teacher.avatarUrl) || DEFAULT_AVATAR;
+  }
+  function renderNav(){
+    $("mainNav").innerHTML = nav.map(n => `<button class="nav-item ${view===n.id?'active':''}" onclick="App.setView('${n.id}')"><span class="icon-box">${n.icon}</span><span><b class="block text-sm">${n.label}</b><small class="block text-xs font-bold text-[#8a6a40]">${n.hint}</small></span></button>`).join("");
+  }
+  function renderHero(){
+    const subject = getSubject(); const classroom = getClassroom();
+    const title = view === "classes" ? "จัดการห้องเรียนและรหัสนักเรียน" : view === "subjects" ? "จัดรายวิชาและแอดทั้งห้องเข้าเรียน" : view === "units" ? "หน่วยการเรียนรู้ สื่อ ใบงาน และแบบทดสอบ" : view === "grading" ? "ตรวจงานและให้คะแนน" : view === "tools" ? "เครื่องมือสอนระหว่างคาบ" : "KruVanda Classroom";
+    const detail = view === "classes" ? "สร้างห้องเรียนตามปีการศึกษา แล้วสร้างบัญชีนักเรียนเป็นห้อง ๆ" : view === "subjects" ? "หนึ่งรายวิชาแอดได้หลายห้องเรียน พอจบปีซ่อน/ย้าย/เปิดรายวิชาใหม่ได้" : view === "units" ? "ในแต่ละรายวิชาแบ่งเป็นหน่วย เพิ่มใบความรู้ ใบงาน และ Quiz ได้ชัดเจน" : view === "grading" ? "ดูงานที่ส่งแล้ว ค้างส่ง คะแนน และไฟล์แนบแบบ Preview-ready" : view === "tools" ? "สุ่มรายชื่อ วงล้อมีชื่อในวง สุ่มบัตร สุ่มสล็อต และจัดกลุ่มแบบจำนวนเต็ม" : "ลำดับงานจริง: ห้องเรียน → นักเรียน → รายวิชา → แอดห้อง → หน่วย → งาน → ตรวจ";
+    $("hero").innerHTML = `<div class="hero-grid"><div><p class="inline-flex px-4 py-2 rounded-full bg-white/25 border border-white/35 text-sm font-black backdrop-blur mb-4">ห้องเรียนออนไลน์ครูแวนด้า · KruVanda Classroom</p><h2 class="text-3xl md:text-5xl font-black leading-tight drop-shadow-lg">${title}</h2><p class="mt-3 text-white/90 font-semibold text-lg">${detail}</p></div><div class="flex flex-wrap gap-2 justify-start md:justify-end"><button class="btn btn-dark px-4 py-3" onclick="App.openProfile()">โปรไฟล์ครู</button><button class="btn btn-soft px-4 py-3" onclick="App.exportData()">Export JSON</button></div></div>`;
+  }
+  function renderStats(){
+    const totalStudents = state.classrooms.flatMap(c=>c.students.filter(s=>!s.hidden)).length;
+    const enrolled = state.subjects.reduce((sum,s)=>sum+s.enrolledClassroomIds.length,0);
+    const units = state.subjects.reduce((sum,s)=>sum+s.units.length,0);
+    const pending = getAllWorkItems().reduce((sum,item)=>sum+countPending(item),0);
+    $("stats").innerHTML = stat("ห้องเรียน", state.classrooms.filter(c=>!c.hidden).length, "ห้องที่เปิดใช้งาน", "blue") + stat("นักเรียน", totalStudents, "บัญชีที่แสดง", "green") + stat("รายวิชา", state.subjects.filter(s=>!s.hidden).length, `${enrolled} ห้องเข้าเรียน`, "blue") + stat("ค้างส่ง", pending, "รายการที่ต้องตาม", pending?"red":"green");
+  }
+  function stat(label,value,caption,color){return `<div class="stat"><div class="flex items-center justify-between gap-3"><span class="pill ${color}">${label}</span><span class="icon-box">▦</span></div><b class="block text-4xl font-black text-gradient mt-3">${value}</b><p class="text-sm font-bold text-[#8a6a40] mt-1">${caption}</p></div>`;}
+  function renderContent(){
+    const map = {overview: viewOverview, classes:viewClasses, subjects:viewSubjects, units:viewUnits, grading:viewGrading, tools:viewTools};
+    $("content").innerHTML = (map[view] || viewOverview)();
+  }
+  function renderRightPanel(){
+    const subject = getSubject(); const classroom = getClassroom();
+    $("rightPanel").innerHTML = `
+      <div class="panel p-4"><p class="pill mb-3">Quick Action</p><div class="grid gap-2"><button class="btn btn-main px-4 py-3" onclick="App.openClassroomModal()">+ สร้างห้องเรียน</button><button class="btn btn-soft px-4 py-3" onclick="App.openStudentModal()">+ สร้างรหัสนักเรียน</button><button class="btn btn-soft px-4 py-3" onclick="App.openSubjectModal()">+ เพิ่มรายวิชา</button><button class="btn btn-dark px-4 py-3" onclick="App.setView('units')">จัดหน่วยการเรียนรู้</button></div></div>
+      <div class="panel p-4"><p class="pill blue mb-3">สิ่งที่เลือกอยู่</p><div class="space-y-2 text-sm font-bold text-[#6f5030]"><p>ห้อง: <b class="text-[#2d1b0b]">${esc(classroom?.name || '-')}</b></p><p>ปี: <b class="text-[#2d1b0b]">${esc(classroom?.year || '-')}</b></p><p>วิชา: <b class="text-[#2d1b0b]">${esc(subject?.name || '-')}</b></p></div></div>
+      <div class="panel p-4"><p class="pill red mb-3">โครงสร้างที่ไม่ควรสับสน</p><ol class="list-decimal pl-5 text-sm font-semibold text-[#6f5030] leading-7"><li>ห้องเรียนเก็บนักเรียน</li><li>รายวิชาแอดห้องเข้าเรียน</li><li>งานอยู่ในหน่วยของรายวิชา</li><li>คะแนนผูกกับนักเรียนและงาน</li></ol></div>`;
+  }
+
+  function viewOverview(){
+    return `<section class="panel p-5"><div class="section-head"><div><p class="pill mb-2">Setup Flow</p><h3 class="text-2xl font-black text-gradient">ระบบถูกจัดใหม่ตามการใช้งานจริง</h3><p class="text-sm font-semibold text-[#7b5a30]">ไม่เอาเมนูปนกันแล้ว รอบนี้แยกหน้าที่ให้ชัดก่อนต่อฐานข้อมูลจริง</p></div></div><div class="grid md:grid-cols-2 gap-3">${step(1,"สร้างห้องเรียน","เช่น ม.2/1 ปีการศึกษา 2569 แล้วสร้างรหัสนักเรียนในห้องนี้","classes")}${step(2,"สร้างรายวิชา","เช่น การออกแบบสื่อดิจิทัล รหัส ว22201 ปี 2569","subjects")}${step(3,"แอดทั้งห้องเข้าเรียน","เลือกห้อง ม.2/1, ม.2/2 เข้าเรียนในรายวิชาเดียวกันได้","subjects")}${step(4,"แบ่งหน่วยการเรียนรู้","ในรายวิชาเพิ่มหน่วย บทเรียน ใบความรู้ ใบงาน Quiz","units")}${step(5,"ตรวจงาน","ดูรายชื่อนักเรียน ส่งแล้ว/ค้างส่ง คะแนน และไฟล์แนบ","grading")}${step(6,"ใช้เครื่องมือสอน","วงล้อมีชื่อในวง สุ่มแบบบัตร/สล็อต และจัดกลุ่มจำนวนเต็ม","tools")}</div></section>`;
+  }
+  function step(no,title,desc,target){return `<button class="item step-card text-left hover:scale-[1.005] transition" onclick="App.setView('${target}')"><span class="icon-box brand-gradient">${no}</span><span><b class="block text-lg">${title}</b><small class="block text-sm font-semibold text-[#7b5a30] leading-6">${desc}</small></span></button>`;}
+
+  function viewClasses(){
+    const list = state.classrooms.filter(c => matches(`${c.name} ${c.year}`));
+    return `<section class="panel p-5"><div class="section-head"><div><p class="pill mb-2">Classrooms</p><h3 class="text-2xl font-black text-gradient">ห้องเรียนและบัญชีนักเรียน</h3><p class="text-sm font-semibold text-[#7b5a30]">สร้างห้องตามปีการศึกษา จากนั้นสร้างรหัสนักเรียนในห้องนั้น</p></div><button class="btn btn-main px-5 py-3" onclick="App.openClassroomModal()">+ สร้างห้องเรียน</button></div><div class="grid xl:grid-cols-[330px_1fr] gap-4"><div class="list">${list.length?list.map(c=>classroomCard(c)).join(''):empty('ยังไม่มีห้องเรียน','เริ่มจากสร้างห้องเรียนก่อน')}</div><div>${studentPanel()}</div></div></section>`;
+  }
+  function classroomCard(c){ const active=c.id===selectedClassroomId; return `<button class="item text-left ${active?'active':''} ${c.hidden?'hidden-soft':''}" onclick="App.selectClassroom('${c.id}')"><div class="flex items-start justify-between gap-3"><div><span class="pill ${c.hidden?'gray':'green'} mb-2">${c.hidden?'ซ่อน':'ใช้งาน'}</span><b class="block text-xl">${esc(c.name)}</b><small class="font-bold text-[#8a6a40]">ปีการศึกษา ${esc(c.year)} · ${c.students.length} คน</small></div><span class="icon-box">👥</span></div><div class="flex gap-2 mt-3"><span class="pill blue">${subjectCountForClass(c.id)} วิชา</span><span class="pill">${c.students.filter(s=>!s.hidden).length} แสดง</span></div></button>`;}
+  function studentPanel(){
+    const c = getClassroom(); if(!c) return empty('ยังไม่ได้เลือกห้องเรียน','เลือกหรือสร้างห้องเรียนก่อน');
+    const students = c.students.filter(s=>matches(`${s.firstName} ${s.lastName} ${s.username} ${s.no}`));
+    return `<div class="card p-4"><div class="section-head"><div><p class="pill mb-2">${esc(c.name)} · ${esc(c.year)}</p><h4 class="text-xl font-black text-gradient">บัญชีนักเรียนในห้อง</h4></div><div class="flex flex-wrap gap-2"><button class="btn btn-main px-4 py-3" onclick="App.openStudentModal()">+ รายคน</button><button class="btn btn-soft px-4 py-3" onclick="App.openBulkStudents()">+ แบบกลุ่ม</button><button class="btn btn-soft px-4 py-3" onclick="App.openClassroomModal('${c.id}')">แก้ไขห้อง</button><button class="btn btn-soft px-4 py-3" onclick="App.toggleClassroom('${c.id}')">${c.hidden?'แสดงห้อง':'ซ่อนห้อง'}</button><button class="btn btn-danger px-4 py-3" onclick="App.deleteClassroom('${c.id}')">ลบห้อง</button></div></div>${students.length?studentTable(students):empty('ยังไม่มีนักเรียน','สร้างบัญชีรายคนหรือเพิ่มแบบกลุ่ม')}</div>`;
+  }
+  function studentTable(students){return `<div class="table-scroll"><table class="table"><thead><tr><th>เลขที่</th><th>นักเรียน</th><th>Username</th><th>Password</th><th>สถานะ</th><th class="text-right">จัดการ</th></tr></thead><tbody>${students.map(s=>`<tr class="${s.hidden?'hidden-soft':''}"><td>${s.no||'-'}</td><td><div class="flex items-center gap-3"><img src="${imgUrl(s.avatarUrl)||DEFAULT_AVATAR}" class="avatar w-10 h-10" alt=""><b>${esc(fullName(s))}</b></div></td><td>${esc(s.username)}</td><td>${esc(s.password)}</td><td><span class="pill ${s.hidden?'gray':'green'}">${s.hidden?'ซ่อน':'แสดง'}</span></td><td><div class="flex justify-end gap-2"><button class="btn btn-soft btn-icon" title="แก้ไข" onclick="App.openStudentModal('${s.id}')">✎</button><button class="btn btn-soft btn-icon" title="ซ่อน/แสดง" onclick="App.toggleStudent('${s.id}')">◌</button><button class="btn btn-danger btn-icon" title="ลบ" onclick="App.deleteStudent('${s.id}')">×</button></div></td></tr>`).join('')}</tbody></table></div>`;}
+
+  function viewSubjects(){
+    const list = state.subjects.filter(s=>matches(`${s.name} ${s.code} ${s.year}`));
+    return `<section class="panel p-5"><div class="section-head"><div><p class="pill mb-2">Subjects</p><h3 class="text-2xl font-black text-gradient">รายวิชาและห้องที่เข้าเรียน</h3><p class="text-sm font-semibold text-[#7b5a30]">รายวิชาหนึ่งสามารถแอดหลายห้องเรียนได้ เช่น ม.2/1 และ ม.2/2 เข้าเรียนวิชาเดียวกัน</p></div><button class="btn btn-main px-5 py-3" onclick="App.openSubjectModal()">+ เพิ่มรายวิชา</button></div><div class="grid xl:grid-cols-[360px_1fr] gap-4"><div class="list">${list.length?list.map(subjectCard).join(''):empty('ยังไม่มีรายวิชา','เพิ่มรายวิชาเพื่อแอดห้องเข้าเรียน')}</div><div>${subjectDetail()}</div></div></section>`;
+  }
+  function subjectCard(s){ const active=s.id===selectedSubjectId; return `<button class="item text-left ${active?'active':''} ${s.hidden?'hidden-soft':''}" onclick="App.selectSubject('${s.id}')"><div class="flex items-start justify-between gap-3"><div><span class="pill ${s.hidden?'gray':'green'} mb-2">${s.hidden?'ซ่อน':'ใช้งาน'}</span><b class="block text-xl">${esc(s.name)}</b><small class="font-bold text-[#8a6a40]">${esc(s.code||'ไม่ระบุรหัส')} · ปี ${esc(s.year)}</small></div><span class="icon-box">📚</span></div><div class="flex gap-2 mt-3"><span class="pill blue">${s.enrolledClassroomIds.length} ห้อง</span><span class="pill">${s.units.length} หน่วย</span></div></button>`;}
+  function subjectDetail(){
+    const s=getSubject(); if(!s) return empty('ยังไม่ได้เลือกรายวิชา','เลือกหรือเพิ่มรายวิชาใหม่ก่อน');
+    return `<div class="card p-4"><div class="section-head"><div><p class="pill mb-2">${esc(s.code||'Subject')}</p><h4 class="text-xl font-black text-gradient">${esc(s.name)}</h4><p class="text-sm font-semibold text-[#7b5a30]">เลือกห้องเรียนที่ต้องการแอดเข้ารายวิชานี้</p></div><button class="btn btn-soft px-4 py-3" onclick="App.openSubjectModal('${s.id}')">แก้ไขรายวิชา</button></div><div class="grid md:grid-cols-2 gap-3">${state.classrooms.map(c=>`<label class="item flex items-start gap-3 cursor-pointer"><input type="checkbox" class="mt-1" ${s.enrolledClassroomIds.includes(c.id)?'checked':''} onchange="App.toggleEnroll('${s.id}','${c.id}')"><span><b class="block">${esc(c.name)} · ปี ${esc(c.year)}</b><small class="font-bold text-[#8a6a40]">${c.students.filter(st=>!st.hidden).length} คน · ${c.hidden?'ซ่อนไว้':'ใช้งาน'}</small></span></label>`).join('')}</div><div class="flex flex-wrap gap-2 mt-4"><button class="btn btn-main px-5 py-3" onclick="App.setView('units')">ไปจัดหน่วยการเรียนรู้</button><button class="btn btn-danger px-5 py-3" onclick="App.deleteSubject('${s.id}')">ลบรายวิชา</button></div></div>`;
+  }
+
+  function viewUnits(){
+    const s=getSubject(); if(!s) return `<section class="panel p-5">${empty('ยังไม่มีรายวิชา','เพิ่มรายวิชาก่อน แล้วค่อยสร้างหน่วยการเรียนรู้')}</section>`;
+    if(!selectedUnitId || !s.units.some(u=>u.id===selectedUnitId)) selectedUnitId=s.units[0]?.id || null;
+    const u=getUnit();
+    return `<section class="panel p-5"><div class="section-head"><div><p class="pill mb-2">Learning Units</p><h3 class="text-2xl font-black text-gradient">หน่วยการเรียนรู้ / ใบความรู้ / ใบงาน / แบบทดสอบ</h3><p class="text-sm font-semibold text-[#7b5a30]">แยกเป็นหน่วยก่อน งานจะไม่ปนมั่ว และต่อฐานข้อมูลจริงง่ายขึ้น</p></div><div class="flex flex-wrap gap-2"><select class="select max-w-[260px]" onchange="App.selectSubject(this.value)">${state.subjects.map(sub=>`<option value="${sub.id}" ${sub.id===s.id?'selected':''}>${esc(sub.name)}</option>`).join('')}</select><button class="btn btn-main px-5 py-3" onclick="App.openUnitModal()">+ เพิ่มหน่วย</button></div></div><div class="grid xl:grid-cols-[300px_1fr] gap-4"><div class="list">${s.units.length?s.units.sort((a,b)=>a.order-b.order).map(unitCard).join(''):empty('ยังไม่มีหน่วย','เพิ่มหน่วยการเรียนรู้ก่อน')}</div><div>${u?unitDetail(s,u):empty('ยังไม่ได้เลือกหน่วย','เลือกหน่วยหรือเพิ่มหน่วยใหม่')}</div></div></section>`;
+  }
+  function unitCard(u){return `<button class="item text-left ${u.id===selectedUnitId?'active':''}" onclick="App.selectUnit('${u.id}')"><div class="flex justify-between gap-3"><div><span class="pill mb-2">ลำดับ ${u.order}</span><b class="block text-lg">${esc(u.title)}</b><small class="font-bold text-[#8a6a40]">${esc(u.topic)}</small></div><span class="icon-box">▦</span></div><div class="flex flex-wrap gap-2 mt-3"><span class="pill blue">${u.materials.length} สื่อ</span><span class="pill green">${u.worksheets.length} ใบงาน</span><span class="pill">${u.quizzes.length} Quiz</span></div></button>`;}
+  function unitDetail(s,u){return `<div class="grid gap-4"><div class="card p-4"><div class="section-head"><div><p class="pill mb-2">${esc(u.title)}</p><h4 class="text-xl font-black text-gradient">${esc(u.topic)}</h4></div><div class="flex flex-wrap gap-2"><button class="btn btn-soft px-4 py-3" onclick="App.openUnitModal('${u.id}')">แก้ไขหน่วย</button><button class="btn btn-danger px-4 py-3" onclick="App.deleteUnit('${u.id}')">ลบหน่วย</button></div></div></div>${resourceBlock('materials','ใบความรู้ / สื่อ / วิดีโอ','เพิ่มไฟล์หรือลิงก์จาก Drive, YouTube หรือแหล่งเรียนรู้',u.materials)}${worksheetBlock(u)}${quizBlock(u)}</div>`;}
+  function resourceBlock(type,title,desc,items){return `<div class="card p-4"><div class="section-head"><div><p class="pill blue mb-2">Material</p><h4 class="text-xl font-black text-gradient">${title}</h4><p class="text-sm font-semibold text-[#7b5a30]">${desc}</p></div><button class="btn btn-main px-4 py-3" onclick="App.openMaterialModal()">+ เพิ่มสื่อ</button></div><div class="list">${items.length?items.map(m=>`<div class="item"><div class="flex justify-between gap-3"><div><b class="block">${esc(m.title)}</b><small class="font-bold text-[#8a6a40]">${m.type==='file'?'ไฟล์':'ลิงก์'} ${m.fileName?`· ${esc(m.fileName)}`:''}</small></div><div class="flex gap-2"><button class="btn btn-soft btn-icon" onclick="App.previewResource('${m.url||m.fileData||''}','${m.fileName||m.title}')">👁</button><button class="btn btn-danger btn-icon" onclick="App.deleteMaterial('${m.id}')">×</button></div></div></div>`).join(''):empty('ยังไม่มีสื่อ','เพิ่มใบความรู้หรือวิดีโอในหน่วยนี้')}</div></div>`;}
+  function worksheetBlock(u){return `<div class="card p-4"><div class="section-head"><div><p class="pill green mb-2">Worksheet</p><h4 class="text-xl font-black text-gradient">ใบงาน</h4><p class="text-sm font-semibold text-[#7b5a30]">เลือกได้ทั้งแอดไฟล์ แอดลิงก์ หรือทำใบงานในตัวเว็บ</p></div><button class="btn btn-main px-4 py-3" onclick="App.openWorksheetModal()">+ เพิ่มใบงาน</button></div><div class="list">${u.worksheets.length?u.worksheets.map(w=>workCard(w,'worksheet')).join(''):empty('ยังไม่มีใบงาน','เพิ่มใบงานแรกของหน่วยนี้')}</div></div>`;}
+  function quizBlock(u){return `<div class="card p-4"><div class="section-head"><div><p class="pill mb-2">Quiz Builder</p><h4 class="text-xl font-black text-gradient">แบบทดสอบ / เกมตอบคำถาม</h4><p class="text-sm font-semibold text-[#7b5a30]">สร้างข้อ เลือกจำนวนช้อย คะแนน เลื่อนย้ายข้อ และเลือกแนวเกมได้</p></div><button class="btn btn-main px-4 py-3" onclick="App.openQuizModal()">+ เพิ่ม Quiz</button></div><div class="list">${u.quizzes.length?u.quizzes.map(q=>workCard(q,'quiz')).join(''):empty('ยังไม่มี Quiz','สร้างแบบทดสอบหรือเกมตอบคำถาม')}</div></div>`;}
+  function workCard(item,type){const total= type==='quiz'?sumQuizScore(item):item.totalScore; return `<div class="item"><div class="flex items-start justify-between gap-3"><div><span class="pill ${type==='quiz'?'blue':'green'} mb-2">${type==='quiz'?gameLabel(item.gameMode):'ใบงาน'}</span><b class="block text-lg">${esc(item.title)}</b><small class="font-bold text-[#8a6a40]">กำหนดส่ง ${fmtDate(item.dueDate)} · ${total} คะแนน</small></div><div class="flex gap-2"><button class="btn btn-soft btn-icon" onclick="${type==='quiz'?`App.openQuizModal('${item.id}')`:`App.openWorksheetModal('${item.id}')`}">✎</button><button class="btn btn-dark btn-icon" onclick="App.setView('grading')">✓</button><button class="btn btn-danger btn-icon" onclick="App.deleteWork('${type}','${item.id}')">×</button></div></div></div>`;}
+
+  function viewGrading(){
+    const s=getSubject(); if(!s) return `<section class="panel p-5">${empty('ยังไม่มีรายวิชา','เพิ่มรายวิชาก่อนตรวจงาน')}</section>`;
+    const items = getWorkItemsForSubject(s);
+    return `<section class="panel p-5"><div class="section-head"><div><p class="pill mb-2">Grading</p><h3 class="text-2xl font-black text-gradient">ตรวจงานแบบลิสต์ คล้ายไฟล์ใน Google Drive</h3><p class="text-sm font-semibold text-[#7b5a30]">งานที่แนบไฟล์สามารถกด Preview/เปิดไฟล์ได้ ตอนนี้เป็น Demo พร้อมต่อ Drive จริงภายหลัง</p></div><select class="select max-w-[280px]" onchange="App.selectSubject(this.value)">${state.subjects.map(sub=>`<option value="${sub.id}" ${sub.id===s.id?'selected':''}>${esc(sub.name)}</option>`).join('')}</select></div><div class="list">${items.length?items.map(gradingBlock).join(''):empty('ยังไม่มีงานให้ตรวจ','เพิ่มใบงานหรือ Quiz ในหน่วยการเรียนรู้ก่อน')}</div></section>`;
+  }
+  function gradingBlock(item){
+    const students = getStudentsForSubject(getSubject());
+    const total = item.kind==='quiz'?sumQuizScore(item):item.totalScore;
+    const submitted = students.filter(st=>ensureSub(item,st.id).status==='submitted').length;
+    return `<div class="card p-4"><div class="section-head"><div><p class="pill ${item.kind==='quiz'?'blue':'green'} mb-2">${item.kind==='quiz'?'Quiz':'ใบงาน'} · ${esc(item.unitTitle)}</p><h4 class="text-xl font-black text-gradient">${esc(item.title)}</h4><p class="text-sm font-semibold text-[#7b5a30]">ส่งแล้ว ${submitted}/${students.length} · คะแนนเต็ม ${total}</p></div><span class="pill ${submitted<students.length?'red':'green'}">ค้าง ${students.length-submitted}</span></div><div class="table-scroll"><table class="table"><thead><tr><th>นักเรียน</th><th>ห้อง</th><th>สถานะ</th><th>ไฟล์/Preview</th><th>คะแนน</th><th class="text-right">จัดการ</th></tr></thead><tbody>${students.map(st=>gradeRow(item,st,total)).join('')}</tbody></table></div></div>`;
+  }
+  function gradeRow(item,st,total){const sub=ensureSub(item,st.id);return `<tr><td><div class="flex items-center gap-3"><img src="${imgUrl(st.avatarUrl)||DEFAULT_AVATAR}" class="avatar w-10 h-10" alt=""><div><b>${esc(fullName(st))}</b><small class="block text-xs text-[#8a6a40]">เลขที่ ${st.no||'-'}</small></div></div></td><td>${esc(st.classroomName)}</td><td><span class="pill ${sub.status==='submitted'?'green':'red'}">${sub.status==='submitted'?'ส่งแล้ว':'ค้างส่ง'}</span><small class="block text-xs font-bold text-[#8a6a40] mt-1">${sub.submittedAt?fmtDate(sub.submittedAt):'-'}</small></td><td>${sub.fileName?`<button class="btn btn-soft px-3 py-2 text-sm" onclick="App.previewResource('${sub.fileUrl||''}','${esc(sub.fileName)}')">👁 ${esc(sub.fileName)}</button>`:'<span class="text-xs font-bold text-[#8a6a40]">ยังไม่มีไฟล์</span>'}</td><td><input class="input !w-[92px] text-center" type="number" min="0" max="${total}" value="${sub.score||0}" onchange="App.setScore('${item.kind}','${item.id}','${st.id}',this.value)"></td><td><div class="flex justify-end gap-2"><button class="btn btn-soft btn-icon" onclick="App.adjustScore('${item.kind}','${item.id}','${st.id}',-1)">−</button><button class="btn btn-soft btn-icon" onclick="App.adjustScore('${item.kind}','${item.id}','${st.id}',1)">+</button><button class="btn btn-main px-3 py-2 text-sm" onclick="App.mockSubmit('${item.kind}','${item.id}','${st.id}')">ส่งจำลอง</button></div></td></tr>`;}
+
+  function viewTools(){
+    const c=getClassroom(); const students=(c?.students||[]).filter(s=>!s.hidden);
+    return `<section class="panel p-5"><div class="section-head"><div><p class="pill mb-2">Classroom Tools</p><h3 class="text-2xl font-black text-gradient">เครื่องมือสุ่มระหว่างสอน</h3><p class="text-sm font-semibold text-[#7b5a30]">เลือกห้อง แล้วสุ่มรายชื่อหรือจัดกลุ่มจากนักเรียนห้องนั้น</p></div><select class="select max-w-[240px]" onchange="App.selectClassroom(this.value)">${state.classrooms.map(cl=>`<option value="${cl.id}" ${cl.id===selectedClassroomId?'selected':''}>${esc(cl.name)} · ${esc(cl.year)}</option>`).join('')}</select></div><div class="grid xl:grid-cols-[1fr_.9fr] gap-4"><div class="card p-4"><div class="section-head"><div><p class="pill blue mb-2">Random Picker</p><h4 class="text-xl font-black text-gradient">วงล้อสุ่มรายชื่อ</h4></div><button class="btn btn-soft px-4 py-3" onclick="App.clearPicker()">ล้างประวัติ</button></div><div id="wheelArea">${wheelHtml(students)}</div><div class="flex flex-wrap justify-center gap-2 mt-4"><button class="btn btn-main px-5 py-4" onclick="App.spinWheel()">หมุนวงล้อ</button><button class="btn btn-soft px-5 py-4" onclick="App.randomCard()">สุ่มแบบบัตร</button><button class="btn btn-dark px-5 py-4" onclick="App.slotRandom()">สุ่มสล็อต</button><label class="flex items-center gap-2 font-bold text-[#6f5030] px-3"><input id="noRepeat" type="checkbox" checked> ห้ามซ้ำ</label></div><div id="slotBox" class="slot-box mt-4">พร้อมสุ่ม</div><div class="card p-3 mt-4"><b class="block mb-2">รายชื่อที่สุ่มแล้ว</b><div class="flex flex-wrap gap-2">${(c?.pickerHistory||[]).map(id=>`<span class="pill gray">${esc(shortName(findStudentById(id)))}</span>`).join('') || '<span class="text-sm font-bold text-[#8a6a40]">ยังไม่มีประวัติ</span>'}</div></div></div><div class="card p-4"><p class="pill green mb-2">Group Randomizer</p><h4 class="text-xl font-black text-gradient mb-3">สุ่มจัดกลุ่ม</h4><div class="grid sm:grid-cols-2 gap-3"><div><label class="label">โหมด</label><select id="groupMode" class="select"><option value="groups">กำหนดจำนวนกลุ่ม</option><option value="members">กำหนดจำนวนคนต่อกลุ่ม</option></select></div><div><label class="label">จำนวนเต็มเท่านั้น</label><input id="groupValue" class="input" type="number" min="1" step="1" value="3" oninput="this.value=this.value.replace(/[^0-9]/g,'')"></div></div><button class="btn btn-main w-full px-5 py-4 mt-4" onclick="App.makeGroups()">สุ่มจัดกลุ่ม</button><div id="groupResult" class="grid gap-3 mt-4"></div></div></div></section>`;
+  }
+  function wheelHtml(students){const names=students.slice(0,12);return `<div class="wheel-wrap"><div id="wheel" class="wheel">${names.map((s,i)=>{const deg=i*(360/Math.max(names.length,1));return `<span class="wheel-label" style="transform:rotate(${deg}deg) translate(32px,-50%)">${esc(shortName(s))}</span>`}).join('')}<div class="wheel-center"><div><b id="wheelName" class="block text-lg font-black">พร้อมสุ่ม</b><small class="font-bold text-[#8a6a40]">${students.length} คน</small></div></div></div></div>`;}
+
+  function getClassroom(){return state.classrooms.find(c=>c.id===selectedClassroomId)||state.classrooms[0]||null;}
+  function getSubject(){return state.subjects.find(s=>s.id===selectedSubjectId)||state.subjects[0]||null;}
+  function getUnit(){const s=getSubject();return s?.units.find(u=>u.id===selectedUnitId)||s?.units[0]||null;}
+  function findStudentById(id){for(const c of state.classrooms){const st=c.students.find(s=>s.id===id); if(st) return {...st,classroomName:c.name,classroomId:c.id};} return null;}
+  function fullName(s={}){return `${s.firstName||''} ${s.lastName||''}`.trim() || '-';}
+  function shortName(s){if(!s) return '-'; const name=fullName(s); return name.length>12?name.slice(0,11)+'…':name;}
+  function matches(v){return !searchText.trim() || String(v||'').toLowerCase().includes(searchText.toLowerCase());}
+  function imgUrl(url){if(!url) return ''; const v=String(url).trim(); if(v.startsWith('data:image')) return v; const m=v.match(/drive\.google\.com\/file\/d\/([^/]+)/) || v.match(/[?&]id=([^&]+)/); if(m) return `https://drive.google.com/uc?export=view&id=${m[1]}`; return v;}
+  function fmtDate(d){return d?new Date(d+'T00:00:00').toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'numeric'}):'ไม่กำหนด';}
+  function subjectCountForClass(id){return state.subjects.filter(s=>s.enrolledClassroomIds.includes(id)).length;}
+  function getStudentsForSubject(subject){const out=[]; (subject?.enrolledClassroomIds||[]).forEach(cid=>{const c=state.classrooms.find(x=>x.id===cid); (c?.students||[]).filter(s=>!s.hidden).forEach(s=>out.push({...s,classroomName:c.name,classroomId:c.id}));}); return out;}
+  function getAllWorkItems(){return state.subjects.flatMap(getWorkItemsForSubject);}
+  function getWorkItemsForSubject(subject){return (subject?.units||[]).flatMap(u=>[...u.worksheets.map(w=>({...w,kind:'worksheet',unitTitle:u.title})),...u.quizzes.map(q=>({...q,kind:'quiz',unitTitle:u.title}))]);}
+  function countPending(item){const students = item.enrolledClassroomIds ? getStudentsForSubject(item) : getStudentsForSubject(getSubjectOfWork(item.id)); return students.filter(st=>ensureSub(item,st.id).status!=='submitted').length;}
+  function getSubjectOfWork(id){return state.subjects.find(s=>s.units.some(u=>u.worksheets.some(w=>w.id===id)||u.quizzes.some(q=>q.id===id))) || getSubject();}
+  function ensureSub(item,studentId){item.submissions = item.submissions || {}; if(!item.submissions[studentId]) item.submissions[studentId]={status:'pending',submittedAt:'',score:0,fileName:'',fileUrl:''}; return item.submissions[studentId];}
+  function sumQuizScore(q){return (q.questions||[]).reduce((sum,x)=>sum+Number(x.score||0),0);}
+  function gameLabel(mode){return ({classic:'Quiz ปกติ',adventure:'ผจญภัย',space:'อวกาศ',speed:'แข่งเวลา',boss:'Boss Battle'}[mode]||'Quiz');}
+  function empty(title,desc){return `<div class="empty"><b class="block text-lg">${title}</b><p class="text-sm font-semibold text-[#8a6a40] mt-1">${desc}</p></div>`;}
+
+  function setView(v){view=v; render();}
+  function selectClassroom(id){selectedClassroomId=id; render();}
+  function selectSubject(id){selectedSubjectId=id; const s=getSubject(); selectedUnitId=s?.units[0]?.id||null; render();}
+  function selectUnit(id){selectedUnitId=id; render();}
+  function search(v){searchText=v; render();}
+
+  function openModal(kicker,title,sub,body,small=false){$('modalKicker').textContent=kicker;$('modalTitle').textContent=title;$('modalSub').textContent=sub||'';$('modalBody').innerHTML=body;document.querySelector('#modal .modal-card').classList.toggle('modal-small',small);$('modal').classList.add('show');}
+  function closeModal(id){$(id).classList.remove('show');}
+  function closeOnBackdrop(e,id){if(e.target.id===id) closeModal(id);}
+  function confirm(title,msg,cb){$('confirmTitle').textContent=title;$('confirmMessage').textContent=msg;confirmCallback=cb;$('confirmOk').onclick=()=>{closeModal('confirmModal'); if(confirmCallback) confirmCallback();};$('confirmModal').classList.add('show');}
+  function toast(type,title,msg){clearTimeout(toastTimer); const t=$('toast'); t.className='toast '+(type||''); $('toastIcon').textContent=type==='error'?'!':'✓'; $('toastTitle').textContent=title; $('toastText').textContent=msg; t.classList.add('show'); toastTimer=setTimeout(()=>t.classList.remove('show'),3300);}
+
+  function openProfile(){openModal('Teacher Profile','แก้ไขโปรไฟล์ครู','อัปโหลดรูปเป็นไฟล์ได้ใน Demo หรือวางลิงก์ Drive/URL เพื่อใช้ภายหลัง',`<form onsubmit="App.saveProfile(event)" class="grid md:grid-cols-[180px_1fr] gap-5"><div class="card p-4 text-center"><img id="profilePreview" src="${imgUrl(state.teacher.avatarUrl)||DEFAULT_AVATAR}" class="avatar w-32 h-32 mx-auto border-[6px]" alt=""><label class="btn btn-soft w-full mt-3 px-3 py-3 text-sm cursor-pointer">อัปโหลดรูป<input type="file" accept="image/*" class="hidden" onchange="App.fileToInput(event,'teacherAvatarUrl','profilePreview')"></label><p class="text-xs font-bold text-[#8a6a40] mt-2">ระบบจริงค่อยส่งไฟล์ไป Drive แล้วบันทึก URL</p></div><div class="grid sm:grid-cols-2 gap-4"><div><label class="label">ชื่อ-นามสกุล</label><input id="teacherFullName" class="input" value="${esc(state.teacher.fullName)}" required></div><div><label class="label">Username</label><input id="teacherUsername" class="input" value="${esc(state.teacher.username)}" required></div><div><label class="label">Password</label><input id="teacherPassword" type="password" class="input" value="${esc(state.teacher.password)}" required></div><div><label class="label">ลิงก์รูปโปรไฟล์</label><input id="teacherAvatarUrl" class="input" value="${esc(state.teacher.avatarUrl)}" oninput="document.getElementById('profilePreview').src=App.imgUrl(this.value)||'${DEFAULT_AVATAR}'"></div><div class="sm:col-span-2 flex justify-end gap-2"><button type="button" class="btn btn-soft px-5 py-3" onclick="App.closeModal('modal')">ยกเลิก</button><button class="btn btn-main px-6 py-3">บันทึก</button></div></div></form>`);}
+  function saveProfile(e){e.preventDefault();state.teacher={fullName:$('teacherFullName').value.trim(),username:$('teacherUsername').value.trim(),password:$('teacherPassword').value,avatarUrl:$('teacherAvatarUrl').value.trim()};closeModal('modal');toast('success','บันทึกโปรไฟล์แล้ว','ข้อมูลครูถูกอัปเดตใน LocalStorage');render();}
+  function fileToInput(e,inputId,previewId){const file=e.target.files?.[0]; if(!file) return; const reader=new FileReader(); reader.onload=()=>{$(inputId).value=reader.result; if(previewId) $(previewId).src=reader.result;}; reader.readAsDataURL(file);}
+
+  function openClassroomModal(id=null){const c=state.classrooms.find(x=>x.id===id)||{id:'',name:'',year:'2569',adviser:'ครูแวนด้า',hidden:false}; openModal(id?'Edit Classroom':'Create Classroom',id?'แก้ไขห้องเรียน':'สร้างห้องเรียน/ปีการศึกษา','ห้องเรียนคือที่เก็บรายชื่อนักเรียนและรหัสบัญชี',`<form onsubmit="App.saveClassroom(event)" class="grid sm:grid-cols-2 gap-4"><input id="classId" type="hidden" value="${c.id}"><div><label class="label">ชื่อห้องเรียน</label><input id="className" class="input" value="${esc(c.name)}" placeholder="เช่น ม.2/1" required></div><div><label class="label">ปีการศึกษา</label><input id="classYear" class="input" value="${esc(c.year)}" required></div><div><label class="label">ครูที่ปรึกษา/ผู้ดูแล</label><input id="classAdviser" class="input" value="${esc(c.adviser||'')}" ></div><div><label class="label">สถานะ</label><select id="classHidden" class="select"><option value="false" ${!c.hidden?'selected':''}>แสดง</option><option value="true" ${c.hidden?'selected':''}>ซ่อน</option></select></div><div class="sm:col-span-2 flex justify-end gap-2"><button type="button" class="btn btn-soft px-5 py-3" onclick="App.closeModal('modal')">ยกเลิก</button><button class="btn btn-main px-6 py-3">บันทึกห้องเรียน</button></div></form>`);}
+  function saveClassroom(e){e.preventDefault();const id=$('classId').value; const data={name:$('className').value.trim(),year:$('classYear').value.trim(),adviser:$('classAdviser').value.trim(),hidden:$('classHidden').value==='true'}; if(id){Object.assign(state.classrooms.find(c=>c.id===id),data);}else{const newId=uid('class');state.classrooms.push({id:newId,...data,students:[],pickerHistory:[]});selectedClassroomId=newId;} closeModal('modal');toast('success','บันทึกห้องเรียนแล้ว','ตอนนี้สร้างรหัสนักเรียนในห้องนี้ได้');render();}
+  function toggleClassroom(id){const c=state.classrooms.find(x=>x.id===id); if(!c)return; c.hidden=!c.hidden; toast('success','อัปเดตสถานะห้องเรียนแล้ว',`${c.name} ${c.hidden?'ถูกซ่อน':'แสดงในระบบแล้ว'}`); render();}
+  function deleteClassroom(id){const c=state.classrooms.find(x=>x.id===id); confirm('ลบห้องเรียน?',`ต้องการลบห้อง ${c?.name} ปี ${c?.year} พร้อมบัญชีนักเรียนในห้องนี้ใช่ไหม รายวิชาที่เคยแอดห้องนี้จะถูกเอาห้องออกด้วย`,()=>{state.classrooms=state.classrooms.filter(x=>x.id!==id); state.subjects.forEach(s=>s.enrolledClassroomIds=s.enrolledClassroomIds.filter(cid=>cid!==id)); selectedClassroomId=state.classrooms[0]?.id||null; render(); toast('success','ลบห้องเรียนแล้ว','เอาห้องนี้ออกจากรายวิชาที่เคยแอดไว้แล้ว');});}
+
+  function openStudentModal(id=null){const c=getClassroom(); if(!c){toast('error','ยังไม่มีห้องเรียน','สร้างห้องเรียนก่อน');return;} const s=c.students.find(x=>x.id===id)||{id:'',no:c.students.length+1,firstName:'',lastName:'',username:'',password:'',avatarUrl:'',hidden:false}; openModal(id?'Edit Student':'Student Account',id?'แก้ไขบัญชีนักเรียน':'สร้างรหัสนักเรียนรายคน',`ห้อง ${c.name} ปี ${c.year}`,`<form onsubmit="App.saveStudent(event)" class="grid sm:grid-cols-2 gap-4"><input id="stuId" type="hidden" value="${s.id}"><div><label class="label">เลขที่</label><input id="stuNo" class="input" type="number" min="1" step="1" value="${s.no||''}" required></div><div><label class="label">สถานะ</label><select id="stuHidden" class="select"><option value="false" ${!s.hidden?'selected':''}>แสดง</option><option value="true" ${s.hidden?'selected':''}>ซ่อน</option></select></div><div><label class="label">ชื่อ</label><input id="stuFirst" class="input" value="${esc(s.firstName)}" required></div><div><label class="label">นามสกุล</label><input id="stuLast" class="input" value="${esc(s.lastName)}" required></div><div><label class="label">Username</label><input id="stuUser" class="input" value="${esc(s.username)}"></div><div><label class="label">Password</label><input id="stuPass" class="input" value="${esc(s.password)}"></div><div class="sm:col-span-2"><label class="label">รูปโปรไฟล์/ลิงก์รูป</label><input id="stuAvatar" class="input" value="${esc(s.avatarUrl)}" placeholder="เว้นว่างได้"></div><div class="sm:col-span-2 flex flex-wrap justify-end gap-2"><button type="button" class="btn btn-soft px-5 py-3" onclick="App.autoStudentCode()">สร้าง Username/Password</button><button type="button" class="btn btn-soft px-5 py-3" onclick="App.closeModal('modal')">ยกเลิก</button><button class="btn btn-main px-6 py-3">บันทึกนักเรียน</button></div></form>`);}
+  function autoStudentCode(){const c=getClassroom(); const no=String($('stuNo').value||1).padStart(2,'0'); const yy=String(c.year).slice(-2); const room=(c.name.match(/(\d+)\s*\/\s*(\d+)/)||['','0','0']); $('stuUser').value=`std${yy}${room[1]}${room[2]}${no}`; $('stuPass').value=`std@${c.year}`;}
+  function saveStudent(e){e.preventDefault();const c=getClassroom(); const id=$('stuId').value; const data={no:Number($('stuNo').value),firstName:$('stuFirst').value.trim(),lastName:$('stuLast').value.trim(),username:$('stuUser').value.trim(),password:$('stuPass').value.trim(),avatarUrl:$('stuAvatar').value.trim(),hidden:$('stuHidden').value==='true'}; if(!data.username||!data.password){toast('error','ยังไม่ได้สร้างรหัส','กดสร้าง Username/Password หรือกรอกเองก่อน');return;} if(id){Object.assign(c.students.find(s=>s.id===id),data);}else{c.students.push({id:uid('stu'),...data});} closeModal('modal');toast('success','บันทึกบัญชีนักเรียนแล้ว',`${data.firstName} ${data.lastName}`);render();}
+  function openBulkStudents(){const c=getClassroom(); if(!c){toast('error','ยังไม่มีห้องเรียน','สร้างห้องเรียนก่อน');return;} openModal('Bulk Student Accounts','สร้างบัญชีแบบกลุ่ม','เหมือนสร้างรายคน แต่กรอกหลายบรรทัด มีเลขที่ ชื่อ นามสกุล Username Password ได้',`<form onsubmit="App.saveBulkStudents(event)" class="grid gap-4"><div class="card p-4 text-sm font-semibold text-[#6f5030] leading-7">รูปแบบต่อบรรทัด: <b>เลขที่, ชื่อ, นามสกุล, username, password</b><br>ใส่แค่ เลขที่, ชื่อ, นามสกุล ก็ได้ ระบบจะสร้าง username/password ให้อัตโนมัติ</div><textarea id="bulkText" class="textarea" placeholder="1, กมลชนก, ใจดี\n2, ธนกฤต, ตั้งใจ\n3, ปภาวดี, เรียนรู้, std690203, std@2569"></textarea><div class="flex justify-end gap-2"><button type="button" class="btn btn-soft px-5 py-3" onclick="App.closeModal('modal')">ยกเลิก</button><button class="btn btn-main px-6 py-3">สร้างบัญชีทั้งหมด</button></div></form>`);}
+  function saveBulkStudents(e){e.preventDefault();const c=getClassroom(); const lines=$('bulkText').value.split('\n').map(x=>x.trim()).filter(Boolean); if(!lines.length){toast('error','ยังไม่มีรายชื่อ','กรอกรายชื่ออย่างน้อย 1 บรรทัด');return;} const yy=String(c.year).slice(-2), room=(c.name.match(/(\d+)\s*\/\s*(\d+)/)||['','0','0']); let added=0; lines.forEach(line=>{const p=line.split(',').map(x=>x.trim()); const no=Number(p[0])||c.students.length+1; const first=p[1]||''; const last=p[2]||''; if(!first) return; c.students.push({id:uid('stu'),no,firstName:first,lastName:last,username:p[3]||`std${yy}${room[1]}${room[2]}${String(no).padStart(2,'0')}`,password:p[4]||`std@${c.year}`,avatarUrl:p[5]||'',hidden:false}); added++;}); closeModal('modal');toast('success','สร้างบัญชีแบบกลุ่มแล้ว',`เพิ่ม ${added} คนในห้อง ${c.name}`);render();}
+  function toggleStudent(id){const c=getClassroom(); const s=c.students.find(x=>x.id===id); if(s){s.hidden=!s.hidden;toast('success','อัปเดตสถานะแล้ว',fullName(s));render();}}
+  function deleteStudent(id){const c=getClassroom(); const s=c.students.find(x=>x.id===id); confirm('ลบนักเรียน?',`ต้องการลบบัญชี ${fullName(s)} ออกจากห้อง ${c.name} ใช่ไหม`,()=>{c.students=c.students.filter(x=>x.id!==id);render();toast('success','ลบแล้ว','ลบบัญชีนักเรียนเรียบร้อย');});}
+
+  function openSubjectModal(id=null){const s=state.subjects.find(x=>x.id===id)||{id:'',name:'',code:'',year:'2569',hidden:false,enrolledClassroomIds:[],units:[]}; openModal(id?'Edit Subject':'Create Subject',id?'แก้ไขรายวิชา':'เพิ่มรายวิชา','สร้างรายวิชาก่อน แล้วค่อยเลือกห้องที่เข้าเรียน',`<form onsubmit="App.saveSubject(event)" class="grid sm:grid-cols-2 gap-4"><input id="subId" type="hidden" value="${s.id}"><div class="sm:col-span-2"><label class="label">ชื่อรายวิชา</label><input id="subName" class="input" value="${esc(s.name)}" placeholder="เช่น การออกแบบสื่อดิจิทัล" required></div><div><label class="label">รหัสวิชา</label><input id="subCode" class="input" value="${esc(s.code)}"></div><div><label class="label">ปีการศึกษา</label><input id="subYear" class="input" value="${esc(s.year)}" required></div><div><label class="label">สถานะ</label><select id="subHidden" class="select"><option value="false" ${!s.hidden?'selected':''}>แสดง</option><option value="true" ${s.hidden?'selected':''}>ซ่อน</option></select></div><div class="sm:col-span-2"><label class="label">แอดห้องเข้าเรียน</label><div class="grid sm:grid-cols-2 gap-2">${state.classrooms.map(c=>`<label class="item flex items-center gap-3 cursor-pointer"><input type="checkbox" value="${c.id}" ${s.enrolledClassroomIds.includes(c.id)?'checked':''} name="enrollBox"><span><b>${esc(c.name)}</b><small class="block text-xs font-bold text-[#8a6a40]">ปี ${esc(c.year)} · ${c.students.length} คน</small></span></label>`).join('')}</div></div><div class="sm:col-span-2 flex justify-end gap-2"><button type="button" class="btn btn-soft px-5 py-3" onclick="App.closeModal('modal')">ยกเลิก</button><button class="btn btn-main px-6 py-3">บันทึกรายวิชา</button></div></form>`);}
+  function saveSubject(e){e.preventDefault();const id=$('subId').value; const enroll=[...document.querySelectorAll('input[name="enrollBox"]:checked')].map(x=>x.value); const data={name:$('subName').value.trim(),code:$('subCode').value.trim(),year:$('subYear').value.trim(),hidden:$('subHidden').value==='true',enrolledClassroomIds:enroll}; if(id){Object.assign(state.subjects.find(s=>s.id===id),data);}else{const newId=uid('sub');state.subjects.push({id:newId,...data,units:[]});selectedSubjectId=newId;selectedUnitId=null;} closeModal('modal');toast('success','บันทึกรายวิชาแล้ว','แอดห้องเข้าเรียนเรียบร้อย');render();}
+  function toggleEnroll(subId,classId){const s=state.subjects.find(x=>x.id===subId); if(!s) return; s.enrolledClassroomIds=s.enrolledClassroomIds.includes(classId)?s.enrolledClassroomIds.filter(id=>id!==classId):[...s.enrolledClassroomIds,classId];toast('success','อัปเดตห้องเรียนในรายวิชาแล้ว','ปรับรายชื่อผู้เรียนอัตโนมัติ');render();}
+  function deleteSubject(id){const s=state.subjects.find(x=>x.id===id); confirm('ลบรายวิชา?',`ต้องการลบรายวิชา ${s?.name} และหน่วย/งานทั้งหมดในวิชานี้ใช่ไหม`,()=>{state.subjects=state.subjects.filter(x=>x.id!==id);selectedSubjectId=state.subjects[0]?.id||null;selectedUnitId=state.subjects[0]?.units[0]?.id||null;render();toast('success','ลบรายวิชาแล้ว','ข้อมูลถูกลบจาก Demo');});}
+
+  function openUnitModal(id=null){const s=getSubject(); if(!s){toast('error','ยังไม่มีรายวิชา','เพิ่มรายวิชาก่อน');return;} const u=s.units.find(x=>x.id===id)||{id:'',title:`หน่วยที่ ${s.units.length+1}`,topic:'',order:s.units.length+1}; openModal(id?'Edit Unit':'Create Unit',id?'แก้ไขหน่วยการเรียนรู้':'เพิ่มหน่วยการเรียนรู้','งานและแบบทดสอบจะถูกจัดเก็บใต้หน่วยนี้',`<form onsubmit="App.saveUnit(event)" class="grid sm:grid-cols-2 gap-4"><input id="unitId" value="${u.id}" type="hidden"><div><label class="label">ชื่อหน่วย</label><input id="unitTitle" class="input" value="${esc(u.title)}" required></div><div><label class="label">ลำดับ</label><input id="unitOrder" class="input" type="number" min="1" step="1" value="${u.order}" required></div><div class="sm:col-span-2"><label class="label">ชื่อเรื่อง / สาระสำคัญ</label><input id="unitTopic" class="input" value="${esc(u.topic)}" placeholder="เช่น พื้นฐาน Canva และหลักการออกแบบ" required></div><div class="sm:col-span-2 flex justify-end gap-2"><button type="button" class="btn btn-soft px-5 py-3" onclick="App.closeModal('modal')">ยกเลิก</button><button class="btn btn-main px-6 py-3">บันทึกหน่วย</button></div></form>`);}
+  function saveUnit(e){e.preventDefault();const s=getSubject(); const id=$('unitId').value; const data={title:$('unitTitle').value.trim(),topic:$('unitTopic').value.trim(),order:Number($('unitOrder').value)}; if(id){Object.assign(s.units.find(u=>u.id===id),data);}else{const newId=uid('unit');s.units.push({id:newId,...data,materials:[],worksheets:[],quizzes:[]});selectedUnitId=newId;} closeModal('modal');toast('success','บันทึกหน่วยแล้ว','เพิ่มสื่อ ใบงาน หรือ Quiz ต่อได้');render();}
+  function deleteUnit(id){const s=getSubject(); const u=s.units.find(x=>x.id===id); confirm('ลบหน่วย?',`ต้องการลบ ${u?.title} พร้อมสื่อ ใบงาน และ Quiz ทั้งหมดใช่ไหม`,()=>{s.units=s.units.filter(x=>x.id!==id);selectedUnitId=s.units[0]?.id||null;render();toast('success','ลบหน่วยแล้ว','ลบข้อมูลใน Demo เรียบร้อย');});}
+
+  function openMaterialModal(){const u=getUnit(); if(!u){toast('error','ยังไม่มีหน่วย','สร้างหน่วยก่อน');return;} openModal('Material','เพิ่มใบความรู้ / สื่อ / วิดีโอ','รองรับลิงก์และไฟล์ Demo ในเครื่อง',`<form onsubmit="App.saveMaterial(event)" class="grid sm:grid-cols-2 gap-4"><div class="sm:col-span-2"><label class="label">ชื่อสื่อ</label><input id="matTitle" class="input" required></div><div><label class="label">ประเภท</label><select id="matType" class="select"><option value="link">ลิงก์</option><option value="file">ไฟล์</option><option value="video">วิดีโอ</option></select></div><div><label class="label">อัปโหลดไฟล์ Demo</label><input id="matFile" class="input" type="file" onchange="App.captureFile(event,'matFileData','matFileName')"><input id="matFileData" type="hidden"><input id="matFileName" type="hidden"></div><div class="sm:col-span-2"><label class="label">ลิงก์ Drive / YouTube / URL</label><input id="matUrl" class="input" placeholder="วางลิงก์ หรือเว้นว่างถ้าอัปโหลดไฟล์"></div><div class="sm:col-span-2 flex justify-end gap-2"><button type="button" class="btn btn-soft px-5 py-3" onclick="App.closeModal('modal')">ยกเลิก</button><button class="btn btn-main px-6 py-3">บันทึกสื่อ</button></div></form>`);}
+  function saveMaterial(e){e.preventDefault();const u=getUnit(); u.materials.push({id:uid('mat'),title:$('matTitle').value.trim(),type:$('matType').value,url:$('matUrl').value.trim(),fileData:$('matFileData').value,fileName:$('matFileName').value,hidden:false});closeModal('modal');toast('success','เพิ่มสื่อแล้ว','บันทึกในหน่วยการเรียนรู้');render();}
+  function deleteMaterial(id){const u=getUnit(); confirm('ลบสื่อ?', 'ต้องการลบสื่อนี้ออกจากหน่วยใช่ไหม',()=>{u.materials=u.materials.filter(m=>m.id!==id);render();toast('success','ลบสื่อแล้ว','อัปเดตเรียบร้อย');});}
+
+  function openWorksheetModal(id=null){const u=getUnit(); if(!u){toast('error','ยังไม่มีหน่วย','สร้างหน่วยก่อน');return;} const w=u.worksheets.find(x=>x.id===id)||{id:'',title:'',mode:'link',url:'',dueDate:nextDate(7),totalScore:10,latePenalty:1,hidden:false,submissions:{}}; openModal(id?'Edit Worksheet':'Worksheet','เพิ่มใบงานแบบไฟล์ ลิงก์ หรือใบงานในตัวเว็บ',`<form onsubmit="App.saveWorksheet(event)" class="grid sm:grid-cols-2 gap-4"><input id="workId" type="hidden" value="${w.id}"><div class="sm:col-span-2"><label class="label">ชื่อใบงาน</label><input id="workTitle" class="input" value="${esc(w.title)}" required></div><div><label class="label">รูปแบบใบงาน</label><select id="workMode" class="select"><option value="link" ${w.mode==='link'?'selected':''}>แอดลิงก์</option><option value="file" ${w.mode==='file'?'selected':''}>แอดไฟล์</option><option value="builder" ${w.mode==='builder'?'selected':''}>ทำใบงานในตัวเว็บ</option></select></div><div><label class="label">กำหนดส่ง</label><input id="workDue" type="date" class="input" value="${w.dueDate||''}"></div><div><label class="label">คะแนนเต็ม</label><input id="workScore" type="number" min="0" step="1" class="input" value="${w.totalScore||10}"></div><div><label class="label">ตัดคะแนนช้า/วัน</label><input id="workPenalty" type="number" min="0" step="1" class="input" value="${w.latePenalty||0}"></div><div class="sm:col-span-2"><label class="label">ลิงก์/คำอธิบาย/โจทย์ในตัวเว็บ</label><textarea id="workUrl" class="textarea">${esc(w.url||'')}</textarea></div><div class="sm:col-span-2 flex justify-end gap-2"><button type="button" class="btn btn-soft px-5 py-3" onclick="App.closeModal('modal')">ยกเลิก</button><button class="btn btn-main px-6 py-3">บันทึกใบงาน</button></div></form>`);}
+  function saveWorksheet(e){e.preventDefault();const u=getUnit(); const id=$('workId').value; const data={title:$('workTitle').value.trim(),mode:$('workMode').value,url:$('workUrl').value.trim(),dueDate:$('workDue').value,totalScore:Number($('workScore').value),latePenalty:Number($('workPenalty').value),hidden:false}; if(id){Object.assign(u.worksheets.find(w=>w.id===id),data);}else{u.worksheets.push({id:uid('work'),...data,submissions:{}});} closeModal('modal');toast('success','บันทึกใบงานแล้ว','พร้อมให้นักเรียนส่งงาน');render();}
+
+  function openQuizModal(id=null){const u=getUnit(); if(!u){toast('error','ยังไม่มีหน่วย','สร้างหน่วยก่อน');return;} const q=u.quizzes.find(x=>x.id===id)||{id:'',title:'',gameMode:'classic',dueDate:nextDate(7),questions:[{id:uid('q'),text:'',score:1,choices:['','','',''],answerIndex:0}],submissions:{}}; window.__editingQuiz = JSON.parse(JSON.stringify(q)); openModal(id?'Edit Quiz':'Quiz Builder',id?'แก้ไขแบบทดสอบ':'สร้างแบบทดสอบแบบตัวเลือก','เพิ่มข้อ เลือกจำนวนช้อย คะแนน เลื่อนข้อขึ้นลง และแทรกข้อได้',quizFormHtml(window.__editingQuiz));}
+  function quizFormHtml(q){return `<form onsubmit="App.saveQuiz(event)" class="grid gap-4"><input id="quizId" type="hidden" value="${q.id}"><div class="grid sm:grid-cols-3 gap-4"><div class="sm:col-span-2"><label class="label">ชื่อแบบทดสอบ</label><input id="quizTitle" class="input" value="${esc(q.title)}" required></div><div><label class="label">แนวเกม</label><select id="quizGame" class="select"><option value="classic" ${q.gameMode==='classic'?'selected':''}>Quiz ปกติ</option><option value="adventure" ${q.gameMode==='adventure'?'selected':''}>ผจญภัย</option><option value="space" ${q.gameMode==='space'?'selected':''}>อวกาศ</option><option value="speed" ${q.gameMode==='speed'?'selected':''}>แข่งเวลา</option><option value="boss" ${q.gameMode==='boss'?'selected':''}>Boss Battle</option></select></div><div><label class="label">กำหนดส่ง</label><input id="quizDue" type="date" class="input" value="${q.dueDate||''}"></div></div><div id="questionsBox" class="grid gap-3">${q.questions.map((question,i)=>questionHtml(question,i)).join('')}</div><div class="flex flex-wrap justify-between gap-2"><button type="button" class="btn btn-soft px-5 py-3" onclick="App.addQuestion()">+ เพิ่มข้อท้าย</button><div class="flex gap-2"><button type="button" class="btn btn-soft px-5 py-3" onclick="App.closeModal('modal')">ยกเลิก</button><button class="btn btn-main px-6 py-3">บันทึก Quiz</button></div></div></form>`;}
+  function questionHtml(q,i){return `<div class="item"><div class="flex justify-between gap-3 mb-3"><b>ข้อที่ ${i+1}</b><div class="flex gap-2"><button type="button" class="btn btn-soft btn-icon" title="เลื่อนขึ้น" onclick="App.moveQuestion(${i},-1)">↑</button><button type="button" class="btn btn-soft btn-icon" title="เลื่อนลง" onclick="App.moveQuestion(${i},1)">↓</button><button type="button" class="btn btn-soft btn-icon" title="แทรกข้อหลังนี้" onclick="App.insertQuestion(${i})">＋</button><button type="button" class="btn btn-danger btn-icon" title="ลบข้อ" onclick="App.removeQuestion(${i})">×</button></div></div><div class="grid sm:grid-cols-[1fr_120px_130px] gap-3"><div><label class="label">โจทย์</label><textarea class="textarea !min-h-[76px]" oninput="App.updateQuestion(${i},'text',this.value)">${esc(q.text)}</textarea></div><div><label class="label">คะแนน</label><input class="input" type="number" min="0" step="1" value="${q.score}" onchange="App.updateQuestion(${i},'score',this.value)"></div><div><label class="label">จำนวนช้อย</label><select class="select" onchange="App.setChoiceCount(${i},this.value)">${[2,3,4,5,6].map(n=>`<option value="${n}" ${q.choices.length===n?'selected':''}>${n} ช้อย</option>`).join('')}</select></div></div><div class="grid md:grid-cols-2 gap-2 mt-3">${q.choices.map((c,ci)=>`<label class="item !p-3 flex items-center gap-2"><input type="radio" name="answer_${i}" ${q.answerIndex===ci?'checked':''} onchange="App.updateQuestion(${i},'answerIndex',${ci})"><input class="input" value="${esc(c)}" placeholder="ช้อย ${ci+1}" oninput="App.updateChoice(${i},${ci},this.value)"></label>`).join('')}</div></div>`;}
+  function rerenderQuiz(){ $('modalBody').innerHTML = quizFormHtml(window.__editingQuiz); }
+  function addQuestion(){window.__editingQuiz.questions.push({id:uid('q'),text:'',score:1,choices:['','','',''],answerIndex:0});rerenderQuiz();}
+  function insertQuestion(i){window.__editingQuiz.questions.splice(i+1,0,{id:uid('q'),text:'',score:1,choices:['','','',''],answerIndex:0});rerenderQuiz();}
+  function removeQuestion(i){if(window.__editingQuiz.questions.length<=1){toast('error','ลบไม่ได้','ต้องมีอย่างน้อย 1 ข้อ');return;} window.__editingQuiz.questions.splice(i,1);rerenderQuiz();}
+  function moveQuestion(i,dir){const arr=window.__editingQuiz.questions; const j=i+dir; if(j<0||j>=arr.length)return; [arr[i],arr[j]]=[arr[j],arr[i]];rerenderQuiz();}
+  function updateQuestion(i,key,val){const q=window.__editingQuiz.questions[i]; q[key]=key==='score'||key==='answerIndex'?Number(val):val;}
+  function updateChoice(i,ci,val){window.__editingQuiz.questions[i].choices[ci]=val;}
+  function setChoiceCount(i,n){const q=window.__editingQuiz.questions[i]; n=Number(n); while(q.choices.length<n) q.choices.push(''); q.choices=q.choices.slice(0,n); if(q.answerIndex>=n) q.answerIndex=0; rerenderQuiz();}
+  function saveQuiz(e){e.preventDefault();const u=getUnit(); const id=$('quizId').value; const data={title:$('quizTitle').value.trim(),gameMode:$('quizGame').value,dueDate:$('quizDue').value,questions:window.__editingQuiz.questions.map(q=>({...q,score:Number(q.score||0),answerIndex:Number(q.answerIndex||0)})),hidden:false}; if(id){Object.assign(u.quizzes.find(q=>q.id===id),data);}else{u.quizzes.push({id:uid('quiz'),...data,submissions:{}});} closeModal('modal');toast('success','บันทึก Quiz แล้ว','แบบทดสอบพร้อมใช้งานในหน่วยนี้');render();}
+  function deleteWork(kind,id){const u=getUnit(); confirm('ลบรายการนี้?',`ต้องการลบ${kind==='quiz'?'แบบทดสอบ':'ใบงาน'}นี้ใช่ไหม`,()=>{if(kind==='quiz')u.quizzes=u.quizzes.filter(q=>q.id!==id);else u.worksheets=u.worksheets.filter(w=>w.id!==id);render();toast('success','ลบแล้ว','อัปเดตเรียบร้อย');});}
+
+  function captureFile(e,dataId,nameId){const file=e.target.files?.[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{$(dataId).value=reader.result;$(nameId).value=file.name;}; reader.readAsDataURL(file);}
+  function previewResource(url,name){if(!url){toast('error','ยังไม่มีไฟล์ Preview','ตอนเชื่อม Drive จริงจะเปิดไฟล์/ดาวน์โหลดได้');return;} openModal('Preview',name||'Preview','ตัวอย่างการเปิดไฟล์/ลิงก์ที่นักเรียนหรือครูแนบมา',`<div class="card p-4"><p class="text-sm font-semibold text-[#6f5030] leading-7 mb-3">ถ้าเป็นลิงก์ Drive/URL ให้กดเปิดแท็บใหม่ ถ้าเป็นรูปที่อัปโหลดใน Demo จะแสดง Preview ด้านล่าง</p><div class="flex flex-wrap gap-2 mb-4"><a class="btn btn-main px-5 py-3" href="${esc(url)}" target="_blank" rel="noopener">เปิดไฟล์/ลิงก์</a></div>${String(url).startsWith('data:image')?`<img src="${url}" class="rounded-[22px] max-h-[420px] mx-auto shadow-lg" alt="preview">`:`<iframe src="${esc(url)}" class="w-full h-[420px] rounded-[22px] bg-white"></iframe>`}</div>`);}
+
+  function findWork(kind,id){for(const s of state.subjects){for(const u of s.units){const arr=kind==='quiz'?u.quizzes:u.worksheets; const item=arr.find(x=>x.id===id); if(item)return item;}} return null;}
+  function setScore(kind,id,studentId,val){const item=findWork(kind,id); const sub=ensureSub(item,studentId); const total=kind==='quiz'?sumQuizScore(item):item.totalScore; sub.score=Math.max(0,Math.min(Number(val)||0,total)); save(); render();}
+  function adjustScore(kind,id,studentId,delta){const item=findWork(kind,id); const sub=ensureSub(item,studentId); const total=kind==='quiz'?sumQuizScore(item):item.totalScore; sub.score=Math.max(0,Math.min(Number(sub.score||0)+delta,total)); render();}
+  function mockSubmit(kind,id,studentId){const item=findWork(kind,id); const sub=ensureSub(item,studentId); sub.status='submitted'; sub.submittedAt=today(); sub.fileName=sub.fileName || (kind==='quiz'?'quiz-result.json':'student-work-preview.pdf'); sub.fileUrl=sub.fileUrl || ''; const total=kind==='quiz'?sumQuizScore(item):item.totalScore; if(!sub.score) sub.score=total; toast('success','จำลองการส่งงานแล้ว','ระบบบันทึกสถานะ ส่งแล้ว และคะแนนเริ่มต้น'); render();}
+
+  function spinWheel(){const c=getClassroom(); const pool=pickerPool(); if(!pool.length){toast('error','สุ่มไม่ได้','ไม่มีนักเรียนให้สุ่ม หรือสุ่มครบแล้ว');return;} const chosen=pool[Math.floor(Math.random()*pool.length)]; wheelRotation += 720 + Math.floor(Math.random()*360); $('wheel').style.transform=`rotate(${wheelRotation}deg)`; setTimeout(()=>{if($('wheelName'))$('wheelName').textContent=shortName(chosen); addHistory(chosen.id); toast('success','สุ่มได้แล้ว',fullName(chosen)); render();},760);}
+  function randomCard(){const pool=pickerPool(); if(!pool.length){toast('error','สุ่มไม่ได้','ไม่มีนักเรียนให้สุ่ม หรือสุ่มครบแล้ว');return;} const chosen=pool[Math.floor(Math.random()*pool.length)]; $('slotBox').innerHTML=`<div><small class="block text-sm text-[#8a6a40]">สุ่มแบบบัตร</small>${esc(fullName(chosen))}</div>`; addHistory(chosen.id); toast('success','สุ่มได้แล้ว',fullName(chosen)); render();}
+  function slotRandom(){const pool=pickerPool(); if(!pool.length){toast('error','สุ่มไม่ได้','ไม่มีนักเรียนให้สุ่ม หรือสุ่มครบแล้ว');return;} let ticks=0; clearInterval(slotTimer); slotTimer=setInterval(()=>{const s=pool[Math.floor(Math.random()*pool.length)]; if($('slotBox'))$('slotBox').textContent=fullName(s); ticks++; if(ticks>14){clearInterval(slotTimer); const chosen=pool[Math.floor(Math.random()*pool.length)]; if($('slotBox'))$('slotBox').textContent=fullName(chosen); addHistory(chosen.id); toast('success','สล็อตสุ่มได้แล้ว',fullName(chosen)); render();}},80);}
+  function pickerPool(){const c=getClassroom(); const noRepeat=$('noRepeat')?.checked ?? true; let students=(c?.students||[]).filter(s=>!s.hidden); if(noRepeat) students=students.filter(s=>!(c.pickerHistory||[]).includes(s.id)); return students;}
+  function addHistory(id){const c=getClassroom(); c.pickerHistory=c.pickerHistory||[]; if(!c.pickerHistory.includes(id)) c.pickerHistory.push(id); save();}
+  function clearPicker(){const c=getClassroom(); if(c){c.pickerHistory=[];toast('success','ล้างประวัติสุ่มแล้ว','เริ่มสุ่มใหม่ได้');render();}}
+  function makeGroups(){const c=getClassroom(); const students=[...(c?.students||[])].filter(s=>!s.hidden).sort(()=>Math.random()-0.5); let n=parseInt($('groupValue')?.value || '1',10); if(!Number.isInteger(n)||n<1)n=1; const mode=$('groupMode')?.value||'groups'; let groups=[]; if(mode==='groups'){n=Math.min(n,Math.max(1,students.length)); groups=Array.from({length:n},()=>[]); students.forEach((s,i)=>groups[i%n].push(s));}else{n=Math.max(1,n); for(let i=0;i<students.length;i+=n) groups.push(students.slice(i,i+n));} $('groupResult').innerHTML=groups.map((g,i)=>`<div class="item"><b class="block mb-2">กลุ่ม ${i+1} · ${g.length} คน</b><div class="flex flex-wrap gap-2">${g.map(s=>`<span class="pill">${esc(shortName(s))}</span>`).join('')}</div></div>`).join('') || empty('ยังไม่มีนักเรียน','เพิ่มนักเรียนในห้องก่อน');}
+
+  function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='kruvanda-classroom-demo-data.json'; a.click(); URL.revokeObjectURL(url); toast('success','ส่งออก JSON แล้ว','ใช้ตรวจโครงสร้างข้อมูลก่อนต่อฐานจริง');}
+  function resetDemo(){confirm('รีเซ็ตข้อมูล Demo?', 'ข้อมูลที่เพิ่มไว้ใน LocalStorage จะถูกล้างและกลับเป็นข้อมูลตัวอย่าง',()=>{localStorage.removeItem(STORAGE_KEY); state=seed(); view='overview'; selectedClassroomId=state.classrooms[0].id; selectedSubjectId=state.subjects[0].id; selectedUnitId=state.subjects[0].units[0].id; render(); toast('success','รีเซ็ตแล้ว','โหลดข้อมูลตัวอย่างใหม่เรียบร้อย');});}
+
+  function init(){render();}
+  init();
+  return {setView,selectClassroom,selectSubject,selectUnit,search,openProfile,saveProfile,fileToInput,imgUrl,closeModal,closeOnBackdrop,openClassroomModal,saveClassroom,toggleClassroom,deleteClassroom,openStudentModal,autoStudentCode,saveStudent,openBulkStudents,saveBulkStudents,toggleStudent,deleteStudent,openSubjectModal,saveSubject,toggleEnroll,deleteSubject,openUnitModal,saveUnit,deleteUnit,openMaterialModal,saveMaterial,deleteMaterial,openWorksheetModal,saveWorksheet,openQuizModal,addQuestion,insertQuestion,removeQuestion,moveQuestion,updateQuestion,updateChoice,setChoiceCount,saveQuiz,deleteWork,captureFile,previewResource,setScore,adjustScore,mockSubmit,spinWheel,randomCard,slotRandom,clearPicker,makeGroups,exportData,resetDemo};
+})();
+</script>
+</body>
+</html>
