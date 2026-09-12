@@ -3,71 +3,313 @@ function doPost(e) {
 
   try {
     var requestData = JSON.parse(e.postData.contents);
+
     var inputUser = requestData.username;
     var inputPass = requestData.password;
+    var action = requestData.action;
+
+    if (action === "getDashboard") {
+
+      var result = getDashboard(requestData.userId);
+
+      return jsonOutput
+        .setMimeType(ContentService.MimeType.JSON)
+        .setContent(JSON.stringify(result));
+    }
+
+    if (action === "getCourses") {
+
+      var result = getCourses(requestData.teacherId);
+
+      return jsonOutput
+        .setMimeType(ContentService.MimeType.JSON)
+        .setContent(JSON.stringify(result));
+    }
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
+
     var userSheet = ss.getSheetByName("User_Accounts");
     var userRows = userSheet.getDataRange().getValues();
 
     var loginSuccess = false;
     var userData = null;
 
-    for (var i = 1; i < userRows.length; i++) {
-      var userId = userRows[i][0]
-      var username = userRows[i][1]
-      var password = userRows[i][2]
-      var role = userRows[i][3]
 
-      if (String(username).trim() === String(inputUser).trim() && String(password) === String(inputPass)) {
+    for (var i = 1; i < userRows.length; i++) {
+
+      var userId = userRows[i][0];
+      var username = userRows[i][1];
+      var password = userRows[i][2];
+      var role = userRows[i][3];
+
+
+      if (
+        String(username).trim() === String(inputUser).trim() &&
+        String(password) === String(inputPass)
+      ) {
+
         loginSuccess = true;
+
         userData = {
           userId: userId,
           role: role
         };
+
         break;
       }
     }
 
+
     if (loginSuccess) {
+
       if (userData.role === "student") {
+
         var studentSheet = ss.getSheetByName("Student_Profiles");
         var studentRows = studentSheet.getDataRange().getValues();
 
+
         for (var j = 1; j < studentRows.length; j++) {
+
           if (studentRows[j][0] === userData.userId) {
+
             userData.firstName = studentRows[j][1];
             userData.lastName = studentRows[j][2];
             userData.room = studentRows[j][3];
             userData.no = studentRows[j][4];
             userData.year = studentRows[j][5];
             userData.imgUrl = studentRows[j][6];
+
             break;
           }
         }
-      } else if (userData.role === "teacher") {
+
+      }
+
+      else if (userData.role === "teacher") {
+
         var teacherSheet = ss.getSheetByName("Teacher_Profile");
         var teacherRows = teacherSheet.getDataRange().getValues();
 
-        if (teacherRows.length > 1) {
-          userData.fullName = teacherRows[1][1];
-          userData.imgUrl = teacherRows[1][3];
+
+        for (var j = 1; j < teacherRows.length; j++) {
+
+          if (
+            String(teacherRows[j][0]).trim() ===
+            String(userData.userId).trim()
+          ) {
+
+            userData.fullName = teacherRows[j][1];
+            userData.imgUrl = teacherRows[j][3];
+
+            break;
+          }
         }
       }
 
-      var responseData = { "status": "success", "data": userData };
-      return jsonOutput.setMimeType(ContentService.MimeType.JSON)
+
+      var responseData = {
+        status: "success",
+        data: userData
+      };
+
+
+      return jsonOutput
+        .setMimeType(ContentService.MimeType.JSON)
         .setContent(JSON.stringify(responseData));
 
+
     } else {
-      var failData = { "status": "fail", "message": "Username หรือ Password ไม่ถูกต้อง!" };
-      return jsonOutput.setMimeType(ContentService.MimeType.JSON)
+
+      var failData = {
+        status: "fail",
+        message: "Username หรือ Password ไม่ถูกต้อง!"
+      };
+
+
+      return jsonOutput
+        .setMimeType(ContentService.MimeType.JSON)
         .setContent(JSON.stringify(failData));
     }
 
+
   } catch (error) {
-    var errorData = { "status": "error", "message": "เกิดข้อผิดพลาด: " + error.toString() };
-    return jsonOutput.setMimeType(ContentService.MimeType.JSON)
+
+    var errorData = {
+      status: "error",
+      message: "เกิดข้อผิดพลาด: " + error.toString()
+    };
+
+
+    return jsonOutput
+      .setMimeType(ContentService.MimeType.JSON)
       .setContent(JSON.stringify(errorData));
   }
+}
+
+function getDashboard(userId) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  var teacherSheet = ss.getSheetByName("Teacher_Profile");
+  var teacherRows = teacherSheet.getDataRange().getValues();
+
+  var teacher = null;
+
+  for (var i = 1; i < teacherRows.length; i++) {
+
+    if (
+      String(teacherRows[i][0]).trim() ===
+      String(userId).trim()
+    ) {
+
+      teacher = {
+        userId: teacherRows[i][0],
+        fullName: teacherRows[i][1],
+        imgUrl: teacherRows[i][3]
+      };
+
+      break;
+    }
+  }
+
+  if (!teacher) {
+
+    return {
+      status: "fail",
+      message: "ไม่พบข้อมูลครู"
+    };
+  }
+
+  var courseSheet = ss.getSheetByName("Courses");
+  var courseRows = courseSheet.getDataRange().getValues();
+
+  var courseCount = 0;
+
+  for (var i = 1; i < courseRows.length; i++) {
+
+    var courseTeacherId = String(courseRows[i][3]).trim();
+    var courseStatus = String(courseRows[i][4]).trim();
+
+    if (
+      courseTeacherId === String(userId).trim() &&
+      courseStatus !== "deleted"
+    ) {
+      courseCount++;
+    }
+  }
+
+  var classroomSheet = ss.getSheetByName("Classrooms");
+  var classroomRows = classroomSheet.getDataRange().getValues();
+
+  var classroomCount = 0;
+
+  for (var i = 1; i < classroomRows.length; i++) {
+
+    var classroomTeacherId = String(classroomRows[i][6]).trim();
+    var classroomStatus = String(classroomRows[i][7]).trim();
+
+    if (
+      classroomTeacherId === String(userId).trim() &&
+      classroomStatus !== "deleted"
+    ) {
+      classroomCount++;
+    }
+  }
+
+  var enrollmentSheet = ss.getSheetByName("Classroom_Students");
+  var enrollmentRows = enrollmentSheet.getDataRange().getValues();
+
+  var studentIds = {};
+
+  for (var i = 1; i < enrollmentRows.length; i++) {
+
+    var studentId = String(enrollmentRows[i][1]).trim();
+    var classroomId = String(enrollmentRows[i][2]).trim();
+    var enrollmentStatus = String(enrollmentRows[i][5]).trim();
+
+    var isTeacherClassroom = false;
+
+    for (var j = 1; j < classroomRows.length; j++) {
+
+      if (
+        String(classroomRows[j][0]).trim() === classroomId &&
+        String(classroomRows[j][6]).trim() === String(userId).trim()
+      ) {
+
+        isTeacherClassroom = true;
+        break;
+      }
+    }
+
+    if (
+      isTeacherClassroom &&
+      studentId &&
+      enrollmentStatus !== "deleted"
+    ) {
+
+      studentIds[studentId] = true;
+    }
+  }
+
+  var studentCount = Object.keys(studentIds).length;
+
+
+  return {
+    status: "success",
+
+    data: {
+
+      teacher: teacher,
+
+      stats: {
+        courses: courseCount,
+        classrooms: classroomCount,
+        students: studentCount
+      }
+
+    }
+  };
+}
+
+function getCourses(teacherId) {
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  var sheet = ss.getSheetByName("Courses");
+  var rows = sheet.getDataRange().getValues();
+
+  var courses = [];
+
+
+  for (var i = 1; i < rows.length; i++) {
+
+    var courseTeacherId = String(rows[i][3]).trim();
+    var status = String(rows[i][4]).trim();
+
+
+    if (
+      courseTeacherId === String(teacherId).trim() &&
+      status !== "deleted"
+    ) {
+
+      courses.push({
+
+        courseId: rows[i][0],
+        courseName: rows[i][1],
+        description: rows[i][2],
+        teacherId: rows[i][3],
+        status: rows[i][4],
+        createdAt: rows[i][5],
+        updatedAt: rows[i][6]
+
+      });
+    }
+  }
+
+
+  return {
+
+    status: "success",
+    data: courses
+
+  };
 }
