@@ -1,2430 +1,4089 @@
 <!doctype html>
 
+
+
 <html lang="th">
+
+
 
 <head>
 
+
+
   <meta charset="UTF-8" />
+
+
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>KruVanda Classroom</title>
+
+
+  <title>Teacher | KruVanda Classroom</title>
+
+
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
 
+
+
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+
+
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+
 
   <style>
     :root {
 
+
+
       --orange: #ff8a00;
+
+
 
       --orange-2: #ffb000;
 
+
+
       --gold: #ffd36a;
+
+
 
       --deep: #2d1b0b;
 
+
+
       --brown: #5d3b16;
+
+
 
       --soft: #fff8ea;
 
+
+
       --white: #ffffff;
+
+
 
       --glass: rgba(255, 255, 255, 0.76);
 
+
+
       --glass-strong: rgba(255, 255, 255, 0.88);
+
+
 
       --border: rgba(255, 255, 255, 0.55);
 
+
+
     }
+
+
+
+
 
 
 
     * {
 
+
+
       box-sizing: border-box;
 
+
+
     }
+
+
+
+
 
 
 
     html,
 
+
+
     body {
+
+
 
       margin: 0;
 
+
+
       min-height: 100%;
 
+
+
     }
+
+
+
+
 
 
 
     body {
 
+
+
       font-family: "Prompt", sans-serif;
+
+
 
       color: var(--deep);
 
+
+
       overflow-x: hidden;
+
+
 
       background:
 
+
+
         radial-gradient(circle at 12% 10%,
+
+
 
           rgba(255, 196, 81, 0.46),
 
+
+
           transparent 28%),
+
+
 
         radial-gradient(circle at 88% 78%,
 
+
+
           rgba(255, 138, 0, 0.32),
+
+
 
           transparent 31%),
 
+
+
         radial-gradient(circle at 50% 50%,
+
+
 
           rgba(255, 255, 255, 0.95),
 
+
+
           transparent 42%),
+
+
 
         linear-gradient(135deg, #fffaf0 0%, #ffe8bd 52%, #ffffff 100%);
 
+
+
     }
+
+
+
+
 
 
 
     body::before {
 
+
+
       content: "";
+
+
 
       position: fixed;
 
+
+
       inset: 0;
+
+
 
       pointer-events: none;
 
+
+
       opacity: 0.32;
+
+
 
       background-image:
 
+
+
         linear-gradient(rgba(255, 138, 0, 0.055) 1px, transparent 1px),
+
+
 
         linear-gradient(90deg, rgba(255, 138, 0, 0.055) 1px, transparent 1px);
 
+
+
       background-size: 46px 46px;
+
+
 
       mask-image: linear-gradient(to bottom, black, transparent 90%);
 
+
+
       z-index: -3;
 
+
+
     }
+
+
+
+
 
 
 
     body::after {
 
+
+
       content: "";
+
+
 
       position: fixed;
 
+
+
       width: 520px;
+
+
 
       height: 520px;
 
+
+
       right: -180px;
+
+
 
       bottom: -180px;
 
+
+
       border-radius: 50%;
+
+
 
       background: radial-gradient(circle,
 
+
+
           rgba(255, 138, 0, 0.25),
+
+
 
           rgba(255, 179, 0, 0.12) 45%,
 
+
+
           transparent 70%);
+
+
 
       filter: blur(12px);
 
+
+
       animation: slowSpin 18s linear infinite;
+
+
 
       pointer-events: none;
 
+
+
       z-index: -2;
 
+
+
     }
+
+
+
+
 
 
 
     @keyframes slowSpin {
 
+
+
       from {
+
+
 
         transform: rotate(0deg);
 
+
+
       }
+
+
+
+
 
 
 
       to {
 
+
+
         transform: rotate(360deg);
+
+
 
       }
 
+
+
     }
+
+
+
+
 
 
 
     .tech-bg {
 
+
+
       position: fixed;
+
+
 
       inset: 0;
 
+
+
       pointer-events: none;
+
+
 
       overflow: hidden;
 
+
+
       z-index: -1;
 
+
+
     }
+
+
+
+
 
 
 
     .tech {
 
+
+
       position: absolute;
+
+
 
       color: rgba(255, 138, 0, 0.12);
 
+
+
       font-weight: 600;
+
+
 
       white-space: nowrap;
 
+
+
       animation: floatTech 10s ease-in-out infinite;
 
+
+
     }
+
+
+
+
 
 
 
     .tech:nth-child(1) {
 
+
+
       top: 12%;
+
+
 
       left: 28%;
 
+
+
       font-size: 26px;
 
+
+
     }
+
+
+
+
 
 
 
     .tech:nth-child(2) {
 
+
+
       top: 25%;
+
+
 
       right: 8%;
 
+
+
       font-size: 20px;
+
+
 
       animation-delay: -3s;
 
+
+
     }
+
+
+
+
 
 
 
     .tech:nth-child(3) {
 
+
+
       bottom: 18%;
+
+
 
       left: 32%;
 
+
+
       font-size: 24px;
+
+
 
       animation-delay: -6s;
 
+
+
     }
+
+
+
+
 
 
 
     .tech:nth-child(4) {
 
+
+
       bottom: 8%;
+
+
 
       right: 22%;
 
+
+
       font-size: 18px;
+
+
 
       animation-delay: -2s;
 
+
+
     }
+
+
+
+
 
 
 
     .tech:nth-child(5) {
 
+
+
       top: 52%;
+
+
 
       left: 5%;
 
+
+
       font-size: 18px;
+
+
 
       animation-delay: -5s;
 
+
+
     }
+
+
+
+
 
 
 
     @keyframes floatTech {
 
+
+
       0%,
+
+
 
       100% {
 
+
+
         transform: translateY(0px) rotate(-2deg);
 
+
+
       }
+
+
+
+
 
 
 
       50% {
 
+
+
         transform: translateY(-18px) rotate(2deg);
+
+
 
       }
 
+
+
     }
+
+
+
+
 
 
 
     .app {
 
+
+
       min-height: 100vh;
+
+
 
       display: flex;
 
+
+
       padding: 18px;
+
+
 
       gap: 18px;
 
+
+
     }
+
+
+
+
 
 
 
     .sidebar {
 
+
+
       width: 255px;
+
+
 
       flex-shrink: 0;
 
+
+
       padding: 22px 16px;
+
+
 
       display: flex;
 
+
+
       flex-direction: column;
+
+
 
       background: var(--glass);
 
+
+
       border: 1px solid var(--border);
+
+
 
       border-radius: 30px;
 
+
+
       box-shadow:
+
+
 
         0 20px 60px rgba(116, 67, 13, 0.13),
 
+
+
         inset 0 1px 0 rgba(255, 255, 255, 0.7);
+
+
 
       backdrop-filter: blur(22px);
 
+
+
       -webkit-backdrop-filter: blur(22px);
+
+
 
       animation: pageIn 0.7s ease both;
 
+
+
     }
+
+
+
+
 
 
 
     @keyframes pageIn {
 
+
+
       from {
+
+
 
         opacity: 0;
 
+
+
         transform: translateY(15px) scale(0.985);
 
+
+
       }
+
+
+
+
 
 
 
       to {
 
+
+
         opacity: 1;
+
+
 
         transform: translateY(0) scale(1);
 
+
+
       }
 
+
+
     }
+
+
+
+
 
 
 
     .logo {
 
+
+
       display: flex;
+
+
 
       align-items: center;
 
+
+
       gap: 11px;
+
+
 
       padding: 10px 12px 24px;
 
+
+
       margin-bottom: 12px;
+
+
 
       border-bottom: 1px solid rgba(255, 138, 0, 0.12);
 
+
+
     }
+
+
+
+
 
 
 
     .logo-icon {
 
+
+
       width: 45px;
+
+
 
       height: 45px;
 
+
+
       display: flex;
+
+
 
       align-items: center;
 
+
+
       justify-content: center;
+
+
 
       border-radius: 15px;
 
+
+
       background: linear-gradient(135deg,
+
+
 
           var(--orange),
 
+
+
           var(--orange-2),
+
+
 
           var(--gold));
 
+
+
       box-shadow: 0 8px 22px rgba(255, 138, 0, 0.28);
+
+
 
       font-size: 22px;
 
+
+
     }
+
+
+
+
 
 
 
     .logo-text {
 
+
+
       display: flex;
+
+
 
       flex-direction: column;
 
+
+
       line-height: 1.15;
 
+
+
     }
+
+
+
+
 
 
 
     .logo-text strong {
 
+
+
       font-size: 19px;
+
+
 
       color: var(--deep);
 
+
+
     }
+
+
+
+
 
 
 
     .logo-text span {
 
+
+
       font-size: 10px;
+
+
 
       color: #9b6b32;
 
+
+
       margin-top: 4px;
 
+
+
     }
+
+
+
+
 
 
 
     .menu {
 
+
+
       display: flex;
+
+
 
       flex-direction: column;
 
+
+
       gap: 7px;
 
+
+
     }
+
+
+
+
 
 
 
     .menu button {
 
+
+
       position: relative;
+
+
 
       width: 100%;
 
+
+
       border: 1px solid transparent;
+
+
 
       background: transparent;
 
+
+
       color: #704c25;
+
+
 
       padding: 13px 14px;
 
+
+
       border-radius: 16px;
+
+
 
       text-align: left;
 
+
+
       font-family: inherit;
+
+
 
       font-size: 14px;
 
+
+
       cursor: pointer;
+
+
 
       transition: 0.25s ease;
 
+
+
     }
+
+
+
+
 
 
 
     .menu button:hover {
 
+
+
       background: rgba(255, 138, 0, 0.09);
+
+
 
       border-color: rgba(255, 138, 0, 0.1);
 
+
+
       transform: translateX(3px);
 
+
+
     }
+
+
+
+
 
 
 
     .menu button.active {
 
+
+
       color: white;
+
+
 
       background: linear-gradient(135deg, #ff7a00, #ff9d00 55%, #ffd36a);
 
+
+
       border-color: rgba(255, 255, 255, 0.35);
+
+
 
       box-shadow: 0 9px 24px rgba(255, 138, 0, 0.28);
 
+
+
       transform: translateX(3px);
 
+
+
     }
+
+
+
+
 
 
 
     .logout {
 
+
+
       margin-top: auto;
+
+
 
       padding-top: 18px;
 
+
+
     }
+
+
+
+
 
 
 
     .logout button {
 
+
+
       width: 100%;
+
+
 
       padding: 12px 14px;
 
+
+
       border: 1px solid rgba(255, 138, 0, 0.12);
+
+
 
       border-radius: 15px;
 
+
+
       background: rgba(255, 255, 255, 0.55);
+
+
 
       color: #855c2c;
 
+
+
       font-family: inherit;
+
+
 
       font-size: 14px;
 
+
+
       cursor: pointer;
+
+
 
       transition: 0.25s ease;
 
+
+
     }
+
+
+
+
 
 
 
     .logout button:hover {
 
+
+
       background: rgba(255, 138, 0, 0.1);
+
+
 
       color: var(--deep);
 
+
+
       transform: translateY(-2px);
 
+
+
     }
+
+
+
+
 
 
 
     .main {
 
+
+
       flex: 1;
+
+
 
       min-width: 0;
 
+
+
       display: flex;
+
+
 
       flex-direction: column;
 
+
+
       animation: pageIn 0.8s ease 0.05s both;
 
+
+
     }
+
+
+
+
 
 
 
     .topbar {
 
+
+
       min-height: 76px;
+
+
 
       display: flex;
 
+
+
       align-items: center;
+
+
 
       justify-content: space-between;
 
+
+
       gap: 20px;
+
+
 
       padding: 0 8px;
 
+
+
       margin-bottom: 18px;
 
+
+
     }
+
+
+
+
 
 
 
     .page-heading {
 
+
+
       display: flex;
+
+
 
       flex-direction: column;
 
+
+
       gap: 2px;
 
+
+
     }
+
+
+
+
 
 
 
     .page-heading .small-title {
 
+
+
       font-size: 12px;
+
+
 
       color: #a47742;
 
+
+
     }
+
+
+
+
 
 
 
     .page-heading h1 {
 
+
+
       margin: 0;
+
+
 
       font-size: 27px;
 
+
+
       font-weight: 700;
+
+
 
       color: var(--deep);
 
+
+
     }
+
+
+
+
 
 
 
     .teacher-info {
 
+
+
       display: flex;
+
+
 
       align-items: center;
 
+
+
       gap: 11px;
+
+
 
       padding: 7px 15px 7px 8px;
 
+
+
       border-radius: 18px;
+
+
 
       background: var(--glass);
 
+
+
       border: 1px solid var(--border);
+
+
 
       box-shadow: 0 10px 30px rgba(116, 67, 13, 0.1);
 
+
+
       backdrop-filter: blur(15px);
 
+
+
     }
+
+
+
+
 
 
 
     .teacher-avatar {
 
+
+
       width: 43px;
+
+
 
       height: 43px;
 
+
+
       border-radius: 50%;
+
+
 
       padding: 2px;
 
+
+
       background: conic-gradient(var(--orange),
+
+
 
           var(--gold),
 
+
+
           #ffcf70,
+
+
 
           var(--orange));
 
+
+
     }
+
+
+
+
 
 
 
     .teacher-avatar-inner {
 
+
+
       width: 100%;
+
+
 
       height: 100%;
 
+
+
       border-radius: 50%;
+
+
 
       display: flex;
 
+
+
       align-items: center;
+
+
 
       justify-content: center;
 
+
+
       background: linear-gradient(135deg, #fff8ea, #ffffff);
+
+
 
       font-size: 20px;
 
+
+
     }
+
+
+
+
 
 
 
     #teacherName {
 
+
+
       font-size: 13px;
+
+
 
       font-weight: 500;
 
+
+
       color: var(--brown);
+
+
 
       white-space: nowrap;
 
+
+
     }
+
+
+
+
 
 
 
     .workspace {
 
+
+
       position: relative;
+
+
 
       flex: 1;
 
+
+
       min-height: calc(100vh - 130px);
+
+
 
       padding: 32px;
 
+
+
       border-radius: 30px;
+
+
 
       background: rgba(255, 255, 255, 0.7);
 
+
+
       border: 1px solid var(--border);
+
+
 
       box-shadow:
 
+
+
         0 22px 70px rgba(116, 67, 13, 0.12),
+
+
 
         inset 0 1px 0 rgba(255, 255, 255, 0.85);
 
+
+
       backdrop-filter: blur(22px);
+
+
 
       -webkit-backdrop-filter: blur(22px);
 
+
+
       overflow: hidden;
 
+
+
     }
+
+
+
+
 
 
 
     .workspace::before {
 
+
+
       content: "";
+
+
 
       position: absolute;
 
+
+
       width: 300px;
+
+
 
       height: 300px;
 
+
+
       top: -170px;
+
+
 
       right: -120px;
 
+
+
       border-radius: 50%;
+
+
 
       background: radial-gradient(circle,
 
+
+
           rgba(255, 179, 0, 0.18),
+
+
 
           transparent 68%);
 
+
+
       pointer-events: none;
 
+
+
     }
+
+
+
+
 
 
 
     .dashboard-header {
 
+
+
       position: relative;
+
+
 
       margin-bottom: 28px;
 
+
+
     }
+
+
+
+
 
 
 
     .dashboard-header h2 {
 
+
+
       margin: 0;
+
+
 
       font-size: 23px;
 
+
+
       color: var(--deep);
 
+
+
     }
+
+
+
+
 
 
 
     .dashboard-header p {
 
+
+
       margin: 6px 0 0;
+
+
 
       font-size: 13px;
 
+
+
       color: #916b3e;
 
+
+
     }
+
+
+
+
 
 
 
     .stats {
 
+
+
       position: relative;
+
+
 
       display: grid;
 
+
+
       grid-template-columns: repeat(3, minmax(0, 1fr));
+
+
 
       gap: 18px;
 
+
+
     }
+
+
+
+
 
 
 
     .stat-card {
 
+
+
       position: relative;
+
+
 
       min-height: 155px;
 
+
+
       padding: 22px;
+
+
 
       border-radius: 23px;
 
+
+
       background: linear-gradient(145deg,
+
+
 
           rgba(255, 255, 255, 0.82),
 
+
+
           rgba(255, 248, 234, 0.7));
+
+
 
       border: 1px solid rgba(255, 178, 0, 0.22);
 
+
+
       box-shadow:
+
+
 
         0 12px 32px rgba(116, 67, 13, 0.09),
 
+
+
         inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+
 
       overflow: hidden;
 
+
+
       transition: 0.3s ease;
 
+
+
     }
+
+
+
+
 
 
 
     .stat-card:hover {
 
+
+
       transform: translateY(-5px);
+
+
 
       box-shadow: 0 18px 38px rgba(255, 138, 0, 0.16);
 
+
+
       border-color: rgba(255, 138, 0, 0.35);
 
+
+
     }
+
+
+
+
 
 
 
     .stat-card::after {
 
+
+
       content: "";
+
+
 
       position: absolute;
 
+
+
       width: 95px;
+
+
 
       height: 95px;
 
+
+
       right: -30px;
+
+
 
       bottom: -35px;
 
+
+
       border-radius: 50%;
+
+
 
       background: radial-gradient(circle,
 
+
+
           rgba(255, 179, 0, 0.22),
+
+
 
           transparent 68%);
 
+
+
     }
+
+
+
+
 
 
 
     .stat-icon {
 
+
+
       width: 43px;
+
+
 
       height: 43px;
 
+
+
       display: flex;
+
+
 
       align-items: center;
 
+
+
       justify-content: center;
+
+
 
       border-radius: 14px;
 
+
+
       background: linear-gradient(135deg, #fff0d1, #fff9ed);
+
+
 
       border: 1px solid rgba(255, 179, 0, 0.22);
 
+
+
       font-size: 20px;
+
+
 
       margin-bottom: 14px;
 
+
+
     }
+
+
+
+
 
 
 
     .stat-card h3 {
 
+
+
       margin: 0;
+
+
 
       font-size: 13px;
 
+
+
       font-weight: 500;
+
+
 
       color: #8b6436;
 
+
+
     }
+
+
+
+
 
 
 
     .stat-card p {
 
+
+
       margin: 2px 0 0;
+
+
 
       font-size: 31px;
 
+
+
       font-weight: 700;
+
+
 
       color: var(--deep);
 
+
+
     }
+
+
+
+
 
 
 
     .dashboard-panels {
 
+
+
       display: grid;
+
+
 
       grid-template-columns: minmax(0, 1.5fr) minmax(250px, 0.8fr);
 
+
+
       gap: 18px;
+
+
 
       margin-top: 18px;
 
+
+
     }
+
+
+
+
 
 
 
     .panel {
 
+
+
       min-height: 190px;
+
+
 
       padding: 22px;
 
+
+
       border-radius: 23px;
+
+
 
       background: rgba(255, 255, 255, 0.6);
 
+
+
       border: 1px solid rgba(255, 178, 0, 0.16);
 
+
+
     }
+
+
+
+
 
 
 
     .panel h3 {
 
+
+
       margin: 0 0 8px;
+
+
 
       font-size: 16px;
 
+
+
     }
+
+
+
+
 
 
 
     .panel p {
 
+
+
       margin: 0;
+
+
 
       color: #987143;
 
+
+
       font-size: 13px;
 
+
+
     }
+
+
+
+
 
 
 
     .page-content h2 {
 
+
+
       margin-top: 0;
+
+
 
       font-size: 22px;
 
+
+
     }
+
+
+
+
 
 
 
     .page-content p {
 
+
+
       color: #8d693e;
 
+
+
     }
+
+
+
+
 
 
 
     .primary-button {
 
+
+
       border: none;
+
+
 
       padding: 12px 20px;
 
+
+
       border-radius: 16px;
+
+
 
       color: white;
 
+
+
       font-family: inherit;
+
+
 
       font-size: 14px;
 
+
+
       font-weight: 500;
+
+
 
       cursor: pointer;
 
+
+
       background: linear-gradient(135deg, #ff7a00, #ffad00, #ffd36a);
+
+
 
       box-shadow: 0 9px 24px rgba(255, 138, 0, 0.24);
 
+
+
       transition: 0.25s ease;
 
+
+
     }
+
+
+
+
 
 
 
     .primary-button:hover {
 
+
+
       transform: translateY(-2px);
+
+
 
       box-shadow: 0 13px 30px rgba(255, 138, 0, 0.32);
 
+
+
     }
+
+
+
+
 
 
 
     .skeleton {
 
+
+
       position: relative;
+
+
 
       overflow: hidden;
 
+
+
       background: rgba(120, 120, 120, 0.12);
+
+
 
       border-radius: 10px;
 
+
+
       color: transparent !important;
+
+
 
       user-select: none;
 
+
+
     }
+
+
+
+
 
 
 
     .skeleton::after {
 
+
+
       content: "";
+
+
 
       position: absolute;
 
+
+
       inset: 0;
+
+
 
       background: linear-gradient(90deg,
 
+
+
           transparent 0%,
+
+
 
           rgba(255, 255, 255, 0.55) 45%,
 
+
+
           transparent 70%);
+
+
 
       transform: translateX(-100%);
 
+
+
       animation: skeletonShimmer 1.5s infinite;
 
+
+
     }
+
+
+
+
 
 
 
     @keyframes skeletonShimmer {
 
+
+
       100% {
+
+
 
         transform: translateX(100%);
 
+
+
       }
 
+
+
     }
+
+
+
+
 
 
 
     .teacher-name-skeleton {
 
+
+
       width: 125px;
+
+
 
       height: 18px;
 
+
+
       border-radius: 8px;
 
+
+
     }
+
+
+
+
 
 
 
     .skeleton-title {
 
+
+
       width: 250px;
+
+
 
       height: 27px;
 
+
+
       margin-bottom: 10px;
 
+
+
     }
+
+
+
+
 
 
 
     .skeleton-text {
 
+
+
       width: 330px;
+
+
 
       height: 16px;
 
+
+
     }
+
+
+
+
 
 
 
     .stat-number-skeleton {
 
+
+
       width: 65px;
+
+
 
       height: 38px;
 
+
+
       margin-top: 4px;
 
+
+
     }
+
+
+
+
 
 
 
     .error-state {
 
+
+
       min-height: 420px;
+
+
 
       display: flex;
 
+
+
       flex-direction: column;
+
+
 
       align-items: center;
 
+
+
       justify-content: center;
+
+
 
       text-align: center;
 
+
+
       padding: 30px;
 
+
+
     }
+
+
+
+
 
 
 
     .error-icon {
 
+
+
       width: 72px;
+
+
 
       height: 72px;
 
+
+
       display: flex;
+
+
 
       align-items: center;
 
+
+
       justify-content: center;
+
+
 
       border-radius: 24px;
 
+
+
       background: linear-gradient(135deg, #fff0d8, #fffaf0);
+
+
 
       border: 1px solid rgba(255, 138, 0, 0.2);
 
+
+
       box-shadow: 0 12px 30px rgba(255, 138, 0, 0.12);
+
+
 
       font-size: 32px;
 
+
+
       margin-bottom: 18px;
 
+
+
     }
+
+
+
+
 
 
 
     .error-state h2 {
 
+
+
       margin: 0 0 8px;
+
+
 
       font-size: 21px;
 
+
+
       color: var(--deep);
 
+
+
     }
+
+
+
+
 
 
 
     .error-state p {
 
+
+
       margin: 0 0 22px;
+
+
 
       max-width: 420px;
 
+
+
       color: #987143;
+
+
 
       font-size: 13px;
 
+
+
       line-height: 1.8;
 
+
+
     }
+
+
+
+
 
 
 
     .retry-button {
 
+
+
       border: none;
+
+
 
       padding: 12px 24px;
 
+
+
       border-radius: 16px;
+
+
 
       color: white;
 
+
+
       font-family: inherit;
+
+
 
       font-size: 14px;
 
+
+
       font-weight: 500;
+
+
 
       cursor: pointer;
 
+
+
       background: linear-gradient(135deg, #ff7a00, #ffad00, #ffd36a);
+
+
 
       box-shadow: 0 9px 24px rgba(255, 138, 0, 0.25);
 
+
+
       transition: 0.25s ease;
 
+
+
     }
+
+
+
+
 
 
 
     .retry-button:hover {
 
+
+
       transform: translateY(-2px);
+
+
 
       box-shadow: 0 13px 30px rgba(255, 138, 0, 0.34);
 
+
+
     }
+
+
+
+
 
 
 
     @media (max-width: 1000px) {
 
+
+
       .app {
+
+
 
         padding: 12px;
 
+
+
       }
+
+
+
+
 
 
 
       .sidebar {
 
+
+
         width: 220px;
 
+
+
       }
+
+
+
+
 
 
 
       .stats {
 
+
+
         grid-template-columns: 1fr;
 
+
+
       }
+
+
+
+
 
 
 
       .dashboard-panels {
 
+
+
         grid-template-columns: 1fr;
+
+
 
       }
 
+
+
     }
+
+
+
+
 
 
 
     @media (max-width: 760px) {
 
+
+
       .app {
+
+
 
         flex-direction: column;
 
+
+
       }
+
+
+
+
 
 
 
       .sidebar {
 
+
+
         width: 100%;
+
+
 
         border-radius: 23px;
 
+
+
       }
+
+
+
+
 
 
 
       .menu {
 
+
+
         display: grid;
+
+
 
         grid-template-columns: repeat(2, 1fr);
 
+
+
       }
+
+
+
+
 
 
 
       .logout {
 
+
+
         margin-top: 15px;
 
+
+
       }
+
+
+
+
 
 
 
       .workspace {
 
+
+
         min-height: 600px;
+
+
 
         padding: 22px;
 
+
+
       }
+
+
+
+
 
 
 
       .topbar {
 
+
+
         padding: 0 3px;
 
+
+
       }
+
+
+
+
 
 
 
       .page-heading h1 {
 
+
+
         font-size: 23px;
+
+
 
       }
 
+
+
     }
+
+
+
+
 
 
 
     @media (max-width: 480px) {
 
+
+
       .app {
+
+
 
         padding: 8px;
 
+
+
       }
+
+
+
+
 
 
 
       .sidebar {
 
+
+
         padding: 16px 12px;
 
+
+
       }
+
+
+
+
 
 
 
       .menu {
 
+
+
         grid-template-columns: 1fr;
 
+
+
       }
+
+
+
+
 
 
 
       .teacher-info {
 
+
+
         padding-right: 10px;
 
+
+
       }
+
+
+
+
 
 
 
       #teacherName {
 
+
+
         display: none;
 
+
+
       }
+
+
+
+
 
 
 
       .workspace {
 
+
+
         border-radius: 22px;
+
+
 
       }
 
+
+
     }
+
+
+
 
 
     /* Teacher home */
+
     .dashboard-header h2 {
+
       font-size: clamp(22px, 3vw, 30px);
+
       line-height: 1.4
     }
 
+
+
     .dashboard-header p {
+
       font-size: 15px;
+
       line-height: 1.7
     }
 
+
+
     .welcome-kicker {
+
       color: #986008;
+
       font-size: 13px;
+
       font-weight: 700;
+
       letter-spacing: .03em;
+
       margin-bottom: 7px
     }
 
+
+
     .stat-link {
+
       width: 100%;
+
       font: inherit;
+
       text-align: left;
+
       cursor: pointer;
+
       color: var(--deep)
     }
 
+
+
     .stat-link:focus-visible,
+
     .quick-grid button:focus-visible {
+
       outline: 3px solid #c16600;
+
       outline-offset: 3px
     }
 
+
+
     .stat-label {
+
       display: block;
+
       font-size: 15px;
+
       color: #684621;
+
       font-weight: 600
     }
 
+
+
     .stat-value {
+
       display: block;
+
       font-size: clamp(30px, 4vw, 38px);
+
       line-height: 1.25;
+
       margin: 5px 0;
+
       color: var(--deep)
     }
 
+
+
     .stat-action {
+
       display: block;
+
       font-size: 13px;
+
       font-weight: 600;
+
       color: #9a5100
     }
 
+
+
     .dashboard-panels .panel {
+
       min-width: 0
     }
 
+
+
     .quick-panel p,
+
     .overview-panel p {
+
       font-size: 14px;
+
       line-height: 1.7;
+
       color: #765637
     }
 
+
+
     .quick-grid {
+
       display: grid;
+
       grid-template-columns: repeat(2, minmax(0, 1fr));
+
       gap: 10px;
+
       margin-top: 18px
     }
 
+
+
     .quick-grid button {
+
       display: flex;
+
       align-items: center;
+
       gap: 9px;
+
       min-height: 51px;
+
       padding: 11px 14px;
+
       border: 1px solid #ead6b7;
+
       border-radius: 14px;
+
       background: #fffaf1;
+
       color: #493014;
+
       font: 600 14px Prompt, sans-serif;
+
       cursor: pointer;
+
       text-align: left
     }
 
+
+
     .quick-grid button:hover {
+
       background: #ffefd1;
+
       border-color: #dfaa54
     }
 
+
+
     .quick-grid button b {
+
       margin-left: auto;
+
       color: #975000
     }
 
+
+
     .overview-item {
+
       display: flex;
+
       justify-content: space-between;
+
       gap: 12px;
+
       padding: 12px 0;
+
       border-bottom: 1px solid #ecdcc4;
+
       font-size: 14px
     }
 
+
+
     .overview-item:last-child {
+
       border-bottom: 0
     }
 
+
+
     .overview-item strong {
+
       color: #62350a;
+
       text-align: right
     }
 
+
+
     .dashboard-loading {
+
       padding: 30px;
+
       color: #694624;
+
       font-size: 16px
     }
 
+
+
     @media(max-width:700px) {
+
       .stats {
+
         grid-template-columns: 1fr
       }
 
+
+
       .stat-card {
+
         min-height: 0;
+
         padding: 18px
       }
 
+
+
       .dashboard-panels {
+
         grid-template-columns: 1fr
       }
 
+
+
       .quick-grid {
+
         grid-template-columns: 1fr 1fr
       }
 
+
+
       .dashboard-header p {
+
         font-size: 14px
+      }
+
+    }
+
+
+
+    @media(max-width:380px) {
+
+      .quick-grid {
+
+        grid-template-columns: 1fr
+      }
+
+    }
+
+
+    /* Data forms and controls on the supplied Teacher layout */
+    [hidden] {
+      display: none !important
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit
+    }
+
+    button {
+      cursor: pointer
+    }
+
+    .main {
+      min-width: 0
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+      gap: 16px;
+      margin-bottom: 18px
+    }
+
+    .panel,
+    .card {
+      background: rgba(255, 255, 255, .78);
+      border: 1px solid rgba(232, 169, 81, .32);
+      border-radius: 20px;
+      box-shadow: 0 12px 32px rgba(116, 67, 13, .09)
+    }
+
+    .panel {
+      padding: 22px;
+      margin: 18px 0
+    }
+
+    .panel h2 {
+      font-size: 21px;
+      margin: 0 0 16px
+    }
+
+    .card {
+      padding: 19px
+    }
+
+    .card h3 {
+      font-size: 16px;
+      margin: 0 0 7px
+    }
+
+    .card p {
+      line-height: 1.7
+    }
+
+    .stat {
+      font-size: 32px;
+      font-weight: 700;
+      color: #8c4300
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin: 14px 0
+    }
+
+    .btn {
+      border: 1px solid #e4c39a;
+      border-radius: 11px;
+      padding: 10px 14px;
+      background: #fffaf1;
+      color: #583419;
+      font-weight: 600
+    }
+
+    .btn.primary {
+      color: #fff;
+      background: #c45a00;
+      border-color: #c45a00
+    }
+
+    .btn.danger {
+      color: #9c2820;
+      border-color: #e9b9aa
+    }
+
+    .btn:disabled {
+      opacity: .6
+    }
+
+    .btn:hover {
+      filter: brightness(.96)
+    }
+
+    .form {
+      display: grid;
+      gap: 14px;
+      max-width: 720px
+    }
+
+    .form label {
+      display: grid;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 15px
+    }
+
+    .form input,
+    .form textarea,
+    .form select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #dcbf99;
+      border-radius: 11px;
+      background: #fff;
+      color: #352413;
+      font-size: 16px
+    }
+
+    .form textarea {
+      min-height: 95px
+    }
+
+    .form .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 13px
+    }
+
+    .list {
+      display: grid;
+      gap: 12px
+    }
+
+    .item {
+      background: #fff;
+      border: 1px solid #ebd6b7;
+      border-radius: 15px;
+      padding: 16px;
+      min-width: 0
+    }
+
+    .item strong {
+      font-size: 17px
+    }
+
+    .item p {
+      line-height: 1.7;
+      margin: 5px 0;
+      overflow-wrap: anywhere
+    }
+
+    .muted {
+      color: #76583a
+    }
+
+    .empty {
+      padding: 18px;
+      border-radius: 14px;
+      background: #fff9f0;
+      color: #704c25
+    }
+
+    .notice {
+      padding: 13px 16px;
+      border-radius: 12px;
+      background: #fff0d6;
+      color: #6a3700;
+      margin: 12px 0
+    }
+
+    .notice.error {
+      background: #fff0ee;
+      color: #9b211c
+    }
+
+    .home-card {
+      width: 100%;
+      text-align: left;
+      color: #362312;
+      cursor: pointer
+    }
+
+    .home-card span {
+      color: #995000;
+      font-size: 14px;
+      font-weight: 700
+    }
+
+    .home-card:focus-visible,
+    .btn:focus-visible,
+    .menu button:focus-visible {
+      outline: 3px solid #a65700;
+      outline-offset: 3px
+    }
+
+    #who {
+      font-size: 15px;
+      font-weight: 600;
+      color: #513011
+    }
+
+    .workspace {
+      min-width: 0
+    }
+
+    .menu button {
+      font-size: 15px
+    }
+
+    @media(max-width:700px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      .form .row {
+        grid-template-columns: 1fr
+      }
+
+      .panel {
+        padding: 17px
+      }
+
+      .stat {
+        font-size: 28px
       }
     }
 
     @media(max-width:380px) {
-      .quick-grid {
+      .grid {
+        grid-template-columns: 1fr
+      }
+    }
+
+    /* Loading states that follow the final page layout. */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0
+    }
+
+    .section-intro {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 0 0 18px
+    }
+
+    .section-intro h2 {
+      margin: 0 0 4px;
+      font-size: clamp(21px, 3vw, 28px)
+    }
+
+    .section-intro p {
+      margin: 0;
+      color: #715539;
+      line-height: 1.7
+    }
+
+    .skeleton-shell {
+      display: grid;
+      gap: 16px
+    }
+
+    .skeleton-card {
+      height: 112px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .75);
+      border: 1px solid #f0dcc0;
+      padding: 21px
+    }
+
+    .skeleton-row {
+      height: 75px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .75);
+      border: 1px solid #f0dcc0;
+      padding: 16px;
+      margin: 10px 0
+    }
+
+    .skeleton-bar {
+      display: block;
+      height: 15px;
+      max-width: 100%;
+      border-radius: 7px;
+      background: linear-gradient(100deg, #f5e8d4 30%, #fff8ea 48%, #f5e8d4 66%);
+      background-size: 230% 100%;
+      animation: skeleton-shimmer 1.45s ease-in-out infinite;
+      margin-bottom: 13px
+    }
+
+    .skeleton-bar:last-child {
+      margin-bottom: 0
+    }
+
+    .skeleton-bar.long {
+      width: 72%
+    }
+
+    .skeleton-bar.medium {
+      width: 52%
+    }
+
+    .skeleton-bar.short {
+      width: 30%
+    }
+
+    .skeleton-card .skeleton-bar:last-child {
+      height: 27px;
+      width: 26%
+    }
+
+    .skeleton-panel {
+      padding: 20px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .76);
+      border: 1px solid #f0dcc0
+    }
+
+    .page-hint {
+      font-size: 14px;
+      color: #76583a;
+      line-height: 1.65;
+      margin: -2px 0 15px
+    }
+
+    .home-priority {
+      background: linear-gradient(120deg, rgba(255, 245, 224, .97), rgba(255, 255, 255, .85));
+      border-color: #efca93
+    }
+
+    .home-priority p {
+      line-height: 1.7;
+      color: #624626
+    }
+
+    .home-priority h2 {
+      margin-bottom: 7px
+    }
+
+    .stat-grid {
+      margin: 16px 0 20px
+    }
+
+    @keyframes skeleton-shimmer {
+      to {
+        background-position-x: -230%
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      .skeleton-bar {
+        animation: none
+      }
+    }
+
+    .teacher-info {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 9px
+    }
+
+    .menu-loading {
+      margin: 22px 0;
+      padding: 16px 19px;
+      border: 1px solid #eed4ae;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .8);
+      color: #754413;
+      font-size: 15px;
+      line-height: 1.6
+    }
+
+    @media(max-width:600px) {
+      .section-intro {
+        display: block
+      }
+
+      .section-intro h2 {
+        font-size: 22px
+      }
+
+      .skeleton-card {
+        height: 97px
+      }
+    }
+
+    .workflow-steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px
+    }
+
+    .workflow-steps button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px;
+      text-align: left;
+      background: #fffaf2;
+      border: 1px solid #e8c998;
+      border-radius: 13px;
+      color: #4d2b0c;
+      font-weight: 600;
+      cursor: pointer
+    }
+
+    .workflow-steps button:hover {
+      background: #ffefd3
+    }
+
+    .workflow-steps b {
+      display: grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      border-radius: 50%;
+      background: #c65d00;
+      color: white;
+      flex-shrink: 0
+    }
+
+    .workflow-steps span {
+      line-height: 1.35
+    }
+
+    @media(max-width:680px) {
+      .workflow-steps {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+    }
+
+    @media(max-width:390px) {
+      .workflow-steps {
         grid-template-columns: 1fr
       }
     }
   </style>
 
+
+
 </head>
+
+
+
+
 
 
 
 <body>
 
+
+
   <!-- =====================================================
+
+
 
 TECH BACKGROUND
 
-\===================================================== -->
+
+
+\\===================================================== -->
+
+
 
   <div class="tech-bg">
 
+
+
     <span class="tech">&lt;/&gt;</span>
+
+
 
     <span class="tech">C++</span>
 
+
+
     <span class="tech">{ Database }</span>
+
+
 
     <span class="tech">KruVanda</span>
 
+
+
     <span class="tech">Computer</span>
 
+
+
   </div>
+
+
 
   <!-- =====================================================
 
+
+
 APP
 
-\===================================================== -->
+
+
+\\===================================================== -->
+
+
 
   <div class="app">
 
+
+
     <!-- =================================================
+
+
 
 SIDEBAR
 
-\================================================= -->
+
+
+\\================================================= -->
+
+
 
     <aside class="sidebar">
 
+
+
       <div class="logo">
+
+
 
         <div class="logo-icon">🧑‍🏫</div>
 
+
+
         <div class="logo-text">
+
+
 
           <strong>KruVanda</strong>
 
+
+
           <span> CLASSROOM </span>
+
+
 
         </div>
 
+
+
       </div>
+
+
 
       <div class="menu">
 
-        <button class="active" onclick="showPage('dashboard', this)">
+
+
+        <button class="active" data-page="home">
+
+
 
           🏠 &nbsp;หน้าหลัก
 
+
+
         </button>
 
-        <button onclick="showPage('courses', this)">📚 &nbsp;วิชา</button>
 
-        <button onclick="showPage('classrooms', this)">
+
+        <button data-page="courses">📚 &nbsp;วิชา</button>
+
+
+
+        <button data-page="classes">
+
+
 
           🏫 &nbsp;ห้องเรียน
 
+
+
         </button>
 
-        <button onclick="showPage('students', this)">
+
+
+        <button data-page="students">
+
+
 
           👨‍🎓 &nbsp;นักเรียน
 
+
+
         </button>
 
-        <button onclick="showPage('assignments', this)">📝 &nbsp;งาน</button>
 
-        <button onclick="showPage('quizzes', this)">🧠 &nbsp;แบบทดสอบ</button>
 
-        <button onclick="showPage('grades', this)">📊 &nbsp;คะแนน</button>
+        <button data-page="assignments">📝 &nbsp;งาน</button>
 
-        <button onclick="showPage('profile', this)">👤 &nbsp;โปรไฟล์</button>
+
+
+        <button data-page="quizzes">🧠 &nbsp;แบบทดสอบ</button>
+
+
+
+        <button data-page="grades">📊 &nbsp;คะแนน</button>
+
+
+
+        <button data-page="profile">👤 &nbsp;โปรไฟล์</button>
+
+
 
       </div>
+
+
 
       <div class="logout">
 
-        <button onclick="logout()">🚪 &nbsp;ออกจากระบบ</button>
+
+
+        <button id="logout">🚪 &nbsp;ออกจากระบบ</button>
+
+
 
       </div>
+
+
 
     </aside>
 
+
+
     <!-- =================================================
+
+
 
 MAIN
 
-\================================================= -->
+
+
+\\================================================= -->
+
+
 
     <main class="main">
 
+
+
       <!-- =================================================
+
+
 
 TOPBAR
 
-\================================================= -->
+
+
+\\================================================= -->
+
+
 
       <div class="topbar">
 
+
+
         <div class="page-heading">
+
+
 
           <span class="small-title"> KruVanda Classroom </span>
 
-          <h1 id="pageTitle">หน้าหลัก</h1>
+
+
+          <h1 id="title">หน้าหลัก</h1>
+
+
 
         </div>
+
+
 
         <div class="teacher-info">
 
+
+
           <div class="teacher-avatar">
+
+
 
             <div class="teacher-avatar-inner">👩‍🏫</div>
 
+
+
           </div>
 
-          <span id="teacherName" class="teacher-name-skeleton skeleton">
+
+
+          <span id="who">
+
+
 
           </span>
 
+
+
+
         </div>
+
+
 
       </div>
 
+
+
       <!-- =================================================
+
+
 
 WORKSPACE
 
-\================================================= -->
 
-      <section class="workspace" id="workspace">
+
+\\================================================= -->
+
+
+
+      <div id="message" role="status"></div>
+      <section class="workspace" id="content">
+
+
 
         <div class="dashboard-loading" role="status">กำลังโหลดข้อมูลหน้าหลัก…</div>
 
+
+
       </section>
+
+
 
     </main>
 
+
+
   </div>
 
+
+
   <script>
-
-    const GAS_URL =
-
-      "https://script.google.com/macros/s/AKfycbwHBaaP7QK1WJibVcotVm0uteHMPZsV8EEGha0forRblA7xGuVqngrcZlZ-As6lGEoHHw/exec";
-
-    const userData = JSON.parse(sessionStorage.getItem("userData"));
-
-    let dashboardRetryCount = 0;
-    let dashboardData = null;
-    let currentPage = "dashboard";
-
-    const MAX_DASHBOARD_RETRY = 3;
-
-    if (!userData) {
-
-      window.location.href = "index.html";
-
-    } else {
-
-      loadDashboard();
-
-    }
-
-    function showDashboardSkeleton() {
-
-      const teacherName = document.getElementById("teacherName");
-
-      teacherName.className = "teacher-name-skeleton skeleton";
-
-      teacherName.textContent = "";
-
-      const workspace = document.getElementById("workspace");
-
-      workspace.innerHTML = `
-
-<div class="dashboard-header">
-
-<div class="skeleton skeleton-title">
-
-</div>
-
-<div class="skeleton skeleton-text">
-
-</div>
-
-</div>
-
-<div class="stats">
-
-<div class="stat-card">
-
-<div class="stat-icon skeleton">
-
-</div>
-
-<div
-
-class="skeleton"
-
-style="
-
-width:120px;
-
-height:16px;
-
-margin-bottom:8px;
-
-"
-
-></div>
-
-<div
-
-class="skeleton stat-number-skeleton"
-
-></div>
-
-</div>
-
-<div class="stat-card">
-
-<div class="stat-icon skeleton">
-
-</div>
-
-<div
-
-class="skeleton"
-
-style="
-
-width:140px;
-
-height:16px;
-
-margin-bottom:8px;
-
-"
-
-></div>
-
-<div
-
-class="skeleton stat-number-skeleton"
-
-></div>
-
-</div>
-
-<div class="stat-card">
-
-<div class="stat-icon skeleton">
-
-</div>
-
-<div
-
-class="skeleton"
-
-style="
-
-width:135px;
-
-height:16px;
-
-margin-bottom:8px;
-
-"
-
-></div>
-
-<div
-
-class="skeleton stat-number-skeleton"
-
-></div>
-
-</div>
-
-</div>
-
-<div class="dashboard-panels">
-
-<div class="panel">
-
-<div
-
-class="skeleton"
-
-style="
-
-width:150px;
-
-height:20px;
-
-margin-bottom:15px;
-
-"
-
-></div>
-
-<div
-
-class="skeleton"
-
-style="
-
-width:85%;
-
-height:15px;
-
-margin-bottom:8px;
-
-"
-
-></div>
-
-<div
-
-class="skeleton"
-
-style="
-
-width:65%;
-
-height:15px;
-
-"
-
-></div>
-
-</div>
-
-<div class="panel">
-
-<div
-
-class="skeleton"
-
-style="
-
-width:180px;
-
-height:20px;
-
-margin-bottom:15px;
-
-"
-
-></div>
-
-<div
-
-class="skeleton"
-
-style="
-
-width:90%;
-
-height:15px;
-
-margin-bottom:8px;
-
-"
-
-></div>
-
-<div
-
-class="skeleton"
-
-style="
-
-width:60%;
-
-height:15px;
-
-"
-
-></div>
-
-</div>
-
-</div>
-
-`;
-
-    }
-
-    function showDashboardError() {
-
-      const teacherName = document.getElementById("teacherName");
-
-      teacherName.className = "";
-
-      teacherName.textContent = "ไม่สามารถเชื่อมต่อได้";
-
-      const workspace = document.getElementById("workspace");
-
-      workspace.innerHTML = `
-
-<div class="error-state">
-
-<div class="error-icon">
-
-⚠️
-
-</div>
-
-<h2>
-
-ไม่สามารถเชื่อมต่อได้
-
-</h2>
-
-<p>
-
-ระบบไม่สามารถโหลดข้อมูลจากเซิร์ฟเวอร์ได้ในขณะนี้
-
-กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต
-
-แล้วลองใหม่อีกครั้ง
-
-</p>
-
-<button
-
-class="retry-button"
-
-onclick="retryDashboard()"
-
->
-
-↻ ลองใหม่อีกครั้ง
-
-</button>
-
-</div>
-
-`;
-
-    }
-
-    function retryDashboard() {
-
-      dashboardRetryCount = 0;
-
-      loadDashboard();
-
-    }
-
-    function loadDashboard() {
-
-      showDashboardSkeleton();
-
-      fetch(GAS_URL, {
-
-        method: "POST",
-
-        headers: {
-
-          "Content-Type": "text/plain",
-
-        },
-
-        body: JSON.stringify({
-
-          action: "getDashboard",
-
-          userId: userData.userId,
-
-        }),
-
-      })
-
-        .then((response) => {
-
-          if (!response.ok) {
-
-            throw new Error("HTTP Error " + response.status);
-
-          }
-
-          return response.json();
-
-        })
-
-        .then((result) => {
-
-          console.log("Dashboard Response:", result);
-
-          if (result.status === "success") {
-
-            dashboardRetryCount = 0;
-
-            const teacherName = document.getElementById("teacherName");
-
-            teacherName.className = "";
-
-            teacherName.textContent =
-
-              "สวัสดี " + result.data.teacher.fullName;
-
-            dashboardData = result.data;
-            if (currentPage === "dashboard") renderDashboard(result.data);
-          } else {
-
-            retryDashboardRequest();
-
-          }
-
-        })
-
-        .catch((error) => {
-
-          console.error("Dashboard Error:", error);
-
-          retryDashboardRequest();
-
-        });
-
-    }
-
-    function retryDashboardRequest() {
-
-      dashboardRetryCount++;
-
-      console.log(
-
-        "Dashboard Retry:",
-
-        dashboardRetryCount,
-
-        "/",
-
-        MAX_DASHBOARD_RETRY,
-
-      );
-
-      if (dashboardRetryCount < MAX_DASHBOARD_RETRY) {
-
-        setTimeout(() => {
-
-          loadDashboard();
-
-        }, 1200);
-
-      } else {
-
-        showDashboardError();
-
-      }
-
-    }
-
-    function escapeHtml(value) {
-      return String(value == null ? "" : value).replace(/[&<>"']/g, character =>
-        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
-    }
-
-    function openTeacherPage(page) {
-      const button = Array.from(document.querySelectorAll(".menu button"))
-        .find(item => item.getAttribute("onclick")?.includes("'" + page + "'"));
-      if (button) showPage(page, button);
-    }
-
-    function renderDashboard(data) {
-      const stats = data && data.stats || {};
-      const count = value => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : "—";
-      const name = escapeHtml(data && data.teacher && data.teacher.fullName || "คุณครู");
-      document.getElementById("workspace").innerHTML = `
-          <div class="dashboard-header">
-            <div class="welcome-kicker">ภาพรวมการสอน</div>
-            <h2>สวัสดี ${name} 👋</h2>
-            <p>เลือกดูข้อมูลและจัดการห้องเรียนได้จากหน้านี้</p>
-          </div>
-          <div class="stats" aria-label="สรุปข้อมูลการสอน">
-            <button type="button" class="stat-card stat-link" onclick="openTeacherPage('courses')">
-              <span class="stat-icon">📚</span><span class="stat-label">รายวิชาของฉัน</span>
-              <strong class="stat-value">${count(stats.courses)}</strong><span class="stat-action">ดูรายวิชา →</span>
-            </button>
-            <button type="button" class="stat-card stat-link" onclick="openTeacherPage('classrooms')">
-              <span class="stat-icon">🏫</span><span class="stat-label">ห้องเรียนของฉัน</span>
-              <strong class="stat-value">${count(stats.classrooms)}</strong><span class="stat-action">ดูห้องเรียน →</span>
-            </button>
-            <button type="button" class="stat-card stat-link" onclick="openTeacherPage('students')">
-              <span class="stat-icon">👨‍🎓</span><span class="stat-label">นักเรียนในห้องของฉัน</span>
-              <strong class="stat-value">${count(stats.students)}</strong><span class="stat-action">ดูนักเรียน →</span>
-            </button>
-          </div>
-          <div class="dashboard-panels">
-            <section class="panel quick-panel" aria-labelledby="quick-heading">
-              <h3 id="quick-heading">ไปยังเมนูหลัก</h3>
-              <p>เลือกหัวข้อที่ต้องการเปิด</p>
-              <div class="quick-grid">
-                <button type="button" onclick="openTeacherPage('courses')">📚 <span>รายวิชา</span> <b>→</b></button>
-                <button type="button" onclick="openTeacherPage('classrooms')">🏫 <span>ห้องเรียน</span> <b>→</b></button>
-                <button type="button" onclick="openTeacherPage('students')">👨‍🎓 <span>นักเรียน</span> <b>→</b></button>
-                <button type="button" onclick="openTeacherPage('profile')">👤 <span>โปรไฟล์</span> <b>→</b></button>
-              </div>
-            </section>
-            <section class="panel overview-panel" aria-labelledby="overview-heading">
-              <h3 id="overview-heading">ภาพรวมของฉัน</h3>
-              <p>ข้อมูลจากรายวิชาและห้องเรียนที่ผูกกับบัญชีครู</p>
-              <div class="overview-item"><span>รายวิชา</span><strong>${count(stats.courses)} วิชา</strong></div>
-              <div class="overview-item"><span>ห้องเรียน</span><strong>${count(stats.classrooms)} ห้อง</strong></div>
-              <div class="overview-item"><span>นักเรียนไม่ซ้ำ</span><strong>${count(stats.students)} คน</strong></div>
-            </section>
-          </div>`;
-    }
-
-    function showPage(page, button) {
-
-      document.querySelectorAll(".menu button").forEach((btn) => {
-
-        btn.classList.remove("active");
-
+    const GAS_URL = window.KRUVANDA_GAS_URL || sessionStorage.getItem("kruvandaGasUrl") || "https://script.google.com/macros/s/AKfycbwHBaaP7QK1WJibVcotVm0uteHMPZsV8EEGha0forRblA7xGuVqngrcZlZ-As6lGEoHHw/exec";
+    function server(action, fields = {}, token = '') {
+      const payload = { action, token, ...fields };
+      return new Promise((resolve, reject) => {
+        const complete = raw => { try { const r = typeof raw === 'string' ? JSON.parse(raw) : raw; if (r.status === 'success') resolve(r.data); else reject(Error(r.message || 'เกิดข้อผิดพลาด')) } catch (err) { reject(err) } };
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+          google.script.run.withSuccessHandler(complete).withFailureHandler(err => reject(Error(err.message || String(err)))).apiCall(JSON.stringify(payload));
+        } else {
+          fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
+            .then(response => { if (!response.ok) throw Error('เชื่อมต่อไม่สำเร็จ: ' + response.status); return response.text() }).then(complete).catch(reject);
+        }
       });
-
-      button.classList.add("active");
-
-      const title = document.getElementById("pageTitle");
-
-      const workspace = document.getElementById("workspace");
-
-      currentPage = page;
-      if (page === "dashboard") {
-        title.textContent = "หน้าหลัก";
-        if (dashboardData) renderDashboard(dashboardData);
-        else loadDashboard();
-      } else if (page === "courses") {
-
-        title.textContent = "วิชาของฉัน";
-
-        workspace.innerHTML = `
-
-<div class="page-content">
-
-<h2>
-
-📚 วิชาของฉัน
-
-</h2>
-
-<p>
-
-พื้นที่จัดการรายวิชาของครู
-
-</p>
-
-<button
-
-class="primary-button"
-
-onclick="alert('เดี๋ยวเราจะทำระบบเพิ่มวิชาตรงนี้')"
-
->
-
-＋ เพิ่มวิชา
-
-</button>
-
-</div>
-
-`;
-
-      } else if (page === "classrooms") {
-
-        title.textContent = "ห้องเรียน";
-
-        workspace.innerHTML = `
-
-<div class="page-content">
-
-<h2>
-
-🏫 ห้องเรียน
-
-</h2>
-
-<p>
-
-พื้นที่จัดการห้องเรียน
-
-</p>
-
-</div>
-
-`;
-
-      } else if (page === "students") {
-
-        title.textContent = "นักเรียน";
-
-        workspace.innerHTML = `
-
-<div class="page-content">
-
-<h2>
-
-👨‍🎓 นักเรียน
-
-</h2>
-
-<p>
-
-พื้นที่จัดการนักเรียน
-
-</p>
-
-</div>
-
-`;
-
-      } else if (page === "assignments") {
-
-        title.textContent = "งาน";
-
-        workspace.innerHTML = `
-
-<div class="page-content">
-
-<h2>
-
-📝 งาน
-
-</h2>
-
-<p>
-
-พื้นที่จัดการงานและการส่งงาน
-
-</p>
-
-</div>
-
-`;
-
-      } else if (page === "quizzes") {
-
-        title.textContent = "แบบทดสอบ";
-
-        workspace.innerHTML = `
-
-<div class="page-content">
-
-<h2>
-
-🧠 แบบทดสอบ
-
-</h2>
-
-<p>
-
-พื้นที่สร้างและจัดการแบบทดสอบ
-
-</p>
-
-</div>
-
-`;
-
-      } else if (page === "grades") {
-
-        title.textContent = "คะแนน";
-
-        workspace.innerHTML = `
-
-<div class="page-content">
-
-<h2>
-
-📊 คะแนน
-
-</h2>
-
-<p>
-
-พื้นที่ดูคะแนนและวิเคราะห์ผลการเรียน
-
-</p>
-
-</div>
-
-`;
-
-      } else if (page === "profile") {
-
-        title.textContent = "โปรไฟล์";
-
-        workspace.innerHTML = `
-
-<div class="page-content">
-
-<h2>
-
-👤 โปรไฟล์ครู
-
-</h2>
-
-<p>
-
-พื้นที่จัดการข้อมูลส่วนตัวของครู
-
-</p>
-
-</div>
-
-`;
-
-      }
-
     }
+  </script>
+  <script>
+    function bootApp() {
+      /* ใช้ google.script.run ผ่าน URL ของเว็บแอปที่เผยแพร่จาก Code.gs */
 
-    function logout() {
-
-      sessionStorage.removeItem("userData");
-
-      window.location.href = "index.html";
+      const session = JSON.parse(sessionStorage.getItem('userData') || 'null');
+      if (!session || !session.token || session.role !== 'teacher') { sessionStorage.removeItem('userData'); location.replace(typeof google !== 'undefined' && google.script ? '?page=index' : 'index.html'); return; }
+      const role = session.role;
+      const esc = x => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const one = id => document.getElementById(id);
+      let page = 'home', cache = {}, activeQuizId = '', navigationId = 0, pageHtmlCache = {};
+      const menus = [['home', 'หน้าหลัก'], ['courses', 'วิชา'], ['classes', 'ห้องเรียน'], ['students', 'นักเรียน'], ['assignments', 'งาน'], ['quizzes', 'แบบทดสอบ'], ['grades', 'คะแนน'], ['profile', 'โปรไฟล์']];
+      one('who').textContent = session.fullName || 'คุณครู';
+      one('logout').onclick = async () => { try { await api('logout') } catch (e) { } sessionStorage.removeItem('userData'); location.replace(typeof google !== 'undefined' && google.script ? '?page=index' : 'index.html') };
+      async function api(action, fields = {}) { const currentNavigation = navigationId; const value = await server(action, fields, session.token); if (currentNavigation !== navigationId) throw Error('คำขอก่อนหน้าถูกยกเลิก'); return value; }
+      function notice(message, error = false) { one('message').innerHTML = message ? `<div class="notice ${error ? 'error' : ''}">${esc(message)}</div>` : ''; }
+      function box(title, body) { return `<section class="panel"><h2>${esc(title)}</h2>${body}</section>`; }
+      function item(title, meta, buttons) { return `<div class="item"><strong>${esc(title)}</strong><p class="muted">${esc(meta || '')}</p><div class="actions">${buttons}</div></div>`; }
+      function btn(label, action, id = '', style = '') { return `<button type="button" class="btn ${style}" data-do="${action}" data-id="${esc(id)}">${esc(label)}</button>`; }
+      function empty(text) { return `<div class="empty">${esc(text)}</div>`; }
+      function field(label, name, value = '', type = 'text', required = false) { return `<label>${esc(label)}<input name="${name}" type="${type}" value="${esc(value)}" ${required ? 'required' : ''}></label>`; }
+      function area(label, name, value = '') { return `<label>${esc(label)}<textarea name="${name}">${esc(value)}</textarea></label>`; }
+      function select(label, name, items, value = '') { return `<label>${esc(label)}<select name="${name}" required><option value="">เลือก${esc(label)}</option>${items.map(x => `<option value="${esc(x.id)}" ${x.id === value ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>`; }
+      function optionalSelect(label, name, items, value = '') { return `<label>${esc(label)}<select name="${name}"><option value="">ไม่ระบุภาคเรียน</option>${items.map(x => `<option value="${esc(x.id)}" ${x.id === value ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></label>`; }
+      function editor(title, action, fields, id = '') {
+        one('editor').innerHTML = `<section class="panel"><h2>${esc(title)}</h2><form class="form" data-submit="${action}"><input type="hidden" name="id" value="${esc(id)}">${fields}<div class="actions"><button class="btn primary" type="submit">บันทึก</button><button class="btn" type="button" data-do="cancel">ยกเลิก</button></div></form></section>`;
+        one('editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      const pageNames = { home: 'หน้าหลัก', courses: 'วิชาของฉัน', classes: 'ห้องเรียน', students: 'นักเรียน', assignments: 'งาน', quizzes: 'แบบทดสอบ', grades: 'คะแนน', profile: 'โปรไฟล์' };
+      const pageDescriptions = { courses: 'เริ่มจากเพิ่มวิชา แล้วจึงสร้างห้องเรียน', classes: 'สร้างห้องเรียนในวิชาที่สอน และดูจำนวนนักเรียนในแต่ละห้อง', students: 'เพิ่มนักเรียน ระบบจะออกรหัส STD ต่อเนื่องโดยอัตโนมัติ', assignments: 'มอบหมายงาน ดูงานที่ส่ง และให้คะแนน', quizzes: 'สร้างแบบทดสอบ เพิ่มคำถาม แล้วเผยแพร่ให้นักเรียน', grades: 'ดูผลจากงานและแบบทดสอบ หรือบันทึกคะแนนเพิ่มเติม', profile: 'จัดการข้อมูลส่วนตัวและรหัสผ่าน' };
+      function basicLayout(title, controls, body) { one('title').textContent = title; one('content').innerHTML = `<div id="editor"></div><div class="section-intro"><div><h2>${esc(title)}</h2><p>${esc(pageDescriptions[page] || '')}</p></div></div>${box('รายการ' + title, `<div class="actions">${controls}</div><div class="list">${body}</div>`)}`; }
+      function dateText(v) { if (!v) return ''; const d = new Date(v); return Number.isNaN(d.valueOf()) ? String(v) : d.toLocaleString('th-TH'); }
+      function skeleton(next) {
+        const cards = next === 'home' ? 5 : next === 'grades' ? 3 : 0;
+        const bars = '<span class="skeleton-bar medium"></span><span class="skeleton-bar short"></span>';
+        return `<div class="skeleton-shell" role="status" aria-label="กำลังโหลด${esc(pageNames[next] || 'ข้อมูล')}">${cards ? `<div class="grid">${Array.from({ length: cards }, () => `<div class="skeleton-card">${bars}</div>`).join('')}</div>` : ''}<div class="skeleton-panel"><span class="skeleton-bar medium"></span>${Array.from({ length: next === 'profile' ? 4 : 3 }, () => `<div class="skeleton-row">${bars}</div>`).join('')}</div><span class="sr-only">กำลังโหลดข้อมูล</span></div>`;
+      }
+      async function navigate(next, { force = false } = {}) {
+        const requestId = ++navigationId;
+        page = next; notice(''); one('title').textContent = pageNames[next] || 'หน้าหลัก';
+        document.querySelectorAll('.menu button[data-page]').forEach(x => x.classList.toggle('active', x.dataset.page === page));
+        if (!force && pageHtmlCache[next]) {
+          one('content').innerHTML = pageHtmlCache[next];
+          one('content').setAttribute('aria-busy', 'false');
+          return;
+        }
+        one('content').setAttribute('aria-busy', 'true');
+        one('content').innerHTML = skeleton(next);
+        try {
+          await (renderers[role][page] || renderers[role].home)();
+          if (requestId === navigationId) pageHtmlCache[next] = one('content').innerHTML;
+        } catch (err) {
+          if (requestId !== navigationId) return;
+          one('content').innerHTML = `${empty('โหลดข้อมูลไม่สำเร็จ')}<div class="actions"><button class="btn primary" data-page="${esc(page)}">ลองใหม่</button></div>`;
+          notice(err.message, true);
+        } finally { if (requestId === navigationId) one('content').setAttribute('aria-busy', 'false') }
+      }
+      const renderers = { teacher: { home: teacherHome, courses: teacherCourses, classes: teacherClasses, students: teacherStudents, assignments: teacherAssignments, quizzes: teacherQuizzes, grades: teacherGrades, profile: showProfile } };
+      async function teacherHome() {
+        const [stats, courses] = await Promise.all([api('dashboard'), api('listCourses')]);
+        one('title').textContent = 'หน้าหลัก';
+        const pending = Number(stats.pendingReviews) || 0;
+        one('content').innerHTML = `
+ <div class="section-intro"><div><h2>สวัสดี ${esc(session.fullName || 'คุณครู')} 👋</h2><p>ภาพรวมชั้นเรียนและสิ่งที่ควรทำต่อ</p></div></div>
+ ${box('งานที่ต้องดู', `<p class="page-hint">${pending ? `มีงานส่งที่ยังไม่ให้คะแนน ${pending} รายการ` : 'ขณะนี้ไม่มีงานส่งที่รอตรวจ'}</p><div class="actions"><button type="button" class="btn primary" data-page="assignments">ดูงานและตรวจงาน</button><button type="button" class="btn" data-page="grades">ดูคะแนนทั้งหมด</button></div>`).replace('class="panel"', 'class="panel home-priority"')}
+ <div class="grid stat-grid">${[['วิชา', stats.courses, 'courses'], ['ห้องเรียน', stats.classrooms, 'classes'], ['นักเรียน', stats.students, 'students'], ['งานที่มอบหมาย', stats.assignments, 'assignments'], ['แบบทดสอบ', stats.quizzes, 'quizzes']].map(([label, num, target]) => `<button type="button" class="card home-card" data-page="${target}"><h3>${label}</h3><div class="stat">${Number(num) || 0}</div><span>เปิดดู →</span></button>`).join('')}</div>
+ ${box('ห้องเรียนของฉัน', stats.recentClasses.length ? `<div class="grid">${stats.recentClasses.map(x => `<button type="button" class="card home-card" data-page="classes"><h3>${esc(x.name)}</h3><p>${esc(x.courseName)} · ${esc(x.grade)} ${esc(x.room)}</p><span>${Number(x.studentCount) || 0} คน · เปิดห้องเรียน →</span></button>`).join('')}</div>` : empty('ยังไม่มีห้องเรียน เริ่มจากเพิ่มวิชา แล้วสร้างห้องเรียน'))}
+ ${box('เริ่มใช้งานตามลำดับ', `<div class="workflow-steps"><button data-page="courses"><b>1</b><span>เพิ่มวิชา</span></button><button data-page="classes"><b>2</b><span>สร้างห้องเรียน</span></button><button data-page="students"><b>3</b><span>เพิ่มนักเรียน</span></button><button data-page="assignments"><b>4</b><span>มอบหมายงาน</span></button><button data-page="quizzes"><b>5</b><span>สร้างแบบทดสอบ</span></button><button data-page="grades"><b>6</b><span>ตรวจคะแนน</span></button></div>`)}
+ ${box('วิชาของฉัน', courses.map(x => item(x.name, x.description, '')).join('') || empty('ยังไม่มีวิชา'))}`;
+      }
+      function needPreviousStep(text, target, label) { return box('เริ่มต้นที่เมนูก่อนหน้า', `<p class="page-hint">${esc(text)}</p><button class="btn primary" data-page="${target}">${esc(label)} →</button>`) }
+      async function teacherCourses() {
+        cache.courses = await api('listCourses');
+        basicLayout('วิชาของฉัน', btn('＋ เพิ่มวิชา', 'newCourse', '', 'primary'), cache.courses.map(x => item(x.name, x.description || 'ยังไม่มีคำอธิบาย', btn('แก้ไข', 'editCourse', x.id) + btn('ลบ', 'deleteCourse', x.id, 'danger'))).join('') || empty('ยังไม่มีวิชา กด “เพิ่มวิชา” เพื่อเริ่มต้น'));
+      }
+      async function teacherClasses() {
+        [cache.classes, cache.courses, cache.semesters] = await Promise.all([api('listClasses'), api('listCourses'), api('listSemesters')]);
+        if (!cache.courses.length) { one('title').textContent = 'ห้องเรียน'; one('content').innerHTML = needPreviousStep('ต้องมีวิชาก่อนจึงจะสร้างห้องเรียนได้', 'courses', 'ไปเพิ่มวิชา'); return; }
+        basicLayout('ห้องเรียน', btn('＋ สร้างห้องเรียน', 'newClass', '', 'primary'), cache.classes.map(x => item(x.name, `${x.courseName} · ${x.grade} ${x.room} · นักเรียน ${x.studentCount} คน`, btn('แก้ไข', 'editClass', x.id) + `<button class="btn" data-page="students">จัดการนักเรียน</button>` + btn('ลบ', 'deleteClass', x.id, 'danger'))).join('') || empty('ยังไม่มีห้องเรียน กด “สร้างห้องเรียน” เพื่อเริ่มต้น'));
+      }
+      async function teacherStudents() {
+        [cache.students, cache.classes] = await Promise.all([api('listStudents'), api('listClasses')]);
+        if (!cache.classes.length) { one('title').textContent = 'นักเรียน'; one('content').innerHTML = needPreviousStep('สร้างห้องเรียนก่อนเพิ่มนักเรียน', 'classes', 'ไปสร้างห้องเรียน'); return; }
+        basicLayout('นักเรียน', btn('＋ เพิ่มนักเรียน', 'newStudent', '', 'primary'), cache.students.map(x => item(x.name, `${x.studentNo} · ชื่อผู้ใช้ ${x.username} · ${x.classIds.map(id => (cache.classes.find(c => c.id === id) || {}).name).filter(Boolean).join(', ')}`, btn('แก้ไข / ตั้งรหัสใหม่', 'editStudent', x.id) + btn('เพิ่มเข้าห้อง', 'enrollStudent', x.id) + x.classIds.map(id => btn('นำออกจาก ' + (cache.classes.find(c => c.id === id) || {}).name, 'removeStudent', x.id + '|' + id, 'danger')).join('') + btn('ปิดบัญชี', 'deactivateStudent', x.id, 'danger'))).join('') || empty('ยังไม่มีนักเรียนในห้อง กด “เพิ่มนักเรียน” เพื่อให้ระบบสร้างรหัส STD'));
+      }
+      async function teacherAssignments() {
+        [cache.assignments, cache.classes, cache.submissions] = await Promise.all([api('listAssignments'), api('listClasses'), api('listSubmissions')]);
+        if (!cache.classes.length) { one('title').textContent = 'งาน'; one('content').innerHTML = needPreviousStep('สร้างห้องเรียนก่อนมอบหมายงาน', 'classes', 'ไปสร้างห้องเรียน'); return; }
+        basicLayout('งาน', btn('＋ มอบหมายงาน', 'newAssignment', '', 'primary'), cache.assignments.map(x => { const all = cache.submissions.filter(s => s.assignmentId === x.id), pending = all.filter(s => s.score === '' || s.score == null).length; return item(x.title, `${(cache.classes.find(c => c.id === x.classId) || {}).name || ''} · กำหนดส่ง ${dateText(x.dueAt) || 'ไม่กำหนด'} · ส่งแล้ว ${all.length} · รอตรวจ ${pending}`, btn('ดูงานที่ส่ง / ตรวจ', 'viewSubmissions', x.id) + btn('แก้ไข', 'editAssignment', x.id) + btn('ลบ', 'deleteAssignment', x.id, 'danger')); }).join('') || empty('ยังไม่มีงาน กด “มอบหมายงาน” เพื่อเริ่มต้น'));
+      }
+      async function teacherQuizzes() {
+        [cache.quizzes, cache.classes, cache.attempts] = await Promise.all([api('listQuizzes'), api('listClasses'), api('listAttempts')]);
+        if (!cache.classes.length) { one('title').textContent = 'แบบทดสอบ'; one('content').innerHTML = needPreviousStep('สร้างห้องเรียนก่อนสร้างแบบทดสอบ', 'classes', 'ไปสร้างห้องเรียน'); return; }
+        basicLayout('แบบทดสอบ', btn('＋ สร้างแบบทดสอบ', 'newQuiz', '', 'primary'), cache.quizzes.map(x => item(x.title, `${(cache.classes.find(c => c.id === x.classId) || {}).name || ''} · ${x.questionCount} ข้อ · ${x.status === 'draft' ? 'ฉบับร่าง' : 'เผยแพร่แล้ว'} · ทำแล้ว ${cache.attempts.filter(a => a.quizId === x.id).length}`, btn('แก้ชื่อ', 'editQuiz', x.id) + (x.status === 'draft' ? btn('เพิ่ม / แก้คำถาม', 'questions', x.id) + btn('เผยแพร่', 'publishQuiz', x.id) : btn('ดูผลสอบ', 'viewAttempts', x.id)) + btn('ลบ', 'deleteQuiz', x.id, 'danger'))).join('') || empty('ยังไม่มีแบบทดสอบ กด “สร้างแบบทดสอบ” จากนั้นเพิ่มคำถามและเผยแพร่'));
+      }
+      async function teacherGrades() {
+        [cache.grades, cache.classes, cache.students, cache.submissions, cache.assignments, cache.attempts, cache.quizzes] = await Promise.all([
+          api('listGrades'), api('listClasses'), api('listStudents'), api('listSubmissions'), api('listAssignments'), api('listAttempts'), api('listQuizzes')]);
+        const manual = cache.grades.map(x => item(x.title, `${(cache.students.find(s => s.id === x.studentId) || {}).name || ''} · ${x.score}/${x.maxScore} · ${x.note}`, btn('แก้ไข', 'editGrade', x.id) + btn('ลบ', 'deleteGrade', x.id, 'danger'))).join('') || empty('ยังไม่มีคะแนนเพิ่มเติม');
+        const work = cache.submissions.map(x => item((cache.assignments.find(a => a.id === x.assignmentId) || {}).title || 'งาน', `${x.studentName} · ${x.score !== '' && x.score != null ? x.score + '/100' : 'ยังไม่ตรวจ'}`, btn('ให้คะแนน', 'gradeSubmission', x.id))).join('') || empty('ยังไม่มีงานที่ส่ง');
+        const tests = cache.attempts.map(x => item((cache.quizzes.find(q => q.id === x.quizId) || {}).title || 'แบบทดสอบ', `${x.studentName} · ${x.score}/${x.maxScore}`, '')).join('') || empty('ยังไม่มีผลสอบ');
+        one('title').textContent = 'คะแนน';
+        one('content').innerHTML = `<div id="editor"></div>${box('คะแนนเพิ่มเติม', `<div class="actions">${cache.students.length ? btn('＋ บันทึกคะแนน', 'newGrade', '', 'primary') : '<button class="btn" data-page="students">เพิ่มนักเรียนก่อนบันทึกคะแนน →</button>'}</div><div class="list">${manual}</div>`)}${box('งานที่ส่ง', `<div class="list">${work}</div>`)}${box('ผลแบบทดสอบ', `<div class="list">${tests}</div>`)}`;
+      }
+      async function showProfile() { const p = await api('profile'); cache.profile = p; one('title').textContent = 'โปรไฟล์'; one('content').innerHTML = `<div id="editor"></div>${box('ข้อมูลส่วนตัว', `<form class="form" data-submit="updateProfile">${field('ชื่อ–นามสกุล', 'fullName', p.fullName, 'text', true)}${field('อีเมล', 'email', p.email, 'email')}${field('โทรศัพท์', 'phone', p.phone)}${field('ลิงก์รูปภาพ', 'imgUrl', p.imgUrl, 'url')}${field('รหัสผ่านปัจจุบัน (กรอกเมื่อต้องการเปลี่ยน)', 'currentPassword', '', 'password') + field('รหัสผ่านใหม่ (เว้นว่างถ้าไม่เปลี่ยน)', 'password', '', 'password')}<button class="btn primary" type="submit">บันทึกโปรไฟล์</button></form>`)}`; }
+      async function handleButton(op, id) {
+        if (op === 'cancel') { one('editor').innerHTML = ''; return; }
+        if (op === 'newCourse' || op === 'editCourse') { const x = cache.courses.find(c => c.id === id) || {}; editor(x.id ? 'แก้ไขวิชา' : 'เพิ่มวิชา', 'saveCourse', field('ชื่อวิชา', 'name', x.name, 'text', true) + area('คำอธิบาย', 'description', x.description), x.id); return; }
+        if (op === 'newClass' || op === 'editClass') { const x = cache.classes.find(c => c.id === id) || {}; editor(x.id ? 'แก้ไขห้อง' : 'เพิ่มห้อง', 'saveClass', select('วิชา', 'courseId', cache.courses.map(c => ({ id: c.id, name: c.name })), x.courseId) + field('ชื่อห้อง', 'name', x.name, 'text', true) + `<div class="row">${field('ระดับชั้น', 'grade', x.grade)}${field('ห้อง', 'room', x.room)}</div>` + optionalSelect('ภาคเรียน', 'semesterId', cache.semesters, x.semesterId), x.id); return; }
+        if (op === 'newStudent') { editor('เพิ่มนักเรียน', 'createStudent', select('ห้องเรียน', 'classId', cache.classes) + field('ชื่อผู้ใช้', 'username', '', 'text', true) + field('รหัสผ่านเริ่มต้น (อย่างน้อย 8 ตัว)', 'password', '', 'password', true) + field('ชื่อ–นามสกุล', 'name', '', 'text', true) + field('อีเมล', 'email', '', 'email') + field('โทรศัพท์', 'phone')); return; }
+        if (op === 'editStudent') { const x = cache.students.find(s => s.id === id); editor('แก้ไขนักเรียน', 'updateStudent', field('ชื่อ–นามสกุล', 'name', x.name, 'text', true) + `<p class="muted">รหัสนักเรียน: ${esc(x.studentNo)} (ระบบกำหนดให้)</p>` + field('อีเมล', 'email', x.email, 'email') + field('โทรศัพท์', 'phone', x.phone) + field('ตั้งรหัสผ่านใหม่ (เว้นว่างถ้าไม่เปลี่ยน)', 'password', '', 'password'), x.id); return; }
+        if (op === 'enrollStudent') { editor('เพิ่มนักเรียนเข้าห้อง', 'enrollStudent', `<input type="hidden" name="studentId" value="${esc(id)}">` + select('ห้องเรียน', 'classId', cache.classes.filter(c => !cache.students.find(s => s.id === id).classIds.includes(c.id)))); return; }
+        if (op === 'newAssignment' || op === 'editAssignment') { const x = cache.assignments.find(a => a.id === id) || {}; editor(x.id ? 'แก้ไขงาน' : 'เพิ่มงาน', 'saveAssignment', select('ห้องเรียน', 'classId', cache.classes, x.classId) + field('ชื่องาน', 'title', x.title, 'text', true) + area('คำสั่งงาน', 'instructions', x.instructions) + field('กำหนดส่ง', 'dueAt', x.dueAt, 'date'), x.id); return; }
+        if (op === 'viewSubmissions') { const a = cache.assignments.find(x => x.id === id), subs = cache.submissions.filter(x => x.assignmentId === id); one('editor').innerHTML = box('งานที่ส่ง: ' + a.title, subs.map(x => item(x.studentName, `${x.answer} ${x.url} · ส่ง ${dateText(x.submittedAt)} · ${x.score !== '' && x.score != null ? 'คะแนน ' + x.score + '/100' : 'ยังไม่ตรวจ'}`, btn('ให้คะแนน', 'gradeSubmission', x.id))).join('') || empty('ยังไม่มีผู้ส่งงาน')); return; }
+        if (op === 'gradeSubmission') { const x = cache.submissions.find(s => s.id === id); editor('ให้คะแนนงาน: ' + x.studentName, 'gradeSubmission', field('คะแนน (0–100)', 'score', x.score, 'number', true) + area('ข้อเสนอแนะ', 'feedback', x.feedback), id); return; }
+        if (op === 'newQuiz' || op === 'editQuiz') { const x = cache.quizzes.find(q => q.id === id) || {}; editor(x.id ? 'แก้ชื่อแบบทดสอบ' : 'เพิ่มแบบทดสอบ', 'saveQuiz', select('ห้องเรียน', 'classId', cache.classes, x.classId) + field('ชื่อแบบทดสอบ', 'title', x.title, 'text', true), x.id); return; }
+        if (op === 'questions') { await questionEditor(id); return; }
+        if (op === 'newQuestion' || op === 'editQuestion') { const quizId = activeQuizId, questions = cache.questions || [], x = questions.find(q => q.id === id) || {}; editor(x.id ? 'แก้คำถาม' : 'เพิ่มคำถาม', 'saveQuestion', `<input type="hidden" name="quizId" value="${esc(quizId)}">` + `<label>คำถาม<textarea name="text" required>${esc(x.text || '')}</textarea></label>` + ['A', 'B', 'C', 'D'].map((c, i) => field('ตัวเลือก ' + c, 'option' + c, (x.options || [])[i], 'text', true)).join('') + select('ข้อที่ถูก', 'correct', ['A', 'B', 'C', 'D'].map(c => ({ id: c, name: c })), x.correct) + field('คะแนน', 'points', x.points || 1, 'number', true), x.id); return; }
+        if (op === 'viewAttempts') { const x = cache.quizzes.find(q => q.id === id), all = cache.attempts.filter(a => a.quizId === id); one('editor').innerHTML = box('ผลสอบ: ' + x.title, all.map(a => item(a.studentName, `${a.score}/${a.maxScore} · ${dateText(a.submittedAt)}`, '')).join('') || empty('ยังไม่มีผู้ทำแบบทดสอบ')); return; }
+        if (op === 'newGrade' || op === 'editGrade') { const x = cache.grades.find(g => g.id === id) || {}; editor(x.id ? 'แก้คะแนน' : 'บันทึกคะแนน', 'saveGrade', select('ห้องเรียน', 'classId', cache.classes, x.classId) + select('นักเรียน', 'studentId', cache.students.filter(s => s.classIds.includes(x.classId)).map(s => ({ id: s.id, name: s.name })), x.studentId) + field('ชื่อรายการ', 'title', x.title, 'text', true) + `<div class="row">${field('คะแนน', 'score', x.score, 'number', true)}${field('คะแนนเต็ม', 'maxScore', x.maxScore || 100, 'number', true)}</div>` + area('หมายเหตุ', 'note', x.note), x.id); return; }
+        const destructive = ['deleteCourse', 'deleteClass', 'removeStudent', 'deleteAssignment', 'deleteQuiz', 'deleteQuestion', 'deleteGrade', 'deactivateStudent'];
+        if (destructive.includes(op) && !confirm('ยืนยันการลบหรือเอาออก?')) return;
+        let fields = { id }; if (op === 'removeStudent') { const parts = id.split('|'); fields = { studentId: parts[0], classId: parts[1] }; }
+        if (op === 'deleteQuestion') fields.quizId = activeQuizId;
+        await api(op, fields); pageHtmlCache = {}; await navigate(page, { force: true }); notice('บันทึกเรียบร้อย');
+      }
+      async function questionEditor(quizId) { activeQuizId = quizId; cache.questions = await api('listQuestions', { quizId }); one('editor').innerHTML = `<section class="panel" id="questionBox" data-quiz="${esc(quizId)}"><h2>คำถาม</h2><div class="actions">${btn('＋ เพิ่มคำถาม', 'newQuestion', '', 'primary')}</div>${cache.questions.map((x, i) => item((i + 1) + '. ' + x.text, `${x.options.join(' / ')} · เฉลย ${x.correct} · ${x.points} คะแนน`, btn('แก้ไข', 'editQuestion', x.id) + btn('ลบ', 'deleteQuestion', x.id, 'danger'))).join('') || empty('ยังไม่มีคำถาม')}</section>`; one('editor').scrollIntoView({ behavior: 'smooth' }); }
+      async function submitForm(form) {
+        const op = form.dataset.submit, values = Object.fromEntries(new FormData(form)); const button = form.querySelector('[type="submit"]'); button.disabled = true; try {
+          let payload = values;
+          if (op === 'saveQuestion') payload.options = ['A', 'B', 'C', 'D'].map(c => values['option' + c]);
+          const result = await api(op, payload); pageHtmlCache = {};
+          if (op === 'updateProfile') { session.fullName = values.fullName; sessionStorage.setItem('userData', JSON.stringify(session)); one('who').textContent = values.fullName; }
+          await navigate(page, { force: true }); notice('บันทึกเรียบร้อย');
+          if (op === 'createStudent') notice(`เพิ่มนักเรียนแล้ว รหัสนักเรียน: ${result.studentNo} · ชื่อผู้ใช้: ${result.username}`);
+        } catch (err) { notice(err.message, true) } finally { button.disabled = false }
+      }
+      document.addEventListener('click', async event => { const nav = event.target.closest('[data-page]'); if (nav) { navigate(nav.dataset.page); return; } const action = event.target.closest('[data-do]'); if (action) try { await handleButton(action.dataset.do, action.dataset.id) } catch (err) { notice(err.message, true) } });
+      document.addEventListener('change', event => {
+        if (event.target.name !== 'classId') return;
+        const form = event.target.closest('form[data-submit="saveGrade"]');
+        if (!form) return;
+        const studentSelect = form.querySelector('select[name="studentId"]');
+        studentSelect.innerHTML = '<option value="">เลือกนักเรียน</option>' + cache.students
+          .filter(student => student.classIds.includes(event.target.value))
+          .map(student => `<option value="${esc(student.id)}">${esc(student.name)}</option>`).join('');
+      });
+      document.addEventListener('submit', event => { const form = event.target.closest('[data-submit]'); if (form) { event.preventDefault(); submitForm(form) } });
+      if (session && session.role === role) navigate('home');
 
     }
 
   </script>
+  <script>bootApp();</script>
+
+
 
 </body>
+
+
 
 </html>
