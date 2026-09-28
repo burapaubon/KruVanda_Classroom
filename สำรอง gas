@@ -1,315 +1,379 @@
+const DB = {
+  users: 'User_Accounts', teachers: 'Teacher_Profile', students: 'Student_Profiles',
+  semesters: 'Semesters', courses: 'Courses', classrooms: 'Classrooms', enrollments: 'Classroom_Students',
+  assignments: 'Assignments', submissions: 'Submissions', quizzes: 'Quizzes', questions: 'Quiz_Questions',
+  attempts: 'Quiz_Attempts', grades: 'Grades'
+};
+const NEW_HEADERS = {
+  Assignments: ['Assignment_ID', 'Classroom_ID', 'Title', 'Instructions', 'Due_At', 'Status', 'Created_At'],
+  Submissions: ['Submission_ID', 'Assignment_ID', 'Student_ID', 'Answer_Text', 'Answer_URL', 'Submitted_At', 'Score', 'Feedback', 'Graded_At'],
+  Quizzes: ['Quiz_ID', 'Classroom_ID', 'Title', 'Status', 'Created_At'],
+  Quiz_Questions: ['Question_ID', 'Quiz_ID', 'Question_Text', 'Option_A', 'Option_B', 'Option_C', 'Option_D', 'Correct_Option', 'Points'],
+  Quiz_Attempts: ['Attempt_ID', 'Quiz_ID', 'Student_ID', 'Answers_JSON', 'Score', 'Max_Score', 'Submitted_At'],
+  Grades: ['Grade_ID', 'Classroom_ID', 'Student_ID', 'Title', 'Score', 'Max_Score', 'Note', 'Created_At']
+};
+const SESSION_TTL = 21600;
+
+function setupKruVanda() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) throw Error('ต้องเปิด Apps Script จาก Google Sheets ต้นฉบับ');
+  ['users', 'teachers', 'students', 'semesters', 'courses', 'classrooms', 'enrollments'].forEach(key => {
+    if (!ss.getSheetByName(DB[key])) throw Error('ไม่พบแท็บ ' + DB[key]);
+  });
+  Object.keys(NEW_HEADERS).forEach(name => {
+    let sheet = ss.getSheetByName(name);
+    if (!sheet) { sheet = ss.insertSheet(name); sheet.appendRow(NEW_HEADERS[name]); }
+    else if (sheet.getRange(1, 1, 1, NEW_HEADERS[name].length).getValues()[0].join('|') !== NEW_HEADERS[name].join('|'))
+      throw Error('หัวคอลัมน์ไม่ตรงในแท็บ ' + name);
+    sheet.setFrozenRows(1);
+  });
+  return 'พร้อมใช้งาน: ' + Object.keys(NEW_HEADERS).join(', ');
+}
 function doPost(e) {
-  var jsonOutput = ContentService.createTextOutput();
-
   try {
-    var requestData = JSON.parse(e.postData.contents);
-
-    var inputUser = requestData.username;
-    var inputPass = requestData.password;
-    var action = requestData.action;
-
-    if (action === "getDashboard") {
-
-      var result = getDashboard(requestData.userId);
-
-      return jsonOutput
-        .setMimeType(ContentService.MimeType.JSON)
-        .setContent(JSON.stringify(result));
-    }
-
-    if (action === "getCourses") {
-
-      var result = getCourses(requestData.teacherId);
-
-      return jsonOutput
-        .setMimeType(ContentService.MimeType.JSON)
-        .setContent(JSON.stringify(result));
-    }
-
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-    var userSheet = ss.getSheetByName("User_Accounts");
-    var userRows = userSheet.getDataRange().getValues();
-
-    var loginSuccess = false;
-    var userData = null;
-
-
-    for (var i = 1; i < userRows.length; i++) {
-
-      var userId = userRows[i][0];
-      var username = userRows[i][1];
-      var password = userRows[i][2];
-      var role = userRows[i][3];
-
-
-      if (
-        String(username).trim() === String(inputUser).trim() &&
-        String(password) === String(inputPass)
-      ) {
-
-        loginSuccess = true;
-
-        userData = {
-          userId: userId,
-          role: role
-        };
-
-        break;
-      }
-    }
-
-
-    if (loginSuccess) {
-
-      if (userData.role === "student") {
-
-        var studentSheet = ss.getSheetByName("Student_Profiles");
-        var studentRows = studentSheet.getDataRange().getValues();
-
-
-        for (var j = 1; j < studentRows.length; j++) {
-
-          if (studentRows[j][0] === userData.userId) {
-
-            userData.firstName = studentRows[j][1];
-            userData.lastName = studentRows[j][2];
-            userData.room = studentRows[j][3];
-            userData.no = studentRows[j][4];
-            userData.year = studentRows[j][5];
-            userData.imgUrl = studentRows[j][6];
-
-            break;
-          }
-        }
-
-      }
-
-      else if (userData.role === "teacher") {
-
-        var teacherSheet = ss.getSheetByName("Teacher_Profile");
-        var teacherRows = teacherSheet.getDataRange().getValues();
-
-
-        for (var j = 1; j < teacherRows.length; j++) {
-
-          if (
-            String(teacherRows[j][0]).trim() ===
-            String(userData.userId).trim()
-          ) {
-
-            userData.fullName = teacherRows[j][1];
-            userData.imgUrl = teacherRows[j][3];
-
-            break;
-          }
-        }
-      }
-
-
-      var responseData = {
-        status: "success",
-        data: userData
-      };
-
-
-      return jsonOutput
-        .setMimeType(ContentService.MimeType.JSON)
-        .setContent(JSON.stringify(responseData));
-
-
-    } else {
-
-      var failData = {
-        status: "fail",
-        message: "Username หรือ Password ไม่ถูกต้อง!"
-      };
-
-
-      return jsonOutput
-        .setMimeType(ContentService.MimeType.JSON)
-        .setContent(JSON.stringify(failData));
-    }
-
-
-  } catch (error) {
-
-    var errorData = {
-      status: "error",
-      message: "เกิดข้อผิดพลาด: " + error.toString()
-    };
-
-
-    return jsonOutput
-      .setMimeType(ContentService.MimeType.JSON)
-      .setContent(JSON.stringify(errorData));
-  }
+    const q = JSON.parse(e && e.postData && e.postData.contents || '{}');
+    const handler = ACTIONS[q.action || 'login'];
+    if (!handler) throw Error('คำสั่งไม่ถูกต้อง');
+    return respond_({ status: 'success', data: handler(q) });
+  } catch (err) { return respond_({ status: 'error', message: err.message || String(err) }); }
 }
-
-function getDashboard(userId) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  var teacherSheet = ss.getSheetByName("Teacher_Profile");
-  var teacherRows = teacherSheet.getDataRange().getValues();
-
-  var teacher = null;
-
-  for (var i = 1; i < teacherRows.length; i++) {
-
-    if (
-      String(teacherRows[i][0]).trim() ===
-      String(userId).trim()
-    ) {
-
-      teacher = {
-        userId: teacherRows[i][0],
-        fullName: teacherRows[i][1],
-        imgUrl: teacherRows[i][3]
-      };
-
-      break;
-    }
+function respond_(data) {
+  return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
+}
+function sh_(name) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) throw Error('ไม่พบ Google Sheets ต้นฉบับ');
+  const s = ss.getSheetByName(name);
+  if (!s) throw Error('ไม่พบแท็บ ' + name + ' — เรียก setupKruVanda ก่อน');
+  return s;
+}
+function rows_(name) {
+  const s = sh_(name), count = s.getLastRow() - 1;
+  if (count <= 0) return [];
+  return s.getRange(2, 1, count, s.getLastColumn()).getValues()
+    .map((r, i) => ({ r, n: i + 2 })).filter(x => text_(x.r[0]));
+}
+function text_(x) { return String(x == null ? '' : x).trim(); }
+function need_(x, label, max) {
+  x = text_(x); if (!x || x.length > max) throw Error(label + ' ต้องมี 1–' + max + ' ตัวอักษร'); return x;
+}
+function status_(x) { return !['deleted', 'inactive', 'disabled'].includes(text_(x).toLowerCase()); }
+function id_(prefix) { return prefix + '-' + Utilities.getUuid().replace(/-/g, '').slice(0, 12).toUpperCase(); }
+function find_(name, id) { return rows_(name).find(x => text_(x.r[0]) === text_(id)); }
+function requireRow_(name, id) {
+  const x = find_(name, id);
+  const columns = {
+    User_Accounts: 4, Student_Profiles: 6, Courses: 4, Classrooms: 7,
+    Classroom_Students: 5, Assignments: 5, Quizzes: 3
+  };
+  if (!x || (Object.prototype.hasOwnProperty.call(columns, name) && !status_(x.r[columns[name]])))
+    throw Error('ไม่พบข้อมูลที่ใช้งานได้');
+  return x;
+}
+function append_(name, row) { sh_(name).appendRow(row); return row[0]; }
+function update_(name, x, patch) {
+  const s = sh_(name), row = x.r.slice();
+  Object.keys(patch).forEach(k => row[+k] = patch[k]);
+  s.getRange(x.n, 1, 1, row.length).setValues([row]);
+}
+function locked_(fn) { const lock = LockService.getScriptLock(); lock.waitLock(15000); try { return fn(); } finally { lock.releaseLock(); } }
+function digest_(password, salt) {
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, salt + ':' + password);
+  return bytes.map(b => ('0' + ((b + 256) % 256).toString(16)).slice(-2)).join('');
+}
+function passwordMatches_(stored, password) {
+  stored = String(stored || '');
+  if (stored.indexOf('sha256$') === 0) {
+    const p = stored.split('$'); return p.length === 3 && digest_(password, p[1]) === p[2];
   }
+  return stored === password; // Compatibility with existing accounts; new passwords are hashed.
+}
+function hashPassword_(password) {
+  password = need_(password, 'รหัสผ่าน', 100);
+  if (password.length < 8) throw Error('รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร');
+  return legacyHash_(password);
+}
+function legacyHash_(password) {
+  const salt = Utilities.getUuid(); return 'sha256$' + salt + '$' + digest_(password, salt);
+}
+function login_(q) {
+  const username = need_(q.username, 'ชื่อผู้ใช้', 100), password = String(q.password || '');
+  const cache = CacheService.getScriptCache();
+  const loginKey = 'loginFails:' + digest_(username.toLowerCase(), 'kruvanda');
+  const failures = Number(cache.get(loginKey)) || 0;
+  if (failures >= 5) throw Error('ลองรหัสผ่านผิดหลายครั้ง กรุณารอ 15 นาที');
+  const a = rows_(DB.users).find(x => text_(x.r[1]) === username && status_(x.r[4]) && passwordMatches_(x.r[2], password));
+  if (!a) { cache.put(loginKey, String(failures + 1), 900); throw Error('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือบัญชีถูกปิด'); }
+  cache.remove(loginKey);
+  if (String(a.r[2]).indexOf('sha256$') !== 0) update_(DB.users, a, { 2: legacyHash_(password) });
+  const role = text_(a.r[3]).toLowerCase(), userId = text_(a.r[0]);
+  if (!['teacher', 'student'].includes(role)) throw Error('บัญชีนี้ไม่มีสิทธิ์เข้าใช้งาน');
+  const profile = find_(role === 'teacher' ? DB.teachers : DB.students, userId);
+  if (!profile || (role === 'student' && !status_(profile.r[6]))) throw Error('ไม่พบโปรไฟล์ที่ใช้งานได้');
+  const token = Utilities.getUuid() + Utilities.getUuid();
+  CacheService.getScriptCache().put('session:' + token, JSON.stringify({ userId, role }), SESSION_TTL);
+  return { token, userId, role, fullName: text_(profile.r[role === 'teacher' ? 1 : 2]), imgUrl: text_(profile.r[role === 'teacher' ? 3 : 5]) };
+}
+function auth_(q, role) {
+  const raw = CacheService.getScriptCache().get('session:' + text_(q.token));
+  if (!raw) throw Error('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
+  const session = JSON.parse(raw);
+  if (role && session.role !== role) throw Error('ไม่มีสิทธิ์ดำเนินการ');
+  const account = find_(DB.users, session.userId);
+  if (!account || !status_(account.r[4]) || text_(account.r[3]).toLowerCase() !== session.role)
+    throw Error('บัญชีนี้ไม่มีสิทธิ์ใช้งาน');
+  return session;
+}
+function logout_(q) { auth_(q); CacheService.getScriptCache().remove('session:' + text_(q.token)); return { loggedOut: true }; }
+function teacher_(q) { return auth_(q, 'teacher').userId; }
+function student_(q) { return auth_(q, 'student').userId; }
+function ownsCourse_(teacherId, courseId) {
+  const c = requireRow_(DB.courses, courseId);
+  if (text_(c.r[3]) !== teacherId) throw Error('วิชานี้ไม่ใช่ของครู'); return c;
+}
+function ownsClass_(teacherId, classId) {
+  const c = requireRow_(DB.classrooms, classId);
+  if (text_(c.r[6]) !== teacherId) throw Error('ห้องเรียนนี้ไม่ใช่ของครู'); return c;
+}
+function enrolled_(studentId, classId) {
+  const c = requireRow_(DB.classrooms, classId);
+  if (!rows_(DB.enrollments).some(x => text_(x.r[1]) === studentId && text_(x.r[2]) === classId && status_(x.r[5])))
+    throw Error('นักเรียนไม่ได้อยู่ในห้องนี้'); return c;
+}
+function ownerOfAssignment_(teacherId, id) { const a = requireRow_(DB.assignments, id); ownsClass_(teacherId, a.r[1]); return a; }
+function ownerOfQuiz_(teacherId, id) { const q = requireRow_(DB.quizzes, id); ownsClass_(teacherId, q.r[1]); return q; }
+function optional_(q, key, max) { const v = text_(q[key]); if (v.length > max) throw Error(key + ' ยาวเกินกำหนด'); return v; }
 
-  if (!teacher) {
-
-    return {
-      status: "fail",
-      message: "ไม่พบข้อมูลครู"
-    };
-  }
-
-  var courseSheet = ss.getSheetByName("Courses");
-  var courseRows = courseSheet.getDataRange().getValues();
-
-  var courseCount = 0;
-
-  for (var i = 1; i < courseRows.length; i++) {
-
-    var courseTeacherId = String(courseRows[i][3]).trim();
-    var courseStatus = String(courseRows[i][4]).trim();
-
-    if (
-      courseTeacherId === String(userId).trim() &&
-      courseStatus !== "deleted"
-    ) {
-      courseCount++;
-    }
-  }
-
-  var classroomSheet = ss.getSheetByName("Classrooms");
-  var classroomRows = classroomSheet.getDataRange().getValues();
-
-  var classroomCount = 0;
-
-  for (var i = 1; i < classroomRows.length; i++) {
-
-    var classroomTeacherId = String(classroomRows[i][6]).trim();
-    var classroomStatus = String(classroomRows[i][7]).trim();
-
-    if (
-      classroomTeacherId === String(userId).trim() &&
-      classroomStatus !== "deleted"
-    ) {
-      classroomCount++;
-    }
-  }
-
-  var enrollmentSheet = ss.getSheetByName("Classroom_Students");
-  var enrollmentRows = enrollmentSheet.getDataRange().getValues();
-
-  var studentIds = {};
-
-  for (var i = 1; i < enrollmentRows.length; i++) {
-
-    var studentId = String(enrollmentRows[i][1]).trim();
-    var classroomId = String(enrollmentRows[i][2]).trim();
-    var enrollmentStatus = String(enrollmentRows[i][5]).trim();
-
-    var isTeacherClassroom = false;
-
-    for (var j = 1; j < classroomRows.length; j++) {
-
-      if (
-        String(classroomRows[j][0]).trim() === classroomId &&
-        String(classroomRows[j][6]).trim() === String(userId).trim()
-      ) {
-
-        isTeacherClassroom = true;
-        break;
-      }
-    }
-
-    if (
-      isTeacherClassroom &&
-      studentId &&
-      enrollmentStatus !== "deleted"
-    ) {
-
-      studentIds[studentId] = true;
-    }
-  }
-
-  var studentCount = Object.keys(studentIds).length;
-
-
+function dashboard_(q) {
+  const id = teacher_(q);
+  const courses = rows_(DB.courses).filter(x => text_(x.r[3]) === id && status_(x.r[4]));
+  const classes = rows_(DB.classrooms).filter(x => text_(x.r[6]) === id && status_(x.r[7]));
+  const classIds = new Set(classes.map(x => text_(x.r[0])));
+  const students = new Set(rows_(DB.enrollments).filter(x => classIds.has(text_(x.r[2])) && status_(x.r[5])).map(x => text_(x.r[1])));
   return {
-    status: "success",
-
-    data: {
-
-      teacher: teacher,
-
-      stats: {
-        courses: courseCount,
-        classrooms: classroomCount,
-        students: studentCount
-      }
-
-    }
+    courses: courses.length, classrooms: classes.length, students: students.size,
+    assignments: rows_(DB.assignments).filter(x => classIds.has(text_(x.r[1])) && status_(x.r[5])).length,
+    quizzes: rows_(DB.quizzes).filter(x => classIds.has(text_(x.r[1])) && status_(x.r[3])).length
   };
 }
+function listCourses_(q) { const id = teacher_(q); return rows_(DB.courses).filter(x => text_(x.r[3]) === id && status_(x.r[4])).map(x => ({ id: text_(x.r[0]), name: text_(x.r[1]), description: text_(x.r[2]) })); }
+function saveCourse_(q) {
+  const id = teacher_(q), name = need_(q.name, 'ชื่อวิชา', 150), description = optional_(q, 'description', 1000);
+  if (q.id) { const x = ownsCourse_(id, q.id); update_(DB.courses, x, { 1: name, 2: description, 6: new Date() }); return { id: q.id }; }
+  return locked_(() => ({ id: append_(DB.courses, [id_('CRS'), name, description, id, 'active', new Date(), new Date()]) }));
+}
+function deleteCourse_(q) {
+  const id = teacher_(q), x = ownsCourse_(id, q.id);
+  if (rows_(DB.classrooms).some(r => text_(r.r[1]) === text_(q.id) && status_(r.r[7]))) throw Error('ลบวิชานี้ไม่ได้: ยังมีห้องเรียนที่ใช้งานอยู่');
+  update_(DB.courses, x, { 4: 'deleted', 6: new Date() }); return { deleted: true };
+}
+function listClasses_(q) {
+  const id = teacher_(q), names = new Map(rows_(DB.courses).map(x => [text_(x.r[0]), text_(x.r[1])]));
+  return rows_(DB.classrooms).filter(x => text_(x.r[6]) === id && status_(x.r[7])).map(x => ({ id: text_(x.r[0]), courseId: text_(x.r[1]), courseName: names.get(text_(x.r[1])) || '', name: text_(x.r[2]), grade: text_(x.r[3]), room: text_(x.r[4]), semesterId: text_(x.r[5]) }));
+}
+function saveClass_(q) {
+  const id = teacher_(q), course = ownsCourse_(id, q.courseId), name = need_(q.name, 'ชื่อห้องเรียน', 150), grade = optional_(q, 'grade', 30), room = optional_(q, 'room', 30), semesterId = optional_(q, 'semesterId', 80);
+  if (semesterId && !find_(DB.semesters, semesterId)) throw Error('ไม่พบภาคเรียนนี้');
+  if (q.id) { const x = ownsClass_(id, q.id); if (text_(x.r[1]) !== text_(course.r[0]) && rows_(DB.enrollments).some(r => text_(r.r[2]) === text_(q.id) && status_(r.r[5]))) throw Error('เปลี่ยนวิชาของห้องที่มีนักเรียนอยู่ไม่ได้'); update_(DB.classrooms, x, { 1: q.courseId, 2: name, 3: grade, 4: room, 5: semesterId }); return { id: q.id }; }
+  return locked_(() => ({ id: append_(DB.classrooms, [id_('CLS'), q.courseId, name, grade, room, semesterId, id, 'active', new Date()]) }));
+}
+function deleteClass_(q) {
+  const id = teacher_(q), x = ownsClass_(id, q.id);
+  if (rows_(DB.enrollments).some(r => text_(r.r[2]) === text_(q.id) && status_(r.r[5]))) throw Error('ลบห้องไม่ได้: ย้ายหรือนำนักเรียนออกก่อน');
+  if (rows_(DB.assignments).some(r => text_(r.r[1]) === text_(q.id) && status_(r.r[5])) || rows_(DB.quizzes).some(r => text_(r.r[1]) === text_(q.id) && status_(r.r[3]))) throw Error('ลบห้องไม่ได้: ยังมีงานหรือแบบทดสอบอยู่');
+  update_(DB.classrooms, x, { 7: 'deleted' }); return { deleted: true };
+}
+function listStudents_(q) {
+  const id = teacher_(q), classes = listClasses_({ token: q.token }), ids = new Set(classes.map(c => c.id));
+  const memberships = rows_(DB.enrollments).filter(x => ids.has(text_(x.r[2])) && status_(x.r[5]));
+  const users = new Map(rows_(DB.users).map(x => [text_(x.r[0]), x.r]));
+  return rows_(DB.students).filter(x => memberships.some(m => text_(m.r[1]) === text_(x.r[0])) && status_(x.r[6])).map(x => ({ id: text_(x.r[0]), studentNo: text_(x.r[1]), name: text_(x.r[2]), email: text_(x.r[3]), phone: text_(x.r[4]), username: text_((users.get(text_(x.r[0])) || [])[1]), classIds: memberships.filter(m => text_(m.r[1]) === text_(x.r[0])).map(m => text_(m.r[2])) }));
+}
+function createStudent_(q) {
+  const teacher = teacher_(q), c = ownsClass_(teacher, q.classId), username = need_(q.username, 'ชื่อผู้ใช้', 100), password = need_(q.password, 'รหัสผ่าน', 100), name = need_(q.name, 'ชื่อนักเรียน', 150);
+  const email = optional_(q, 'email', 150), phone = optional_(q, 'phone', 50);
+  return locked_(() => {
+    if (rows_(DB.users).some(x => text_(x.r[1]).toLowerCase() === username.toLowerCase())) throw Error('ชื่อผู้ใช้นี้มีแล้ว');
+    const used = rows_(DB.students).map(x => /^STD(\d+)$/i.exec(text_(x.r[1]))).filter(Boolean).map(x => Number(x[1]));
+    const properties = PropertiesService.getScriptProperties();
+    const next = Math.max(Number(properties.getProperty('LAST_STUDENT_NUMBER')) || 0,
+      used.reduce((max, n) => Math.max(max, n), 0)) + 1;
+    properties.setProperty('LAST_STUDENT_NUMBER', String(next));
+    const studentNo = 'STD' + String(next).padStart(3, '0');
+    const id = id_('USR'); append_(DB.users, [id, username, hashPassword_(password), 'student', 'active', new Date()]);
+    append_(DB.students, [id, studentNo, name, email, phone, '', 'active', new Date()]);
+    append_(DB.enrollments, [id_('ENR'), id, c.r[0], c.r[5], '', 'active', new Date()]); return { id, username, studentNo };
+  });
+}
+function studentBelongsToTeacher_(teacher, studentId) {
+  const owned = new Set(rows_(DB.classrooms).filter(x => text_(x.r[6]) === teacher && status_(x.r[7])).map(x => text_(x.r[0])));
+  if (!rows_(DB.enrollments).some(x => text_(x.r[1]) === text_(studentId) && owned.has(text_(x.r[2])) && status_(x.r[5]))) throw Error('นักเรียนไม่ได้อยู่ในห้องของครู'); return requireRow_(DB.students, studentId);
+}
+function updateStudent_(q) {
+  const teacher = teacher_(q), x = studentBelongsToTeacher_(teacher, q.id);
+  update_(DB.students, x, { 2: need_(q.name, 'ชื่อนักเรียน', 150), 3: optional_(q, 'email', 150), 4: optional_(q, 'phone', 50) });
+  if (q.password) { const a = requireRow_(DB.users, q.id); update_(DB.users, a, { 2: hashPassword_(q.password) }); } return { id: q.id };
+}
+function enrollStudent_(q) {
+  const teacher = teacher_(q), c = ownsClass_(teacher, q.classId); studentBelongsToTeacher_(teacher, q.studentId);
+  return locked_(() => {
+    const old = rows_(DB.enrollments).find(x => text_(x.r[1]) === text_(q.studentId) && text_(x.r[2]) === text_(q.classId));
+    if (old) { update_(DB.enrollments, old, { 5: 'active' }); return { id: old.r[0] }; }
+    return { id: append_(DB.enrollments, [id_('ENR'), q.studentId, q.classId, c.r[5], '', 'active', new Date()]) };
+  });
+}
+function removeStudent_(q) {
+  const teacher = teacher_(q); ownsClass_(teacher, q.classId);
+  const x = rows_(DB.enrollments).find(r => text_(r.r[1]) === text_(q.studentId) && text_(r.r[2]) === text_(q.classId) && status_(r.r[5]));
+  if (!x) throw Error('ไม่พบการลงทะเบียน'); update_(DB.enrollments, x, { 5: 'deleted' }); return { removed: true };
+}
+function deactivateStudent_(q) {
+  const teacher = teacher_(q); studentBelongsToTeacher_(teacher, q.id);
+  const memberships = rows_(DB.enrollments).filter(x => text_(x.r[1]) === text_(q.id) && status_(x.r[5]));
+  memberships.forEach(x => ownsClass_(teacher, x.r[2]));
+  memberships.forEach(x => update_(DB.enrollments, x, { 5: 'deleted' }));
+  update_(DB.students, requireRow_(DB.students, q.id), { 6: 'inactive' });
+  update_(DB.users, requireRow_(DB.users, q.id), { 4: 'inactive' });
+  return { deactivated: true };
+}
+function listAssignments_(q) {
+  const teacher = teacher_(q), classes = new Set(listClasses_({ token: q.token }).map(c => c.id));
+  return rows_(DB.assignments).filter(x => classes.has(text_(x.r[1])) && status_(x.r[5])).map(x => ({ id: text_(x.r[0]), classId: text_(x.r[1]), title: text_(x.r[2]), instructions: text_(x.r[3]), dueAt: text_(x.r[4]) }));
+}
+function saveAssignment_(q) {
+  const t = teacher_(q); ownsClass_(t, q.classId); const title = need_(q.title, 'ชื่องาน', 150), instructions = optional_(q, 'instructions', 3000), dueAt = optional_(q, 'dueAt', 50);
+  if (q.id) { const x = ownerOfAssignment_(t, q.id); if (text_(x.r[1]) !== text_(q.classId)) throw Error('ย้ายงานข้ามห้องไม่ได้'); update_(DB.assignments, x, { 2: title, 3: instructions, 4: dueAt }); return { id: q.id }; }
+  return locked_(() => ({ id: append_(DB.assignments, [id_('ASG'), q.classId, title, instructions, dueAt, 'active', new Date()]) }));
+}
+function deleteAssignment_(q) { const x = ownerOfAssignment_(teacher_(q), q.id); update_(DB.assignments, x, { 5: 'deleted' }); return { deleted: true }; }
+function listSubmissions_(q) {
+  const t = teacher_(q), owned = new Set(listAssignments_({ token: q.token }).map(x => x.id)), studentNames = new Map(rows_(DB.students).map(x => [text_(x.r[0]), text_(x.r[2])]));
+  return rows_(DB.submissions).filter(x => owned.has(text_(x.r[1]))).map(x => ({ id: text_(x.r[0]), assignmentId: text_(x.r[1]), studentId: text_(x.r[2]), studentName: studentNames.get(text_(x.r[2])) || '', answer: text_(x.r[3]), url: text_(x.r[4]), submittedAt: x.r[5], score: x.r[6], feedback: text_(x.r[7]) }));
+}
+function gradeSubmission_(q) {
+  const t = teacher_(q), x = requireRow_(DB.submissions, q.id); ownerOfAssignment_(t, x.r[1]); const score = Number(q.score);
+  if (!Number.isFinite(score) || score < 0 || score > 100) throw Error('คะแนนงานต้องอยู่ระหว่าง 0–100');
+  update_(DB.submissions, x, { 6: score, 7: optional_(q, 'feedback', 1000), 8: new Date() }); return { id: q.id };
+}
+function listQuizzes_(q) {
+  teacher_(q); const classes = new Set(listClasses_({ token: q.token }).map(c => c.id));
+  return rows_(DB.quizzes).filter(x => classes.has(text_(x.r[1])) && status_(x.r[3])).map(x => ({ id: text_(x.r[0]), classId: text_(x.r[1]), title: text_(x.r[2]), status: text_(x.r[3]), questionCount: rows_(DB.questions).filter(r => text_(r.r[1]) === text_(x.r[0])).length }));
+}
+function saveQuiz_(q) {
+  const t = teacher_(q); ownsClass_(t, q.classId); const title = need_(q.title, 'ชื่อแบบทดสอบ', 150);
+  if (q.id) { const x = ownerOfQuiz_(t, q.id); if (text_(x.r[1]) !== text_(q.classId)) throw Error('ย้ายแบบทดสอบข้ามห้องไม่ได้'); update_(DB.quizzes, x, { 2: title }); return { id: q.id }; }
+  return locked_(() => ({ id: append_(DB.quizzes, [id_('QZ'), q.classId, title, 'draft', new Date()]) }));
+}
+function publishQuiz_(q) {
+  const t = teacher_(q), x = ownerOfQuiz_(t, q.id), count = rows_(DB.questions).filter(r => text_(r.r[1]) === text_(q.id)).length;
+  if (!count) throw Error('เพิ่มคำถามอย่างน้อย 1 ข้อก่อนเผยแพร่'); update_(DB.quizzes, x, { 3: 'active' }); return { id: q.id };
+}
+function deleteQuiz_(q) { const x = ownerOfQuiz_(teacher_(q), q.id); update_(DB.quizzes, x, { 3: 'deleted' }); return { deleted: true }; }
+function listQuestions_(q) {
+  const t = teacher_(q); ownerOfQuiz_(t, q.quizId);
+  return rows_(DB.questions).filter(x => text_(x.r[1]) === text_(q.quizId)).map(x => ({ id: text_(x.r[0]), text: text_(x.r[2]), options: x.r.slice(3, 7).map(text_), correct: text_(x.r[7]), points: Number(x.r[8]) || 1 }));
+}
+function saveQuestion_(q) {
+  const t = teacher_(q), quiz = ownerOfQuiz_(t, q.quizId); if (text_(quiz.r[3]) !== 'draft') throw Error('แก้คำถามได้ก่อนเผยแพร่เท่านั้น');
+  const title = need_(q.text, 'คำถาม', 1000), options = (q.options || []).map((x, i) => need_(x, 'ตัวเลือก ' + (i + 1), 300));
+  if (options.length !== 4 || !['A', 'B', 'C', 'D'].includes(q.correct)) throw Error('ต้องมี 4 ตัวเลือก และเฉลย A–D');
+  const points = Number(q.points); if (!Number.isInteger(points) || points < 1 || points > 100) throw Error('คะแนนต่อข้อต้องเป็น 1–100');
+  if (q.id) { const x = requireRow_(DB.questions, q.id); if (text_(x.r[1]) !== text_(q.quizId)) throw Error('คำถามไม่อยู่ในแบบทดสอบ'); update_(DB.questions, x, { 2: title, 3: options[0], 4: options[1], 5: options[2], 6: options[3], 7: q.correct, 8: points }); return { id: q.id }; }
+  return locked_(() => ({ id: append_(DB.questions, [id_('QQ'), q.quizId, title, ...options, q.correct, points]) }));
+}
+function deleteQuestion_(q) {
+  const t = teacher_(q), quiz = ownerOfQuiz_(t, q.quizId); if (text_(quiz.r[3]) !== 'draft') throw Error('ลบคำถามได้ก่อนเผยแพร่เท่านั้น');
+  const x = requireRow_(DB.questions, q.id); if (text_(x.r[1]) !== text_(q.quizId)) throw Error('คำถามไม่อยู่ในแบบทดสอบ'); sh_(DB.questions).deleteRow(x.n); return { deleted: true };
+}
+function listAttempts_(q) {
+  teacher_(q); const owned = new Set(listQuizzes_({ token: q.token }).map(x => x.id)), names = new Map(rows_(DB.students).map(x => [text_(x.r[0]), text_(x.r[2])]));
+  return rows_(DB.attempts).filter(x => owned.has(text_(x.r[1]))).map(x => ({ id: text_(x.r[0]), quizId: text_(x.r[1]), studentId: text_(x.r[2]), studentName: names.get(text_(x.r[2])) || '', score: Number(x.r[4]) || 0, maxScore: Number(x.r[5]) || 0, submittedAt: x.r[6] }));
+}
+function listGrades_(q) {
+  teacher_(q); const classes = new Set(listClasses_({ token: q.token }).map(c => c.id));
+  return rows_(DB.grades).filter(x => classes.has(text_(x.r[1]))).map(x => ({ id: text_(x.r[0]), classId: text_(x.r[1]), studentId: text_(x.r[2]), title: text_(x.r[3]), score: Number(x.r[4]), maxScore: Number(x.r[5]), note: text_(x.r[6]) }));
+}
+function saveGrade_(q) {
+  const t = teacher_(q); ownsClass_(t, q.classId); enrolled_(q.studentId, q.classId);
+  const title = need_(q.title, 'ชื่อรายการคะแนน', 150), score = Number(q.score), max = Number(q.maxScore);
+  if (!Number.isFinite(score) || !Number.isFinite(max) || max <= 0 || score < 0 || score > max) throw Error('คะแนนต้องอยู่ระหว่าง 0 และคะแนนเต็ม');
+  const note = optional_(q, 'note', 1000);
+  if (q.id) { const x = requireRow_(DB.grades, q.id); ownsClass_(t, x.r[1]); update_(DB.grades, x, { 1: q.classId, 2: q.studentId, 3: title, 4: score, 5: max, 6: note }); return { id: q.id }; }
+  return locked_(() => ({ id: append_(DB.grades, [id_('GRD'), q.classId, q.studentId, title, score, max, note, new Date()]) }));
+}
+function deleteGrade_(q) { const t = teacher_(q), x = requireRow_(DB.grades, q.id); ownsClass_(t, x.r[1]); sh_(DB.grades).deleteRow(x.n); return { deleted: true }; }
+function profile_(q) {
+  const s = auth_(q), x = requireRow_(s.role === 'teacher' ? DB.teachers : DB.students, s.userId);
+  return { userId: s.userId, role: s.role, fullName: text_(x.r[s.role === 'teacher' ? 1 : 2]), email: text_(x.r[s.role === 'teacher' ? 4 : 3]), phone: text_(x.r[s.role === 'teacher' ? 5 : 4]), imgUrl: text_(x.r[s.role === 'teacher' ? 3 : 5]) };
+}
+function updateProfile_(q) {
+  const s = auth_(q), x = requireRow_(s.role === 'teacher' ? DB.teachers : DB.students, s.userId), name = need_(q.fullName, 'ชื่อ', 150), email = optional_(q, 'email', 150), phone = optional_(q, 'phone', 50), img = optional_(q, 'imgUrl', 500);
+  if (s.role === 'teacher') update_(DB.teachers, x, { 1: name, 3: img, 4: email, 5: phone });
+  else update_(DB.students, x, { 2: name, 3: email, 4: phone, 5: img });
+  if (q.password) { const a = requireRow_(DB.users, s.userId); update_(DB.users, a, { 2: hashPassword_(q.password) }); } return { updated: true };
+}
+function studentHome_(q) {
+  const id = student_(q), enrollments = rows_(DB.enrollments).filter(x => text_(x.r[1]) === id && status_(x.r[5]));
+  const classes = enrollments.map(x => find_(DB.classrooms, x.r[2])).filter(x => x && status_(x.r[7]));
+  const courses = new Map(rows_(DB.courses).map(x => [text_(x.r[0]), text_(x.r[1])]));
+  return classes.map(x => ({ id: text_(x.r[0]), name: text_(x.r[2]), courseName: courses.get(text_(x.r[1])) || '', grade: text_(x.r[3]), room: text_(x.r[4]) }));
+}
+function studentWork_(q) {
+  const id = student_(q), classes = new Set(studentHome_({ token: q.token }).map(x => x.id)), submitted = new Map(rows_(DB.submissions).filter(x => text_(x.r[2]) === id).map(x => [text_(x.r[1]), x.r]));
+  return rows_(DB.assignments).filter(x => classes.has(text_(x.r[1])) && status_(x.r[5])).map(x => ({ id: text_(x.r[0]), classId: text_(x.r[1]), title: text_(x.r[2]), instructions: text_(x.r[3]), dueAt: text_(x.r[4]), submitted: submitted.has(text_(x.r[0])), answer: text_((submitted.get(text_(x.r[0])) || [])[3]), url: text_((submitted.get(text_(x.r[0])) || [])[4]), score: (submitted.get(text_(x.r[0])) || [])[6], feedback: text_((submitted.get(text_(x.r[0])) || [])[7]) }));
+}
+function submitWork_(q) {
+  const student = student_(q), a = requireRow_(DB.assignments, q.id); enrolled_(student, a.r[1]); const answer = optional_(q, 'answer', 10000), url = optional_(q, 'url', 1000);
+  if (!answer && !url) throw Error('กรอกคำตอบหรือลิงก์งาน');
+  if (url && !/^https:\/\//i.test(url)) throw Error('ลิงก์งานต้องขึ้นต้นด้วย https://');
+  return locked_(() => {
+    const old = rows_(DB.submissions).find(x => text_(x.r[1]) === text_(q.id) && text_(x.r[2]) === student);
+    if (old) { if (old.r[6] !== '' && old.r[6] != null) throw Error('งานนี้ตรวจคะแนนแล้ว แก้ไขไม่ได้'); update_(DB.submissions, old, { 3: answer, 4: url, 5: new Date() }); return { id: old.r[0] }; }
+    return { id: append_(DB.submissions, [id_('SUB'), q.id, student, answer, url, new Date(), '', '', '']) };
+  });
+}
+function studentQuizzes_(q) {
+  const student = student_(q), classes = new Set(studentHome_({ token: q.token }).map(x => x.id)), attempts = new Map(rows_(DB.attempts).filter(x => text_(x.r[2]) === student).map(x => [text_(x.r[1]), x.r]));
+  return rows_(DB.quizzes).filter(x => classes.has(text_(x.r[1])) && text_(x.r[3]) === 'active').map(x => ({ id: text_(x.r[0]), classId: text_(x.r[1]), title: text_(x.r[2]), attempted: attempts.has(text_(x.r[0])), score: (attempts.get(text_(x.r[0])) || [])[4], maxScore: (attempts.get(text_(x.r[0])) || [])[5] }));
+}
+function takeQuiz_(q) {
+  const id = student_(q), quiz = requireRow_(DB.quizzes, q.id); if (text_(quiz.r[3]) !== 'active') throw Error('แบบทดสอบยังไม่เปิด'); enrolled_(id, quiz.r[1]);
+  if (rows_(DB.attempts).some(x => text_(x.r[1]) === text_(q.id) && text_(x.r[2]) === id)) throw Error('ทำแบบทดสอบนี้แล้ว');
+  return rows_(DB.questions).filter(x => text_(x.r[1]) === text_(q.id)).map(x => ({ id: text_(x.r[0]), text: text_(x.r[2]), options: x.r.slice(3, 7).map(text_) }));
+}
+function submitQuiz_(q) {
+  const student = student_(q), quiz = requireRow_(DB.quizzes, q.id); if (text_(quiz.r[3]) !== 'active') throw Error('แบบทดสอบยังไม่เปิด'); enrolled_(student, quiz.r[1]);
+  const answers = q.answers || {}; if (typeof answers !== 'object' || Array.isArray(answers)) throw Error('คำตอบไม่ถูกต้อง');
+  return locked_(() => {
+    if (rows_(DB.attempts).some(x => text_(x.r[1]) === text_(q.id) && text_(x.r[2]) === student)) throw Error('ส่งแบบทดสอบแล้ว');
+    const questions = rows_(DB.questions).filter(x => text_(x.r[1]) === text_(q.id)); if (!questions.length) throw Error('ไม่มีคำถาม');
+    if (questions.some(x => !['A', 'B', 'C', 'D'].includes(answers[text_(x.r[0])]))) throw Error('ตอบคำถามให้ครบทุกข้อ');
+    const max = questions.reduce((s, x) => s + (Number(x.r[8]) || 1), 0), score = questions.reduce((s, x) => s + (answers[text_(x.r[0])] === text_(x.r[7]) ? (Number(x.r[8]) || 1) : 0), 0);
+    append_(DB.attempts, [id_('ATT'), q.id, student, JSON.stringify(answers), score, max, new Date()]); return { score, maxScore: max };
+  });
+}
+function studentGrades_(q) {
+  const id = student_(q), classes = new Set(studentHome_({ token: q.token }).map(x => x.id)), assignments = new Map(rows_(DB.assignments).map(x => [text_(x.r[0]), x.r])), quizzes = new Map(rows_(DB.quizzes).map(x => [text_(x.r[0]), x.r]));
+  const manual = rows_(DB.grades).filter(x => text_(x.r[2]) === id && classes.has(text_(x.r[1]))).map(x => ({ title: text_(x.r[3]), score: Number(x.r[4]), maxScore: Number(x.r[5]), note: text_(x.r[6]) }));
+  const work = rows_(DB.submissions).filter(x => text_(x.r[2]) === id && assignments.has(text_(x.r[1])) && classes.has(text_(assignments.get(text_(x.r[1]))[1])) && x.r[6] !== '' && x.r[6] != null).map(x => ({ title: text_(assignments.get(text_(x.r[1]))[2]), score: Number(x.r[6]), maxScore: 100, note: text_(x.r[7]) }));
+  const tests = rows_(DB.attempts).filter(x => text_(x.r[2]) === id && quizzes.has(text_(x.r[1])) && classes.has(text_(quizzes.get(text_(x.r[1]))[1]))).map(x => ({ title: text_(quizzes.get(text_(x.r[1]))[2]), score: Number(x.r[4]), maxScore: Number(x.r[5]), note: 'แบบทดสอบ' }));
+  return manual.concat(work, tests);
+}
+const ACTIONS = { login: login_, logout: logout_, dashboard: dashboard_, listCourses: listCourses_, saveCourse: saveCourse_, deleteCourse: deleteCourse_, listClasses: listClasses_, saveClass: saveClass_, deleteClass: deleteClass_, listStudents: listStudents_, createStudent: createStudent_, updateStudent: updateStudent_, enrollStudent: enrollStudent_, removeStudent: removeStudent_, deactivateStudent: deactivateStudent_, listAssignments: listAssignments_, saveAssignment: saveAssignment_, deleteAssignment: deleteAssignment_, listSubmissions: listSubmissions_, gradeSubmission: gradeSubmission_, listQuizzes: listQuizzes_, saveQuiz: saveQuiz_, publishQuiz: publishQuiz_, deleteQuiz: deleteQuiz_, listQuestions: listQuestions_, saveQuestion: saveQuestion_, deleteQuestion: deleteQuestion_, listAttempts: listAttempts_, listGrades: listGrades_, saveGrade: saveGrade_, deleteGrade: deleteGrade_, profile: profile_, updateProfile: updateProfile_, studentHome: studentHome_, studentWork: studentWork_, submitWork: submitWork_, studentQuizzes: studentQuizzes_, takeQuiz: takeQuiz_, submitQuiz: submitQuiz_, studentGrades: studentGrades_ };
 
-function getCourses(teacherId) {
-
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  var sheet = ss.getSheetByName("Courses");
-  var rows = sheet.getDataRange().getValues();
-
-  var courses = [];
-
-
-  for (var i = 1; i < rows.length; i++) {
-
-    var courseTeacherId = String(rows[i][3]).trim();
-    var status = String(rows[i][4]).trim();
-
-
-    if (
-      courseTeacherId === String(teacherId).trim() &&
-      status !== "deleted"
-    ) {
-
-      courses.push({
-
-        courseId: rows[i][0],
-        courseName: rows[i][1],
-        description: rows[i][2],
-        teacherId: rows[i][3],
-        status: rows[i][4],
-        createdAt: rows[i][5],
-        updatedAt: rows[i][6]
-
-      });
-    }
+// หน้าครูและนักเรียนเปิดจาก URL ของ Apps Script เดียวกัน
+function doGet() {
+  return HtmlService.createTemplateFromFile('Index').evaluate()
+    .setTitle('ห้องเรียนออนไลน์ครูแวนด้า')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+function apiCall(json) {
+  try {
+    const q = JSON.parse(json);
+    const handler = ACTIONS[q.action || 'login'];
+    if (!handler) throw Error('คำสั่งไม่ถูกต้อง');
+    return JSON.stringify({ status: 'success', data: handler(q) });
+  } catch (err) {
+    return JSON.stringify({ status: 'error', message: err.message || String(err) });
   }
-
-
-  return {
-
-    status: "success",
-    data: courses
-
-  };
 }
