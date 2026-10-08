@@ -19092,9 +19092,9 @@
       }
       modal(
         groupId
-          ? "เปลี่ยนรายชื่อนักเรียนทั้งหมดในชั้น — เก็บงานเดิมไว้"
+          ? "เปลี่ยนรายชื่อนักเรียนทั้งหมดในชั้น — ลบข้อมูลเดิม"
           : "นำเข้ารายชื่อด้วยการวางข้อความ",
-        `<div class="form">${groupId ? `<input type="hidden" name="importGroup" value="${esc(groupId)}"><p class="notice">ห้อง ${esc(groupName(groupId))}: บัญชีเดิมจะถูกปิดและนำออกจากห้อง งานเก่าคงอยู่ รายชื่อใหม่จะได้รับบัญชีใหม่ หากเป็นเด็กเดิมให้ใช้ย้ายห้อง ห้ามนำเข้าเป็นคนใหม่</p>` : select("เพิ่มนักเรียนเข้าชั้นเรียน", "importGroup", groupOptions(), selectedGroup)}${area("วางชื่อนักเรียน หนึ่งคนต่อหนึ่งบรรทัด", "rawNames", "", "นายภัทรพล รัตนสุนทร\nนางสาวพิมพ์ชนก ศรีวรินทร์\nเด็กชายณภัทร วัฒนกุล\nเด็กหญิงลลิตา พิชญานนท์")}${button("ตรวจสอบรายชื่อ", "parse-import", "", true)}<div id="importRows"></div></div>`,
+        `<div class="form">${groupId ? `<input type="hidden" name="importGroup" value="${esc(groupId)}"><p class="notice">ห้อง ${esc(groupName(groupId))}: ลบนักเรียนเดิมพร้อมบัญชี การลงทะเบียน งาน คะแนน ประวัติส่งงาน ความก้าวหน้า รอบทำกิจกรรม โปรไฟล์ และเซสชันในทุกวิชา แล้วเพิ่มรายชื่อใหม่ ห้ามใช้รายชื่อซ้ำกับคนที่มีในระบบ หากเป็นเด็กเดิมให้ใช้ย้ายห้อง</p>` : select("เพิ่มนักเรียนเข้าชั้นเรียน", "importGroup", groupOptions(), selectedGroup)}${area("วางชื่อนักเรียน หนึ่งคนต่อหนึ่งบรรทัด", "rawNames", "", "นายภัทรพล รัตนสุนทร\nนางสาวพิมพ์ชนก ศรีวรินทร์\nเด็กชายณภัทร วัฒนกุล\nเด็กหญิงลลิตา พิชญานนท์")}${button("ตรวจสอบรายชื่อ", "parse-import", "", true)}<div id="importRows"></div></div>`,
       );
     }
     function previewImport() {
@@ -19112,7 +19112,7 @@
           .map((n, i) => {
             const s = parseName(n);
             const key = (p) =>
-              (p.firstName + p.lastName).normalize("NFC").replace(/\s+/g, "");
+              (p.firstName + p.lastName).normalize("NFC").replace(/[\s\u200B-\u200D\uFEFF]/g, "").toLowerCase();
             const duplicate = names
               .slice(0, i)
               .some((raw) => key(parseName(raw)) === key(s));
@@ -20234,7 +20234,7 @@
         const nameKey = (person) =>
           (person.firstName + person.lastName)
             .normalize("NFC")
-            .replace(/\s+/g, "");
+            .replace(/[\s\u200B-\u200D\uFEFF]/g, "").toLowerCase();
         const seen = new Set();
         const duplicates = students.filter((person) => {
           const key = nameKey(person);
@@ -20249,7 +20249,7 @@
               .map((person) => person.firstName + " " + person.lastName)
               .join(", "),
           );
-        if (!replacementGroup) {
+        {
           const existing = students.filter((person) =>
             db.Students.some((old) => nameKey(old) === nameKey(person)),
           );
@@ -20272,7 +20272,7 @@
           return form(
             "ตรวจผลกระทบ: " + preview.groupName,
             "replace-roster",
-            `<p class="notice">ปิด ${preview.outgoing.length} บัญชีเดิม และยกเลิกสิทธิ์เรียน ${preview.enrollmentCount} รายการในทุกรายวิชา เก็บงานส่ง ${preview.submissionCount} งานไว้ สร้างใหม่ ${preview.incoming.length} บัญชี ระบบสำรองข้อมูลก่อนเปลี่ยน</p><section class="confirm-items"><h3>รายชื่อเดิมที่จะปิด</h3>${preview.outgoing.map((s) => `<p>${esc(s.name)} (${esc(s.id)})</p>`).join("") || "ไม่มี"}</section><section class="confirm-items"><h3>รายชื่อใหม่</h3>${preview.incoming.map((n) => `<p>${esc(n)}</p>`).join("")}</section><p>หลังเปลี่ยน ให้เพิ่มเด็กใหม่ในรายวิชาที่เรียน รหัสผ่านเริ่มต้น 12345678</p><input type="hidden" name="confirmText" value="เปลี่ยนรายชื่อ">`,
+            `<p class="notice">ลบนักเรียนและบัญชีเดิม ${preview.outgoing.length} คน พร้อมการลงทะเบียน ${preview.enrollmentCount} รายการ งานส่งและคะแนน ${preview.submissionCount} งาน ความก้าวหน้า ${preview.progressCount || 0} รายการ รอบทำกิจกรรม ${preview.runCount || 0} รายการ และข้อมูลที่เกี่ยวข้องในทุกวิชา เพิ่มรายชื่อใหม่ ${preview.incoming.length} คน ระบบสำรองข้อมูลก่อนเปลี่ยน</p><section class="confirm-items"><h3>รายชื่อเดิมที่จะลบพร้อมข้อมูล</h3>${preview.outgoing.map((s) => `<p>${esc(s.name)} (${esc(s.id)})</p>`).join("") || "ไม่มี"}</section><section class="confirm-items"><h3>รายชื่อใหม่</h3>${preview.incoming.map((n) => `<p>${esc(n)}</p>`).join("")}</section><p>หลังเปลี่ยน ให้เพิ่มเด็กใหม่ในรายวิชาที่เรียน รหัสผ่านเริ่มต้น 12345678</p><input type="hidden" name="confirmText" value="เปลี่ยนรายชื่อ">`,
           );
         }
         const result = await runMutation("importStudents", { students });
@@ -20582,6 +20582,9 @@
           action = "saveStudent";
           payload.firstName = data.firstName.trim();
           payload.lastName = data.lastName.trim();
+          const nameKey = (first, last) => (first + last).normalize("NFC").replace(/[\s\u200B-\u200D\uFEFF]/g, "").toLowerCase();
+          if (db.Students.some((old) => old.id !== payload.id && nameKey(old.firstName, old.lastName) === nameKey(payload.firstName, payload.lastName)))
+            throw Error("ห้ามเพิ่มนักเรียนซ้ำ: " + payload.firstName + " " + payload.lastName + " — มีชื่อนี้ในระบบแล้ว กรุณาใช้บัญชีเดิมหรือย้ายชั้นเรียน");
         }
         if (f.dataset.form === "replace-roster") {
           action = "replaceRoster";

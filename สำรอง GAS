@@ -930,6 +930,10 @@ function saveGroup_(q) {
   );
 }
 
+function studentNameKey_(value) {
+  return name_(value).replace(/[\s\u200B-\u200D\uFEFF]/g, "");
+}
+
 function studentData_(q, id) {
   const prefix = enum_(q.prefix, [
     "เด็กชาย",
@@ -943,14 +947,13 @@ function studentData_(q, id) {
   const fullName = prefix + firstName + " " + lastName,
     username = name_(firstName + " " + lastName);
   get_("Groups", q.groupId);
-  if (rows_("Users").some((u) => u.id !== id && u.username === username))
-    throw Error(
-      "ชื่อและนามสกุลซ้ำ: " +
-      firstName +
-      " " +
-      lastName +
-      " — ตรวจว่าเป็นคนเดิมก่อน",
-    );
+  const key = studentNameKey_(firstName + " " + lastName);
+  if (rows_("Users").some((u) => u.id !== id && studentNameKey_(u.username) === key) ||
+    rows_("Students").some((s) => s.id !== id && studentNameKey_(s.firstName + " " + s.lastName) === key)) {
+    const error = Error("ห้ามเพิ่มนักเรียนซ้ำ: " + firstName + " " + lastName + " — มีชื่อนี้ในระบบแล้ว กรุณาใช้บัญชีเดิมหรือย้ายชั้นเรียน");
+    error.code = "DUPLICATE_STUDENT";
+    throw error;
+  }
   return {
     prefix,
     firstName,
@@ -1006,9 +1009,9 @@ function importStudents_(q) {
   const seen = new Set();
   const data = q.students.map((s) => {
     const d = studentData_(s, "");
-    if (seen.has(d.username))
+    if (seen.has(studentNameKey_(d.username)))
       throw Error("ชื่อซ้ำในรายการนำเข้า: " + d.username);
-    seen.add(d.username);
+    seen.add(studentNameKey_(d.username));
     return d;
   });
   const props = PropertiesService.getScriptProperties();
@@ -1056,8 +1059,8 @@ function replaceRosterPreview_(q) {
   const seen = new Set();
   const students = q.students.map((s) => {
     const d = studentData_(Object.assign({}, s, { groupId: group.id }), "");
-    if (seen.has(d.username)) throw Error("ชื่อซ้ำในรายการ: " + d.username);
-    seen.add(d.username);
+    if (seen.has(studentNameKey_(d.username))) throw Error("ชื่อซ้ำในรายการ: " + d.username);
+    seen.add(studentNameKey_(d.username));
     return d;
   });
   const outgoing = rows_("Students").filter((s) => s.groupId === group.id);
@@ -1065,22 +1068,24 @@ function replaceRosterPreview_(q) {
   const accounts = rows_("Users").filter((u) => ids.has(u.id));
   const enrollments = rows_("Enrollments").filter((e) => ids.has(e.studentId));
   const submissions = rows_("Submissions").filter((e) => ids.has(e.studentId));
-  const fingerprint = digest_(
-    JSON.stringify({
-      group,
-      students,
-      outgoing,
-      accounts,
-      enrollments,
-      submissions,
-    }),
-  );
+  const submissionIds = new Set(submissions.map((s) => s.id));
+  const related = {};
+  ["Progress", "Runs", "Profiles", "Sessions", "History"].forEach((key) => {
+    related[key] = rows_(key).filter((r) => key === "History" ? submissionIds.has(r.submissionId) :
+      key === "Profiles" ? ids.has(r.id) : key === "Sessions" ? ids.has(r.userId) : ids.has(r.studentId));
+  });
+  const fingerprint = digest_(JSON.stringify({ group, students, outgoing, accounts, enrollments, submissions, related }));
   return {
     groupName: group.name,
     outgoing: outgoing.map((s) => ({ id: s.id, name: s.fullName })),
     incoming: students.map((s) => s.fullName),
     enrollmentCount: enrollments.filter((e) => e.status === "active").length,
     submissionCount: submissions.length,
+    progressCount: related.Progress.length,
+    runCount: related.Runs.length,
+    historyCount: related.History.length,
+    profileCount: related.Profiles.length,
+    sessionCount: related.Sessions.length,
     fingerprint,
   };
 }
@@ -1092,38 +1097,17 @@ function replaceRoster_(q) {
     throw Error("ข้อมูลเปลี่ยนแล้ว กรุณาตรวจผลกระทบใหม่");
   const backup = backup_(q);
   const ids = new Set(preview.outgoing.map((s) => s.id));
-  rewriteRows_(
-    "Students",
-    rows_("Students").map((s) =>
-      ids.has(s.id)
-        ? Object.assign({}, s, { groupId: "", status: "inactive" })
-        : s,
-    ),
-  );
-  rewriteRows_(
-    "Users",
-    rows_("Users").map((u) =>
-      ids.has(u.id)
-        ? Object.assign({}, u, {
-          status: "inactive",
-          version: Number(u.version || 1) + 1,
-        })
-        : u,
-    ),
-  );
-  rewriteRows_(
-    "Enrollments",
-    rows_("Enrollments").map((e) =>
-      ids.has(e.studentId) ? Object.assign({}, e, { status: "inactive" }) : e,
-    ),
-  );
-  rows_("Sessions")
-    .filter((s) => ids.has(s.userId))
-    .forEach((s) => CacheService.getScriptCache().remove("kv_s_" + s.id));
-  rewriteRows_(
-    "Sessions",
-    rows_("Sessions").filter((s) => !ids.has(s.userId)),
-  );
+  const submissionIds = new Set(rows_("Submissions").filter((r) => ids.has(r.studentId)).map((r) => r.id));
+  const removedSessions = rows_("Sessions").filter((r) => ids.has(r.userId));
+  removedSessions.forEach((r) => CacheService.getScriptCache().remove("kv_s_" + r.id));
+  rewriteRows_("History", rows_("History").filter((r) => !submissionIds.has(r.submissionId)));
+  ["Enrollments", "Submissions", "Progress", "Runs"].forEach((key) => {
+    rewriteRows_(key, rows_(key).filter((r) => !ids.has(r.studentId)));
+  });
+  rewriteRows_("Sessions", rows_("Sessions").filter((r) => !ids.has(r.userId)));
+  ["Profiles", "Users", "Students"].forEach((key) => {
+    rewriteRows_(key, rows_(key).filter((r) => !ids.has(r.id)));
+  });
   const result = importStudents_(
     Object.assign({}, q, {
       students: q.students.map((s) =>
@@ -1131,7 +1115,7 @@ function replaceRoster_(q) {
       ),
     }),
   );
-  return { count: result.count, archived: ids.size, backupUrl: backup.url };
+  return { count: result.count, deleted: ids.size, deletedSubmissions: preview.submissionCount, backupUrl: backup.url };
 }
 
 function studentsBatchPreview_(q) {
@@ -2513,7 +2497,7 @@ function adminKeys_(q) {
     ],
     returnWork: ["Submissions", "History", "Runs"],
     studentsBatch: ["Students", "Users"],
-    replaceRoster: ["Students", "Users", "Enrollments"],
+    replaceRoster: ["Students", "Users", "Enrollments", "Submissions", "Progress", "Runs", "History", "Profiles"],
     saveGroup: ["Groups"],
     saveStudent: ["Students", "Users"],
     importStudents: ["Students", "Users"],
@@ -4538,8 +4522,8 @@ function adminDescribe_(q, patches, result) {
     return (
       "เปลี่ยนรายชื่อชั้นเรียน " +
       get_("Groups", q.groupId).name +
-      " · ปิดรายชื่อเดิม " +
-      Number((result && result.archived) || 0) +
+      " · ลบรายชื่อและข้อมูลเดิม " +
+      Number((result && result.deleted) || 0) +
       " คน · เพิ่ม " +
       Number((result && result.count) || 0) +
       " คน"
