@@ -16504,15 +16504,27 @@
     function errorNotice(error) {
       const what = apiActionLabels[error.action] || "ดำเนินการกับข้อมูล";
       const advice = error.authRequired
-        ? "เซสชันหมดอายุหรือถูกยกเลิก กดเข้าสู่ระบบใหม่"
+        ? "เซสชันหมดอายุหรือถูกยกเลิก กรุณาเข้าสู่ระบบใหม่"
         : error.uncertain
-          ? "งานอาจบันทึกสำเร็จแล้ว ตรวจรายการล่าสุดก่อนกดบันทึกซ้ำ"
-          : error.httpStatus === 404
-            ? "ยังยืนยันไม่ได้ว่า URL ผิด ลองโหลดอีกครั้ง หากยังเกิดซ้ำให้ตรวจ deployment ที่ใช้อยู่ ไม่จำเป็นต้องออกจากระบบเพราะ 404"
+          ? "ยังยืนยันผลไม่ได้ ตรวจข้อมูลล่าสุดและประวัติก่อนส่งคำสั่งซ้ำ"
+          : error.advice || (error.httpStatus === 404
+            ? "ลองโหลดใหม่ หากเกิดซ้ำให้ตรวจ URL, deployment และสิทธิ์เข้าถึง"
             : error.code === "REQUEST_TIMEOUT"
-              ? "ระบบยังตอบกลับไม่ทัน ลองโหลดใหม่เมื่อพร้อม"
-              : "อ่านสาเหตุด้านล่างและกดลองอีกครั้ง หากยังเกิดซ้ำใช้รายละเอียดนี้ตรวจสอบ";
-      return `<div class="notice error" role="alert"><strong>${esc(what)}ไม่สำเร็จ</strong><p>${esc(error.message)}</p><p>${esc(advice)}</p><details><summary>รายละเอียดสำหรับตรวจสอบ</summary><p>เวลา ${esc(new Date(error.at || Date.now()).toLocaleString("th-TH"))}<br>คำสั่ง ${esc(error.action || "ไม่ระบุ")}<br>รหัส ${esc(error.httpStatus ? "HTTP " + error.httpStatus : error.code || "ไม่ระบุ")}</p></details></div>`;
+              ? "ลองโหลดข้อมูลใหม่ หากเกิดซ้ำให้ตรวจการทำงาน GAS ด้วยรหัสติดตาม"
+              : "ใช้รหัสติดตามตรวจบันทึกการทำงาน GAS หากไม่มีบันทึกตรงกัน อาจยังไปไม่ถึง GAS");
+      const outcome = error.uncertain ? "ยังยืนยันผลไม่ได้" : "ไม่สำเร็จ";
+      const detail = [
+        ["เวลา", new Date(error.at || Date.now()).toLocaleString("th-TH")],
+        ["คำสั่ง", error.action || "ไม่ระบุ"],
+        ["รหัส", error.code || "ไม่ระบุ"],
+        ["HTTP", error.httpStatus || "ไม่มีข้อมูล"],
+        ["จุดที่พบปัญหา", error.stage || "ไม่มีข้อมูลจากเหตุการณ์เดิม"],
+        ["ส่วนที่เกี่ยวข้อง", error.resource || "ไม่ระบุ"],
+        ["รหัสติดตาม", error.traceId || "ไม่มีข้อมูลจากเหตุการณ์เดิม"],
+        ["ครั้งที่ลอง", error.attempt || "ไม่ระบุ"],
+        ["เวลารวม", error.elapsedMs == null ? "ไม่ระบุ" : error.elapsedMs + " ms"],
+      ].map(([label, value]) => esc(label) + " " + esc(String(value))).join("<br>");
+      return `<div class="notice error" role="alert"><strong>${esc(what)} · ${esc(outcome)}</strong><p>${esc(error.message)}</p><p>${esc(advice)}</p><details><summary>รายละเอียดสำหรับตรวจสอบ</summary><p>${detail}</p></details></div>`;
     }
 
     function localAlertsView() {
@@ -16554,16 +16566,18 @@
     }
     async function apiRequest(action, fields = {}) {
       const apiStartedAt = Date.now();
+      const traceId = crypto.randomUUID();
       const url = sessionStorage.getItem("kruvandaGasUrl") || "";
       if (
         !/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)
       ) {
-        throw Error(
-          "แท็บนี้ไม่มี URL ของ API ที่ถูกต้อง กรุณาตรวจการตั้งค่า URL ในหน้าล็อกอิน",
-        );
+        const error = new Error("แท็บนี้ไม่มี URL ของ API ที่ถูกต้อง กรุณาตรวจการตั้งค่า URL ในหน้าล็อกอิน");
+        Object.assign(error, { action, traceId, code: "INVALID_API_URL", stage: "ตรวจ URL ก่อนส่งคำขอ", at: new Date().toISOString(), elapsedMs: Date.now() - apiStartedAt, advice: "ตรวจ URL ในหน้าล็อกอินแล้วเข้าสู่ระบบใหม่" });
+        throw error;
       }
       const attempts = RETRY_READS.has(action) ? 2 : 1;
       for (let attempt = 0; attempt < attempts; attempt++) {
+        let stage = "ส่งคำขอและรับคำตอบจาก API";
         const controller = new AbortController();
         const requestTimeout = RETRY_READS.has(action)
           ? CONFIG.TIMEOUT_MS
@@ -16574,7 +16588,7 @@
           const response = await fetch(requestUrl, {
             method: "POST",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ action, ...fields, token: session.token }),
+            body: JSON.stringify({ action, ...fields, token: session.token, traceId, attempt: attempt + 1 }),
             signal: controller.signal,
             redirect: "follow",
             cache: "no-store",
@@ -16596,6 +16610,7 @@
               [408, 429, 500, 502, 503, 504].includes(response.status);
             throw error;
           }
+          stage = "อ่านคำตอบ JSON จาก API";
           let result;
           try {
             result = await response.json();
@@ -16619,12 +16634,17 @@
               (result && result.message) || "API ส่งข้อมูลไม่ถูกต้อง",
             );
             error.code = result?.code || "API_ERROR";
+            error.stage = result?.diagnostics?.stage || "GAS ประมวลผลคำสั่ง";
+            error.resource = result?.diagnostics?.resource || "";
+            error.advice = result?.diagnostics?.advice || "";
+            error.uncertain = result?.diagnostics?.outcome === "unknown";
             error.authRequired = result?.code === "AUTH_EXPIRED";
             error.retryable = result?.code === "SYSTEM_BUSY";
             if (error.authRequired)
               window.kruvandaSession?.expire(error.message);
             throw error;
           }
+          stage = "ตรวจรูปแบบข้อมูลที่ GAS ส่งกลับ";
           const validators = {
             bootstrap: (d) => ["Groups", "Students", "Courses", "Offerings", "Enrollments"].every((k) => Array.isArray(d?.[k])),
             dashboard: (d) => !!d?.totals && !!d?.pending && Array.isArray(d.breakdown) && Array.isArray(d.followup),
@@ -16686,19 +16706,33 @@
                 : "รอผลการบันทึกเกิน " +
                 requestTimeout / 1000 +
                 " วินาที ยังยืนยันไม่ได้ว่าบันทึกสำเร็จหรือไม่"
-              : cause.message || "เชื่อมต่อไม่สำเร็จ",
+              : cause instanceof TypeError && !cause.code
+                ? "ไม่ได้รับคำตอบจาก API ยังยืนยันไม่ได้ว่าเกิดจากเครือข่ายหรือปลายทาง Google"
+                : cause.message || "เชื่อมต่อไม่สำเร็จ",
           );
+          error.traceId = traceId;
+          error.stage = cause.stage || stage;
+          error.resource = cause.resource || "";
+          error.advice = cause.advice || "";
+          error.attempt = attempt + 1;
+          error.elapsedMs = Date.now() - apiStartedAt;
           error.action = action;
           error.at = new Date().toISOString();
           error.code = aborted
             ? "REQUEST_TIMEOUT"
-            : cause.code || cause.name || "NETWORK_ERROR";
+            : cause.code || (cause instanceof TypeError ? "NETWORK_ERROR" : cause.name) || "NETWORK_ERROR";
           error.httpStatus = cause.httpStatus;
           error.authRequired = !!cause.authRequired;
           error.uncertain =
-            !RETRY_READS.has(action) &&
+            !!cause.uncertain || !RETRY_READS.has(action) &&
             (transient || cause.code === "REQUEST_UNCERTAIN");
           localApiAlerts.unshift({
+            traceId: error.traceId,
+            stage: error.stage,
+            resource: error.resource,
+            advice: error.advice,
+            attempt: error.attempt,
+            elapsedMs: error.elapsedMs,
             action: error.action,
             at: error.at,
             code: error.code,
@@ -18327,7 +18361,7 @@
             "",
           )}</div><p class="settings-backup-note">ไฟล์สำรองเก็บข้อมูลในชีตและที่อยู่ของไฟล์สื่อ เช่น ลิงก์ PDF แต่ไม่ได้ทำสำเนา PDF หรือรูปภาพ หากลบไฟล์สื่อออกจาก Drive การกู้คืนชีตจะได้ลิงก์เดิมกลับมา แต่เปิดไฟล์ที่ลบไปแล้วไม่ได้</p><div class="actions">${button("สำรองข้อมูลตอนนี้", "backup", "", true)}</div></section><section class="dash-panel"><h2>เลือกไฟล์สำรองเพื่อกู้คืน</h2><div class="settings-backup-steps"><div><strong>1. เลือกไฟล์สำรอง</strong><span>เลือกวันที่ของข้อมูลที่ต้องการกู้คืน</span></div><div><strong>2. เลือกส่วนที่จะกู้</strong><span>ตรวจจำนวนข้อมูลและผลกระทบ</span></div><div><strong>3. ยืนยันกู้คืน</strong><span>พิมพ์ “กู้คืนข้อมูล” แล้วบันทึก</span></div></div><p class="settings-backup-note">ส่วนที่เลือกจะกลับเป็นข้อมูล ณ วันสำรอง การเปลี่ยนแปลงหลังวันนั้นจะถูกแทนที่ ระบบสำรองข้อมูลปัจจุบันก่อนกู้คืน</p><div class="actions">${button("กู้คืนรายการที่ลบ (" + s.trash + ")", "admin-tab", "trash")}${button("กู้คืนจากประวัติ", "admin-tab", "history")}</div>${s.backups.map((r) => `<div class="dash-entry"><div><strong>${esc(r.name)}</strong><p>${esc(new Date(r.updatedAt).toLocaleString("th-TH"))}</p></div><div class="actions"><a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">เปิดไฟล์สำรอง</a>${button("ดูข้อมูลสำรอง", "backup-details", r.id)}${button("เลือกส่วนที่จะกู้คืน", "admin-restore-preview", r.id)}${button("ลบไฟล์สำรอง", "backup-delete-preview", r.id)}</div></div>`).join("") || empty("ยังไม่มีไฟล์สำรอง")}</section>`;
       else if (adminTab === "tools")
-        body = `<section class="dash-panel admin-danger"><h2>ล้างข้อมูลที่เลือก</h2><p>เลือกรายการและตรวจผลกระทบก่อนยืนยัน ระบบสำรองข้อมูลก่อนล้าง</p><div class="actions admin-clear-actions">${button("งานและคะแนน", "admin-manage-open", "work")}${button("นักเรียนทั้งหมด", "admin-delete-all", "students")}${button("ชั้นเรียนและนักเรียน", "admin-delete-all", "groups")}${button("รายวิชาและบทเรียน", "admin-delete-all", "courses")}</div></section><section class="dash-panel admin-reset-card"><h2>ล้างข้อมูลเพื่อเริ่มระบบใหม่</h2><p>ล้างรายวิชา บทเรียน ชั้นเรียน นักเรียน งาน และคะแนนทั้งหมด แล้วปิดการเข้าใช้งานของนักเรียน</p><p class="subtle">บัญชีและรหัสผ่านครูยังใช้ได้ เชื่อมต่อชีตและ Drive เดิม ไฟล์สำรองและประวัติยังเปิดดูได้ ไฟล์สื่อใน Drive ไม่ถูกลบ แต่บทเรียนและลิงก์ในระบบจะถูกล้าง</p>${button("ตรวจผลกระทบก่อนล้างทั้งระบบ", "admin-reset-preview")}</section>`;
+        body = `<section class="dash-panel admin-danger"><h2>ล้างข้อมูลที่เลือก</h2><p>เลือกรายการและตรวจผลกระทบก่อนยืนยัน ระบบสำรองข้อมูลก่อนล้าง</p><div class="actions admin-clear-actions">${button("งานและคะแนน", "admin-manage-open", "work")}${button("นักเรียนทั้งหมด", "admin-delete-all", "students")}${button("ชั้นเรียนและนักเรียน", "admin-delete-all", "groups")}${button("รายวิชาและบทเรียน", "admin-delete-all", "courses")}</div></section><section class="dash-panel admin-reset-card"><h2>ล้างข้อมูลเพื่อเริ่มระบบใหม่</h2><p>ล้างรายวิชา บทเรียน ชั้นเรียน นักเรียน งาน และคะแนนทั้งหมด แล้วปิดการเข้าใช้งานของนักเรียน</p><p class="subtle">บัญชีและรหัสผ่านครูยังใช้ได้ เชื่อมต่อชีตและ Drive เดิม<br>ไฟล์สำรองและประวัติยังเปิดดูได้ ไฟล์สื่อใน Drive ไม่ถูกลบ แต่บทเรียนและลิงก์ในระบบจะถูกล้าง</p>${button("ตรวจผลกระทบก่อนล้างทั้งระบบ", "admin-reset-preview")}</section>`;
       else
         body = `<section class="dash-panel"><div class="dash-section-head"><h2>${adminTab === "trash" ? "รายการที่ลบและเก็บข้อมูลกู้คืน" : adminTab === "alerts" ? "รายการที่ต้องตรวจสอบ" : "ประวัติการจัดการ"}</h2>${button("อัปเดตรายการ", "admin-refresh")}</div><p class="subtle">${adminTab === "trash" ? "เลือกกู้คืนรายการที่ลบภายใน 90 วัน ระบบตรวจข้อมูลที่เปลี่ยนภายหลังก่อนยืนยัน" : "เลือก “ดูรายละเอียด” เพื่อดูข้อมูลก่อน–หลัง หากต้องการยกเลิกการเปลี่ยนแปลง<br>ให้เลือก “กู้คืนก่อนการเปลี่ยนแปลง” ภายใน 90 วัน ระบบจะไม่ทับรายการที่แก้ไขภายหลัง"}</p>${s.history.map((r) => `<div class="dash-entry"><div><strong>${esc(adminEventTitle(r))}</strong>${r.target ? `<p>${esc(r.target)}</p>` : ""}<p><span class="badge">${esc(adminStatusNames[r.status] || r.status)}</span> · ${r.changeCount} รายการข้อมูล</p><small>${esc(new Date(r.updatedAt).toLocaleString("th-TH"))} · ${esc(r.actor)}${r.recoverable ? "<br>กู้คืนได้ถึง " + esc(new Date(r.expiresAt).toLocaleDateString("th-TH")) : ""}</small></div><div class="actions">${button("ดูรายละเอียด", "admin-history-details", r.id)}${r.recoverable ? button(adminTab === "trash" ? "กู้คืนรายการที่ลบ" : "กู้คืนก่อนการเปลี่ยนแปลง", "admin-undo-preview", r.id) : ""}${adminTab === "trash" ? button("นำออกจากถังขยะ", "admin-purge-preview", r.id) : ""}</div></div>`).join("") || '<div class="dash-empty">ไม่มีรายการในส่วนนี้</div>'}<div class="actions">${adminOffset ? button("← ก่อนหน้า", "admin-prev") : ""}${adminOffset + 25 < s.total ? button("ถัดไป →", "admin-next") : ""}</div></section>`;
       return `<div class="settings-workspace">${header}${body}${adminTab === "history" && localApiAlerts.length ? localAlertsView() : ""}</div>`;

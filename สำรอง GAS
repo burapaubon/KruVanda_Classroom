@@ -104,7 +104,7 @@ const SCHEMA = {
 let MEM = {};
 let BOOK;
 
-function book_() {
+function diagnosticOriginal_book_() {
   if (!BOOK) {
     const id =
       PropertiesService.getScriptProperties().getProperty("KV_SPREADSHEET_ID");
@@ -225,7 +225,7 @@ function updatesheet() {
   }
 }
 
-function rows_(key) {
+function diagnosticOriginal_rows_(key) {
   if (MEM[key]) return MEM[key];
   const s = book_().getSheetByName(key);
   if (!s) throw Error("เรียก updatesheet ก่อน: " + key);
@@ -252,7 +252,7 @@ function cell_(v) {
   return typeof v === "string" && /^[=+@-]/.test(v) ? "'" + v : v;
 }
 
-function write_(key, obj) {
+function diagnosticOriginal_write_(key, obj) {
   const list = rows_(key),
     old = list.find((r) => String(r.id) === String(obj.id));
   const value = Object.assign({}, old || {}, obj);
@@ -288,7 +288,7 @@ function batch_(key, objects) {
     );
 }
 
-function findRow_(key, id) {
+function diagnosticOriginal_findRow_(key, id) {
   if (MEM[key])
     return MEM[key].find((r) => String(r.id) === String(id)) || null;
   const sheet = book_().getSheetByName(key);
@@ -314,7 +314,7 @@ function findRow_(key, id) {
   return row;
 }
 
-function writeOne_(key, obj) {
+function diagnosticOriginal_writeOne_(key, obj) {
   if (MEM[key]) return write_(key, obj);
   const old = findRow_(key, obj.id),
     value = Object.assign({}, old || {}, obj);
@@ -625,7 +625,7 @@ function sessionInfo_(q, touch) {
   };
 }
 
-function auth_(q, role) {
+function diagnosticOriginal_auth_(q, role) {
   if (MEM.$auth && MEM.$auth.token === q.token) {
     if (role && MEM.$auth.user.role !== role)
       throw adminAuthError_("ไม่มีสิทธิ์ใช้งาน");
@@ -3349,7 +3349,7 @@ function bulkPreview_(q) {
     fingerprint: digest_(JSON.stringify(data)),
   };
 }
-function rewriteRows_(key, list) {
+function diagnosticOriginal_rewriteRows_(key, list) {
   const sheet = book_().getSheetByName(key),
     previous = Math.max(0, sheet.getLastRow() - 1);
   if (key === "Profiles")
@@ -3801,7 +3801,7 @@ function requestPayload_(value) {
   if (Array.isArray(value)) return value.map(requestPayload_);
   if (value && typeof value === "object")
     return Object.keys(value)
-      .filter((key) => !["token", "requestId"].includes(key))
+      .filter((key) => !["token", "requestId", "traceId", "attempt"].includes(key))
       .sort()
       .reduce((out, key) => {
         out[key] = requestPayload_(value[key]);
@@ -3871,6 +3871,7 @@ function apiCall(json) {
     executed = false,
     mutation = false,
     teacherMutation = false;
+  let diagnosticAction = "ไม่ระบุ", diagnosticTrace = Utilities.getUuid(), diagnosticStage = "ตรวจคำขอ";
   const startedAt = Date.now();
   try {
     MEM = {};
@@ -3879,6 +3880,8 @@ function apiCall(json) {
     if (!q || typeof q !== "object" || Array.isArray(q))
       throw Error("คำขอไม่ถูกต้อง");
     q.action = q.action || "login";
+    diagnosticAction = String(q.action).slice(0, 80);
+    if (typeof q.traceId === "string" && /^[a-zA-Z0-9-]{1,80}$/.test(q.traceId)) diagnosticTrace = q.traceId;
     if (
       !ACTIONS[q.action] &&
       !["sessionCheck", "sessionTouch", "logout", "profile"].includes(q.action)
@@ -3890,6 +3893,7 @@ function apiCall(json) {
         q.action,
       );
     if (!READS.includes(q.action) && q.action !== "login") {
+      diagnosticStage = "รอสิทธิ์บันทึกข้อมูล";
       lock = LockService.getScriptLock();
       if (!lock.tryLock(5000)) {
         const e = Error("ระบบกำลังบันทึกข้อมูล กรุณาลองใหม่ในอีกสักครู่");
@@ -3927,6 +3931,7 @@ function apiCall(json) {
       });
       SpreadsheetApp.flush();
     }
+    diagnosticStage = "ประมวลผลคำสั่ง " + diagnosticAction;
     executed = true;
     let data;
     if (["sessionCheck", "sessionTouch"].includes(q.action))
@@ -3939,7 +3944,7 @@ function apiCall(json) {
       data = { loggedOut: true };
     } else if (q.action === "profile") data = profile_(q);
     else data = adminAudited_(q, ACTIONS[q.action]);
-    const response = { status: "success", action: q.action, data };
+    const response = { status: "success", action: q.action, data, traceId: diagnosticTrace };
     if (mutation && q.requestId) {
       try {
         const sync = mutationSync_(q, teacherMutation);
@@ -3957,13 +3962,32 @@ function apiCall(json) {
         throw Error("ผลคำขอใหญ่เกินกำหนด กรุณาตรวจรายการล่าสุด");
       writeOne_("Requests", { id: requestId, result: persistedResult });
     }
+    console.info(JSON.stringify({ traceId: diagnosticTrace, action: diagnosticAction, status: "success", serverMs: Date.now() - startedAt }));
     return result;
   } catch (err) {
+    const diagnostics = {
+      stage: err.diagnosticStage || diagnosticStage,
+      resource: err.diagnosticResource || "",
+      outcome: mutation && executed ? "unknown" : "failed",
+      advice: err.code === "AUTH_EXPIRED" ? "กรุณาเข้าสู่ระบบใหม่"
+        : err.code === "SYSTEM_BUSY" ? "มีคำสั่งอื่นกำลังทำงาน กรุณาลองอีกครั้ง"
+          : err.diagnosticResource === "Google Sheets" ? "ตรวจการตั้งค่าชีตและสิทธิ์ของบัญชีที่ใช้รัน GAS"
+            : err.diagnosticResource === "Sessions / Users" ? "ตรวจข้อมูลเซสชันและสถานะบัญชีใน GAS"
+              : err.diagnosticResource ? "ตรวจชื่อชีตและสิทธิ์เข้าถึง หากขาดชีตให้รัน updatesheet แล้วลองใหม่"
+                : "ตรวจบันทึกการทำงาน GAS ด้วยรหัสติดตามนี้",
+    };
+    console.error(JSON.stringify({
+      traceId: diagnosticTrace, action: diagnosticAction,
+      code: err.code || "API_ERROR", stage: diagnostics.stage, resource: diagnostics.resource,
+      outcome: diagnostics.outcome, serverMs: Date.now() - startedAt
+    }));
     const result = JSON.stringify({
       status: "error",
       message: err.message || String(err),
       code: err.code || "API_ERROR",
       authReason: err.authReason || "",
+      action: diagnosticAction, traceId: diagnosticTrace, diagnostics,
+      serverMs: Date.now() - startedAt,
     });
     if (requestId && executed) {
       try {
@@ -4742,4 +4766,58 @@ function adminHistoryDetails_(q) {
       };
     }),
   };
+}
+function diagnosticOperation_(stage, resource, operation) {
+  try { return operation(); }
+  catch (error) {
+    if (!error.diagnosticStage) {
+      error.diagnosticStage = stage;
+      error.diagnosticResource = resource;
+      if (!error.code) error.code = {
+        "เปิดฐานข้อมูล": "SPREADSHEET_ACCESS_FAILED",
+        "อ่านชีต": "SHEET_READ_FAILED",
+        "ค้นหารายการในชีต": "SHEET_LOOKUP_FAILED",
+        "บันทึกรายการในชีต": "SHEET_WRITE_FAILED",
+        "บันทึกข้อมูลในชีต": "SHEET_WRITE_FAILED",
+        "เขียนข้อมูลชีตใหม่": "SHEET_REWRITE_FAILED",
+        "ตรวจเซสชันและสิทธิ์": "AUTH_CHECK_FAILED",
+      }[stage] || "API_ERROR";
+    }
+    throw error;
+  }
+}
+
+function book_() {
+  const args = arguments;
+  return diagnosticOperation_("เปิดฐานข้อมูล", "Google Sheets", () => diagnosticOriginal_book_.apply(null, args));
+}
+
+function rows_(key) {
+  const args = arguments;
+  return diagnosticOperation_("อ่านชีต", String(arguments[0]), () => diagnosticOriginal_rows_.apply(null, args));
+}
+
+function findRow_(key, id) {
+  const args = arguments;
+  return diagnosticOperation_("ค้นหารายการในชีต", String(arguments[0]), () => diagnosticOriginal_findRow_.apply(null, args));
+}
+
+function writeOne_(key, obj) {
+  const args = arguments;
+  return diagnosticOperation_("บันทึกรายการในชีต", String(arguments[0]), () => diagnosticOriginal_writeOne_.apply(null, args));
+}
+
+function write_(key, obj) {
+  const args = arguments;
+  return diagnosticOperation_("บันทึกข้อมูลในชีต", String(arguments[0]), () => diagnosticOriginal_write_.apply(null, args));
+}
+
+function rewriteRows_(key, list) {
+  const args = arguments;
+  return diagnosticOperation_("เขียนข้อมูลชีตใหม่", String(arguments[0]), () => diagnosticOriginal_rewriteRows_.apply(null, args));
+}
+
+function auth_(q, role) {
+  const args = arguments;
+  return diagnosticOperation_("ตรวจเซสชันและสิทธิ์", "Sessions / Users", () => diagnosticOriginal_auth_.apply(null, args));
 }
