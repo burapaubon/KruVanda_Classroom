@@ -1,0 +1,4745 @@
+const SCHEMA = {
+  Users: [
+    "id",
+    "username",
+    "password",
+    "role",
+    "status",
+    "fullName",
+    "version",
+    "lastLoginAt",
+    "lastSeenAt",
+    "loginHistoryKnown",
+    "hasLoggedIn",
+  ],
+  Groups: ["id", "name", "year", "status"],
+  Students: [
+    "id",
+    "prefix",
+    "firstName",
+    "lastName",
+    "fullName",
+    "groupId",
+    "status",
+  ],
+  Courses: ["id", "code", "name", "description", "status"],
+  Offerings: ["id", "courseId", "year", "term", "status"],
+  Enrollments: ["id", "offeringId", "studentId", "groupId", "status"],
+  Chapters: ["id", "courseId", "title", "order", "status"],
+  Materials: [
+    "id",
+    "chapterId",
+    "title",
+    "kind",
+    "url",
+    "fileId",
+    "mime",
+    "status",
+  ],
+  Activities: [
+    "id",
+    "chapterId",
+    "title",
+    "kind",
+    "mode",
+    "seconds",
+    "showAnswers",
+    "status",
+    "questions",
+    "allowEdit",
+    "countScore",
+    "dueAt",
+  ],
+  Submissions: [
+    "id",
+    "activityId",
+    "offeringId",
+    "studentId",
+    "answers",
+    "scores",
+    "feedback",
+    "status",
+    "revision",
+    "updatedAt",
+    "questionSnapshot",
+    "submittedAt",
+  ],
+  Progress: ["id", "materialId", "offeringId", "studentId", "updatedAt"],
+  Runs: [
+    "id",
+    "activityId",
+    "offeringId",
+    "studentId",
+    "startedAt",
+    "expiresAt",
+    "status",
+    "questionSnapshot",
+  ],
+  Sessions: ["id", "userId", "version", "expiresAt", "lastSeenAt"],
+  History: ["id", "submissionId", "revision", "snapshot", "updatedAt"],
+  Requests: ["id", "action", "result", "updatedAt", "payloadHash"],
+  Profiles: ["id", "email", "phone", "avatarFileId", "avatarMime"],
+  AdminHistory: [
+    "id",
+    "action",
+    "target",
+    "status",
+    "updatedAt",
+    "snapshotFileId",
+    "changeCount",
+    "message",
+    "deleted",
+    "actor",
+    "snapshotJson",
+  ],
+  AdminBackups: [
+    "id",
+    "name",
+    "updatedAt",
+    "fileId",
+    "snapshotFileId",
+    "counts",
+  ],
+};
+let MEM = {};
+let BOOK;
+
+function book_() {
+  if (!BOOK) {
+    const id =
+      PropertiesService.getScriptProperties().getProperty("KV_SPREADSHEET_ID");
+    BOOK = id
+      ? SpreadsheetApp.openById(id)
+      : SpreadsheetApp.getActiveSpreadsheet();
+  }
+  if (!BOOK) throw Error("เปิด Apps Script จากชีทและเรียก updatesheet ก่อน");
+  return BOOK;
+}
+
+function updatesheet() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    MEM = {};
+    BOOK = null;
+    const props = PropertiesService.getScriptProperties();
+    const savedId = props.getProperty("KV_SPREADSHEET_ID");
+    const ss =
+      SpreadsheetApp.getActiveSpreadsheet() ||
+      (savedId
+        ? SpreadsheetApp.openById(savedId)
+        : SpreadsheetApp.create("KruVanda LMS"));
+    BOOK = ss;
+    props.setProperty("KV_SPREADSHEET_ID", ss.getId());
+    Object.keys(SCHEMA).forEach((key) => {
+      const headers = SCHEMA[key];
+      let sheet = ss.getSheetByName(key);
+      const legacy = ss.getSheetByName("KV_" + key);
+      if (sheet && legacy)
+        throw Error(
+          "พบชีทซ้ำ " + key + " และ KV_" + key + " กรุณาตรวจข้อมูลก่อน",
+        );
+      if (!sheet && legacy) sheet = legacy.setName(key);
+      if (!sheet) sheet = ss.insertSheet(key);
+      if (sheet.getLastRow() === 0)
+        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      else {
+        const actual = sheet
+          .getRange(1, 1, 1, Math.max(sheet.getLastColumn(), headers.length))
+          .getValues()[0];
+        const populated = actual.filter((v) => v !== "");
+        if (
+          populated.length > headers.length ||
+          populated.some((v, i) => v !== headers[i])
+        )
+          throw Error("หัวตาราง " + key + " ไม่ตรง กรุณาตรวจข้อมูลก่อน");
+        if (populated.length < headers.length)
+          sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      }
+      sheet.setFrozenRows(1);
+      sheet
+        .getRange(1, 1, 1, headers.length)
+        .setFontWeight("bold")
+        .setBackground("#ffe8bd");
+    });
+    const previouslyLoggedIn = new Set(
+      rows_("Sessions").map((session) => session.userId),
+    );
+    rows_("Users")
+      .filter(
+        (user) => user.role === "student" && previouslyLoggedIn.has(user.id),
+      )
+      .forEach((user) =>
+        writeOne_("Users", {
+          id: user.id,
+          hasLoggedIn: true,
+          loginHistoryKnown: true,
+        }),
+      );
+    if (!props.getProperty("KV_DRIVE_FOLDER_ID")) {
+      props.setProperty(
+        "KV_DRIVE_FOLDER_ID",
+        DriveApp.createFolder("KruVanda LMS — สื่อบทเรียน").getId(),
+      );
+    }
+    if (!rows_("Users").some((u) => u.role === "teacher")) {
+      const username = "teacher",
+        password = "12345678";
+      write_("Users", {
+        id: "TEACHER",
+        username: name_(username),
+        password: hash_(password),
+        role: "teacher",
+        status: "active",
+        fullName: "ครูแวนด้า",
+        version: 1,
+      });
+    }
+    installLmsCleanup();
+    rows_("Courses")
+      .filter((c) => c.status === "hidden")
+      .forEach((c) => write_("Courses", { id: c.id, status: "closed" }));
+    const profileSheet = ss.getSheetByName("Profiles"),
+      phoneColumn = SCHEMA.Profiles.indexOf("phone") + 1;
+    if (profileSheet.getLastRow() > 1) {
+      const phoneRange = profileSheet.getRange(
+        2,
+        phoneColumn,
+        profileSheet.getLastRow() - 1,
+        1,
+      );
+      const phones = phoneRange.getValues().map((r) => [phoneText_(r[0])]);
+      phoneRange.setNumberFormat("@").setValues(phones);
+      delete MEM.Profiles;
+    }
+    profileSheet
+      .getRange(2, phoneColumn, Math.max(1, profileSheet.getMaxRows() - 1), 1)
+      .setNumberFormat("@");
+    SpreadsheetApp.flush();
+    const result =
+      "พร้อมใช้งาน " + Object.keys(SCHEMA).length + " ชีท: " + ss.getUrl();
+    console.log(result);
+    return result;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function rows_(key) {
+  if (MEM[key]) return MEM[key];
+  const s = book_().getSheetByName(key);
+  if (!s) throw Error("เรียก updatesheet ก่อน: " + key);
+  const h = SCHEMA[key],
+    n = s.getLastRow();
+  MEM[key] =
+    n < 2
+      ? []
+      : s
+        .getRange(2, 1, n - 1, h.length)
+        .getValues()
+        .map((r, i) => {
+          const o = { _row: i + 2 };
+          h.forEach((k, j) => (o[k] = r[j]));
+          return o;
+        })
+        .filter((o) => o.id);
+  return MEM[key];
+}
+
+function cell_(v) {
+  if (v == null) return "";
+
+  return typeof v === "string" && /^[=+@-]/.test(v) ? "'" + v : v;
+}
+
+function write_(key, obj) {
+  const list = rows_(key),
+    old = list.find((r) => String(r.id) === String(obj.id));
+  const value = Object.assign({}, old || {}, obj);
+  if (key === "Profiles") value.phone = phoneText_(value.phone);
+  const sheet = book_().getSheetByName(key),
+    row = old ? old._row : sheet.getLastRow() + 1;
+  ensureRows_(sheet, row);
+  if (key === "Profiles")
+    sheet
+      .getRange(row, SCHEMA.Profiles.indexOf("phone") + 1)
+      .setNumberFormat("@");
+  sheet
+    .getRange(row, 1, 1, SCHEMA[key].length)
+    .setValues([SCHEMA[key].map((k) => cell_(value[k]))]);
+  value._row = row;
+  if (key === "Users") delete MEM.$auth;
+  if (old) list[list.indexOf(old)] = value;
+  else list.push(value);
+  return value;
+}
+
+function batch_(key, objects) {
+  if (!objects.length) return;
+  const sheet = book_().getSheetByName(key),
+    start = sheet.getLastRow() + 1;
+  ensureRows_(sheet, start + objects.length - 1);
+  sheet
+    .getRange(start, 1, objects.length, SCHEMA[key].length)
+    .setValues(objects.map((o) => SCHEMA[key].map((k) => cell_(o[k]))));
+  if (MEM[key])
+    objects.forEach((o, i) =>
+      MEM[key].push(Object.assign({}, o, { _row: start + i })),
+    );
+}
+
+function findRow_(key, id) {
+  if (MEM[key])
+    return MEM[key].find((r) => String(r.id) === String(id)) || null;
+  const sheet = book_().getSheetByName(key);
+  if (!sheet) throw Error("เรียก updatesheet ก่อน: " + key);
+  const count = sheet.getLastRow() - 1;
+  if (count <= 0) return null;
+  const match = sheet
+    .getRange(2, 1, count, 1)
+    .createTextFinder(String(id))
+    .matchEntireCell(true)
+    .matchCase(true)
+    .useRegularExpression(false)
+    .findNext();
+  if (!match) return null;
+  const rowNumber = match.getRow();
+  const values = sheet
+    .getRange(rowNumber, 1, 1, SCHEMA[key].length)
+    .getValues()[0];
+  const row = { _row: rowNumber };
+  SCHEMA[key].forEach((name, index) => {
+    row[name] = values[index];
+  });
+  return row;
+}
+
+function writeOne_(key, obj) {
+  if (MEM[key]) return write_(key, obj);
+  const old = findRow_(key, obj.id),
+    value = Object.assign({}, old || {}, obj);
+  const sheet = book_().getSheetByName(key),
+    row = old ? old._row : sheet.getLastRow() + 1;
+  ensureRows_(sheet, row);
+  if (key === "Profiles") {
+    value.phone = phoneText_(value.phone);
+    sheet
+      .getRange(row, SCHEMA.Profiles.indexOf("phone") + 1)
+      .setNumberFormat("@");
+  }
+  sheet
+    .getRange(row, 1, 1, SCHEMA[key].length)
+    .setValues([SCHEMA[key].map((k) => cell_(value[k]))]);
+  value._row = row;
+  if (key === "Users") delete MEM.$auth;
+  return value;
+}
+
+function get_(key, id) {
+  const row = findRow_(key, id);
+  if (!row) throw Error("ไม่พบข้อมูล " + key);
+  return row;
+}
+
+function id_(prefix) {
+  return prefix + "_" + Utilities.getUuid().replace(/-/g, "");
+}
+function text_(v) {
+  return String(v == null ? "" : v).trim();
+}
+function name_(v) {
+  return text_(v).normalize("NFC").replace(/\s+/g, " ").toLowerCase();
+}
+function need_(v, label, max) {
+  const s = text_(v);
+  if (!s || s.length > max)
+    throw Error(label + " ต้องมี 1–" + max + " ตัวอักษร");
+  return s;
+}
+function enum_(v, list) {
+  if (!list.includes(v)) throw Error("ค่าที่เลือกไม่ถูกต้อง");
+  return v;
+}
+function json_(v, fallback) {
+  try {
+    return JSON.parse(v);
+  } catch (e) {
+    return fallback;
+  }
+}
+function clean_(o) {
+  const r = Object.assign({}, o);
+  delete r._row;
+  delete r.password;
+  return r;
+}
+function digest_(s) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, s)
+    .map((b) => ("0" + ((b + 256) % 256).toString(16)).slice(-2))
+    .join("");
+}
+function hash_(password) {
+  const salt = Utilities.getUuid();
+  return "sha256$" + salt + "$" + digest_(salt + ":" + password);
+}
+function password_(hash, password) {
+  const p = String(hash).split("$");
+  return p.length === 3 && digest_(p[1] + ":" + password) === p[2];
+}
+
+function resetTeacherLogin() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    MEM = {};
+    BOOK = null;
+    const users = rows_("Users");
+    const teacher = users.find((u) => u.role === "teacher");
+    if (!teacher) throw Error("เรียก updatesheet ก่อน");
+    if (
+      users.some((u) => u.id !== teacher.id && u.username === name_("teacher"))
+    ) {
+      throw Error("ชื่อผู้ใช้ teacher ถูกใช้โดยบัญชีอื่น");
+    }
+    write_("Users", {
+      id: teacher.id,
+      username: name_("KruVanda"),
+      password: hash_("11223344"),
+      status: "active",
+      version: Number(teacher.version || 0) + 1,
+    });
+    SpreadsheetApp.flush();
+    console.log("รีเซ็ตบัญชีครูสำเร็จ");
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function studentRoomAccess_(studentId) {
+  const student = get_("Students", studentId);
+  if (student.status !== "active") throw Error("บัญชีนี้ปิดใช้งาน");
+  const group = rows_("Groups").find((g) => g.id === student.groupId);
+  if (!group || group.status !== "active")
+    throw Error("ห้องเรียนนี้ยังไม่เปิดใช้งาน กรุณาติดต่อครู");
+}
+
+function groupImpact_(q) {
+  teacher_(q);
+  const group = clean_(get_("Groups", q.id));
+  const students = rows_("Students").filter((s) => s.groupId === q.id);
+  const ids = new Set(students.map((s) => s.id));
+  const submissions = rows_("Submissions").filter((s) => ids.has(s.studentId));
+  const data = {
+    group,
+    students: students.map(clean_),
+    submissions: submissions.map(clean_),
+    enrollments: rows_("Enrollments")
+      .filter((e) => e.groupId === q.id || ids.has(e.studentId))
+      .map(clean_),
+  };
+  return {
+    group,
+    students: students.length,
+    submissions: submissions.length,
+    fingerprint: digest_(JSON.stringify(data)),
+  };
+}
+
+function deleteGroup_(q) {
+  teacher_(q);
+  enum_(q.mode, ["room", "room-students"]);
+  if (q.confirmText !== "ยืนยัน") throw Error("พิมพ์ ยืนยัน ก่อนลบถาวร");
+  const impact = groupImpact_(q);
+  if (impact.fingerprint !== q.fingerprint)
+    throw Error("ข้อมูลเปลี่ยนแล้ว กรุณาเปิดหน้าสรุปก่อนลบอีกครั้ง");
+  const ids = new Set(
+    rows_("Students")
+      .filter((s) => s.groupId === q.id)
+      .map((s) => s.id),
+  );
+  const backup = backup_(q);
+  if (q.mode === "room-students") {
+    const submissionIds = new Set(
+      rows_("Submissions")
+        .filter((s) => ids.has(s.studentId))
+        .map((s) => s.id),
+    );
+    rewriteRows_(
+      "History",
+      rows_("History").filter((r) => !submissionIds.has(r.submissionId)),
+    );
+    ["Submissions", "Progress", "Runs", "Enrollments"].forEach((key) =>
+      rewriteRows_(
+        key,
+        rows_(key).filter((r) => !ids.has(r.studentId)),
+      ),
+    );
+    rows_("Sessions")
+      .filter((s) => ids.has(s.userId))
+      .forEach((s) => CacheService.getScriptCache().remove("kv_s_" + s.id));
+    rewriteRows_(
+      "Sessions",
+      rows_("Sessions").filter((s) => !ids.has(s.userId)),
+    );
+    rewriteRows_(
+      "Profiles",
+      rows_("Profiles").filter((r) => !ids.has(r.id)),
+    );
+    rewriteRows_(
+      "Users",
+      rows_("Users").filter((r) => !ids.has(r.id)),
+    );
+    rewriteRows_(
+      "Students",
+      rows_("Students").filter((r) => !ids.has(r.id)),
+    );
+  } else {
+    rewriteRows_(
+      "Students",
+      rows_("Students").map((r) =>
+        r.groupId === q.id ? Object.assign({}, r, { groupId: "" }) : r,
+      ),
+    );
+  }
+  rewriteRows_(
+    "Enrollments",
+    rows_("Enrollments").map((r) =>
+      r.groupId === q.id ? Object.assign({}, r, { groupId: "" }) : r,
+    ),
+  );
+  rewriteRows_(
+    "Groups",
+    rows_("Groups").filter((r) => r.id !== q.id),
+  );
+  return { deleted: true, backupUrl: backup.url };
+}
+
+function login_(q) {
+  const username = name_(need_(q.username, "ชื่อผู้ใช้", 100));
+  const user = rows_("Users").find((u) => name_(u.username) === username);
+  if (!user)
+    throw Error("ไม่พบชื่อผู้ใช้นี้ในชีท Users ของระบบที่เว็บกำลังเชื่อมต่อ");
+  if (user.status !== "active") throw Error("บัญชีนี้ยังไม่เปิดใช้งาน");
+  if (!password_(user.password, String(q.password || ""))) {
+    throw Error("รหัสผ่านไม่ตรงกับบัญชีนี้ หากเป็นครูให้รัน resetTeacherLogin");
+  }
+  if (user.role !== "teacher") studentRoomAccess_(user.id);
+  if (user.role !== "teacher" && maintenance_())
+    throw Error("ระบบปิดให้นักเรียนเข้าใช้งานชั่วคราว");
+  const token = Utilities.getUuid() + Utilities.getUuid();
+
+  const expiresAt = Date.now() + sessionIdleMs_(user.role);
+  const sessionLock = LockService.getScriptLock();
+  if (!sessionLock.tryLock(5000))
+    throw Error(
+      "ระบบกำลังบันทึกข้อมูลอื่น กรุณาลองเข้าสู่ระบบอีกครั้งในอีกสักครู่",
+    );
+  try {
+    delete MEM.Users;
+    delete MEM.Students;
+    delete MEM.Groups;
+    const latest = get_("Users", user.id);
+    if (
+      latest.status !== "active" ||
+      Number(latest.version) !== Number(user.version)
+    )
+      throw Error("บัญชีเปลี่ยนแปลงแล้ว กรุณาเข้าสู่ระบบอีกครั้ง");
+    if (latest.role !== "teacher") {
+      studentRoomAccess_(latest.id);
+      if (maintenance_()) throw Error("ระบบปิดให้นักเรียนเข้าใช้งานชั่วคราว");
+    }
+    batch_("Sessions", [
+      {
+        id: digest_(token),
+        userId: user.id,
+        version: user.version,
+        expiresAt,
+        lastSeenAt: Date.now(),
+      },
+    ]);
+    if (user.role === "student")
+      writeOne_("Users", {
+        id: user.id,
+        lastLoginAt: Date.now(),
+        lastSeenAt: Date.now(),
+        loginHistoryKnown: true,
+        hasLoggedIn: true,
+      });
+    SpreadsheetApp.flush();
+  } finally {
+    sessionLock.releaseLock();
+  }
+  return {
+    token,
+    username: user.username,
+    loginUsername: text_(q.username),
+    userId: user.id,
+    role: user.role,
+    fullName: user.fullName,
+    imgUrl: "",
+    sessionPolicy: "idle-v1",
+    idleTimeoutMs: sessionIdleMs_(user.role),
+    expiresAt,
+    serverNow: Date.now(),
+  };
+}
+
+function sessionIdleMs_(role) {
+  return role === "teacher" ? 3600000 : 900000;
+}
+function adminAuthError_(message, reason = "") {
+  const error = Error(message);
+  error.code = "AUTH_EXPIRED";
+  error.authReason = reason;
+  return error;
+}
+function sessionInfo_(q, touch) {
+  const user = auth_(q);
+  const id = digest_(q.token);
+  delete MEM.Sessions;
+  const session = findRow_("Sessions", id);
+  if (!session || Number(session.expiresAt) <= Date.now())
+    throw adminAuthError_(
+      "ไม่มีการใช้งานนานหรือเซสชันถูกยกเลิก กรุณาเข้าสู่ระบบใหม่",
+      "IDLE_EXPIRED",
+    );
+  let expiresAt = Number(session.expiresAt);
+  if (touch) {
+    expiresAt = Date.now() + sessionIdleMs_(user.role);
+    const renewed = writeOne_("Sessions", {
+      id,
+      expiresAt,
+      lastSeenAt: Date.now(),
+    });
+    SpreadsheetApp.flush();
+    CacheService.getScriptCache().put(
+      "kv_s_" + id,
+      JSON.stringify(renewed),
+      120,
+    );
+  }
+  return {
+    expiresAt,
+    serverNow: Date.now(),
+    idleTimeoutMs: sessionIdleMs_(user.role),
+  };
+}
+
+function auth_(q, role) {
+  if (MEM.$auth && MEM.$auth.token === q.token) {
+    if (role && MEM.$auth.user.role !== role)
+      throw adminAuthError_("ไม่มีสิทธิ์ใช้งาน");
+    return MEM.$auth.user;
+  }
+  const token = text_(q.token);
+  if (!token) throw adminAuthError_("กรุณาเข้าสู่ระบบจาก index.html");
+  const id = digest_(token),
+    cache = CacheService.getScriptCache();
+  let session = json_(cache.get("kv_s_" + id), null);
+  if (!session) {
+    session = findRow_("Sessions", id);
+    if (session) cache.put("kv_s_" + id, JSON.stringify(session), 120);
+  }
+  if (!session)
+    throw adminAuthError_(
+      "ไม่พบเซสชันนี้หรือถูกยกเลิก กรุณาเข้าสู่ระบบใหม่",
+      "SESSION_NOT_FOUND",
+    );
+  if (Number(session.expiresAt) <= Date.now())
+    throw adminAuthError_(
+      "ไม่มีการใช้งานนาน เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่",
+      "IDLE_EXPIRED",
+    );
+  const user = findRow_("Users", session.userId);
+  if (!user)
+    throw adminAuthError_(
+      "บัญชีนี้ถูกนำออกจากระบบแล้ว กรุณาติดต่อครู",
+      "ACCOUNT_NOT_FOUND",
+    );
+  if (
+    user.status !== "active" ||
+    Number(user.version) !== Number(session.version) ||
+    (role && user.role !== role)
+  )
+    throw adminAuthError_(
+      "เซสชันถูกยกเลิกหรือไม่มีสิทธิ์ใช้งาน กรุณาเข้าสู่ระบบใหม่",
+    );
+  if (user.role !== "teacher") {
+    try {
+      studentRoomAccess_(user.id);
+    } catch (error) {
+      throw adminAuthError_(error.message, "ACCESS_DISABLED");
+    }
+  }
+  if (user.role !== "teacher" && maintenance_())
+    throw adminAuthError_(
+      "ระบบปิดให้นักเรียนเข้าใช้งานชั่วคราว",
+      "ACCESS_DISABLED",
+    );
+  MEM.$auth = { token: q.token, user };
+  return user;
+}
+
+function teacher_(q) {
+  return auth_(q, "teacher");
+}
+function enrollment_(studentId, offeringId) {
+  const offering = get_("Offerings", offeringId),
+    course = get_("Courses", offering.courseId);
+  if (offering.status !== "active" || course.status !== "active")
+    throw Error("รายวิชานี้ยังไม่เปิดใช้งาน");
+  if (
+    !rows_("Enrollments").some(
+      (e) =>
+        e.studentId === studentId &&
+        e.offeringId === offeringId &&
+        e.status === "active",
+    )
+  )
+    throw Error("ยังไม่ได้ลงทะเบียนวิชานี้");
+  return offering;
+}
+
+function activityAccess_(studentId, q) {
+  const offering = enrollment_(studentId, q.offeringId),
+    activity = get_("Activities", q.activityId);
+  const chapter = get_("Chapters", activity.chapterId);
+  if (
+    activity.status !== "active" ||
+    chapter.status !== "active" ||
+    chapter.courseId !== offering.courseId
+  )
+    throw Error("กิจกรรมยังไม่เปิด");
+  return activity;
+}
+
+function summaryCache_(action, q, compute) {
+  const properties = PropertiesService.getScriptProperties();
+  const revision = properties.getProperty("KV_DATA_REVISION") || "0";
+  const key =
+    "kv_summary_" +
+    action +
+    "_" +
+    digest_(
+      JSON.stringify([
+        revision,
+        q.courseId || "",
+        q.offeringId || "",
+        q.groupId || "",
+        q.kind || "",
+        Number(q.offset) || 0,
+        q.studentId || "",
+        q.status || "",
+        q.search || "",
+        q.activityId || "",
+        !!q.pendingOnly,
+      ]),
+    );
+  const cache = CacheService.getScriptCache();
+  if (!q.forceRefresh) {
+    const saved = cache.get(key);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (_) { }
+    }
+  }
+  const data = compute();
+  const encoded = JSON.stringify(data);
+  if (Utilities.newBlob(encoded).getBytes().length < 95000)
+    cache.put(key, encoded, action === "base" ? 300 : 180);
+  return data;
+}
+function presenceHeartbeat_(q) {
+  const user = auth_(q, "student"),
+    now = Date.now(),
+    id = digest_(q.token),
+    session = get_("Sessions", id);
+  if (now - Number(session.lastSeenAt || 0) >= 45000) {
+    const updated = writeOne_("Sessions", { id, lastSeenAt: now });
+    CacheService.getScriptCache().put(
+      "kv_s_" + id,
+      JSON.stringify(updated),
+      120,
+    );
+    if (now - Number(user.lastSeenAt || 0) >= 300000)
+      writeOne_("Users", { id: user.id, lastSeenAt: now });
+  }
+  return { serverNow: now, expiresAt: Number(session.expiresAt) };
+}
+function studentPresence_(q) {
+  teacher_(q);
+  const now = Date.now(),
+    users = new Map(rows_("Users").map((u) => [u.id, u]));
+  const sessions = new Map(),
+    groups = new Map(rows_("Groups").map((g) => [g.id, g]));
+  rows_("Sessions").forEach((s) => {
+    if (!sessions.has(s.userId)) sessions.set(s.userId, []);
+    sessions.get(s.userId).push(s);
+  });
+  const closed = maintenance_();
+  return {
+    serverNow: now,
+    items: rows_("Students").map((student) => {
+      const user = users.get(student.id) || {},
+        history = sessions.get(student.id) || [];
+      const lastLoginAt = Number(user.lastLoginAt) || 0;
+      const lastSeenAt = Math.max(
+        Number(user.lastSeenAt) || 0,
+        ...history.map((s) => Number(s.lastSeenAt) || 0),
+      );
+      const online =
+        !closed &&
+        student.status === "active" &&
+        user.status === "active" &&
+        groups.get(student.groupId)?.status === "active" &&
+        history.some(
+          (s) =>
+            Number(s.version) === Number(user.version) &&
+            Number(s.expiresAt) > now &&
+            Number(s.lastSeenAt) > 0 &&
+            now - Number(s.lastSeenAt) < 120000,
+        );
+      const used =
+        user.hasLoggedIn === true ||
+        String(user.hasLoggedIn).toLowerCase() === "true" ||
+        lastLoginAt > 0 ||
+        lastSeenAt > 0 ||
+        history.length > 0;
+      const known =
+        user.loginHistoryKnown === true ||
+        String(user.loginHistoryKnown).toLowerCase() === "true";
+      return {
+        studentId: student.id,
+        status: online
+          ? "online"
+          : used
+            ? "offline"
+            : known
+              ? "never"
+              : "unknown",
+        lastLoginAt,
+        lastSeenAt,
+      };
+    }),
+  };
+}
+
+function bootstrap_(q) {
+  teacher_(q);
+  const compute = () => {
+    const out = {};
+    ["Groups", "Students", "Courses", "Offerings", "Enrollments"].forEach(
+      (k) => (out[k] = rows_(k).map(clean_)),
+    );
+    out.Settings = { maintenance: maintenance_() };
+    return out;
+  };
+  let base = summaryCache_("base", q, compute);
+  const required = ["Groups", "Students", "Courses", "Offerings", "Enrollments"];
+  if (!base || !required.every((key) => Array.isArray(base[key])))
+    base = summaryCache_("base", Object.assign({}, q, { forceRefresh: true }), compute);
+  return q.includePresence === false
+    ? base
+    : Object.assign({}, base, { Presence: studentPresence_(q) });
+}
+
+function dashboardRows_(key, columns) {
+  if (MEM[key]) return MEM[key];
+  const sheet = book_().getSheetByName(key);
+  if (!sheet) throw Error("เรียก updatesheet ก่อน: " + key);
+  const count = sheet.getLastRow() - 1;
+  if (count < 1) return [];
+  const rows = Array.from({ length: count }, () => ({}));
+  const positions = columns
+    .map((name) => ({ name, index: SCHEMA[key].indexOf(name) }))
+    .sort((a, b) => a.index - b.index);
+  const spans = [];
+  positions.forEach((field) => {
+    const last = spans[spans.length - 1];
+    if (last && field.index === last[last.length - 1].index + 1)
+      last.push(field);
+    else spans.push([field]);
+  });
+  spans.forEach((span) => {
+    const values = sheet
+      .getRange(2, span[0].index + 1, count, span.length)
+      .getValues();
+    values.forEach((line, i) =>
+      span.forEach((field, j) => (rows[i][field.name] = line[j])),
+    );
+  });
+  return rows.filter((row) => row.id);
+}
+
+function courseData_(q) {
+  teacher_(q);
+  get_("Courses", q.courseId);
+  const Chapters = rows_("Chapters")
+    .filter((r) => r.courseId === q.courseId)
+    .map(clean_);
+  const ids = new Set(Chapters.map((c) => c.id));
+  return {
+    Chapters,
+    Materials: rows_("Materials")
+      .filter((r) => ids.has(r.chapterId) && r.status !== "deleted")
+      .map(clean_),
+    Activities: rows_("Activities")
+      .filter((r) => ids.has(r.chapterId) && r.status !== "deleted")
+      .map((r) =>
+        Object.assign(clean_(r), { questions: json_(r.questions, []) }),
+      ),
+  };
+}
+
+function saveGroup_(q) {
+  teacher_(q);
+  if (q.id) get_("Groups", q.id);
+  const old = q.id ? get_("Groups", q.id) : null;
+  const level = enum_(q.level, ["ป.", "ม.", "ปวช."]);
+  const grade = Number(q.grade),
+    roomText = text_(q.room),
+    room = roomText ? Number(roomText) : null;
+  if (
+    !Number.isInteger(grade) ||
+    grade < 1 ||
+    grade > (level === "ปวช." ? 3 : 6)
+  )
+    throw Error("เลือกระดับชั้นให้ถูกต้อง");
+  if (
+    roomText &&
+    (!/^\d+$/.test(roomText) ||
+      !Number.isInteger(room) ||
+      room < 1 ||
+      room > 99)
+  )
+    throw Error("เลขห้องต้องอยู่ระหว่าง 1–99");
+  const name = level + grade + (room === null ? "" : "/" + room);
+  if (
+    (!old || name_(old.name) !== name_(name)) &&
+    rows_("Groups").some((g) => g.id !== q.id && name_(g.name) === name_(name))
+  )
+    throw Error("มีชื่อห้องนี้แล้ว ใช้ห้องเดิมหรือกำหนดชื่อให้ต่างกัน");
+  return clean_(
+    write_("Groups", {
+      id: q.id || id_("GRP"),
+      name,
+      year: old ? old.year : "",
+      status: old ? old.status : "active",
+    }),
+  );
+}
+
+function studentData_(q, id) {
+  const prefix = enum_(q.prefix, [
+    "เด็กชาย",
+    "เด็กหญิง",
+    "นาย",
+    "นาง",
+    "นางสาว",
+  ]);
+  const firstName = need_(q.firstName, "ชื่อ", 80),
+    lastName = need_(q.lastName, "นามสกุล", 80);
+  const fullName = prefix + firstName + " " + lastName,
+    username = name_(firstName + " " + lastName);
+  get_("Groups", q.groupId);
+  if (rows_("Users").some((u) => u.id !== id && u.username === username))
+    throw Error(
+      "ชื่อและนามสกุลซ้ำ: " +
+      firstName +
+      " " +
+      lastName +
+      " — ตรวจว่าเป็นคนเดิมก่อน",
+    );
+  return {
+    prefix,
+    firstName,
+    lastName,
+    fullName,
+    username,
+    groupId: q.groupId,
+    status: "active",
+  };
+}
+
+function saveStudent_(q) {
+  teacher_(q);
+  const old = q.id ? get_("Students", q.id) : null,
+    data = studentData_(q, q.id);
+  const props = PropertiesService.getScriptProperties();
+  const highest = rows_("Students").reduce(
+    (n, s) => Math.max(n, Number(String(s.id).replace("STD", "")) || 0),
+    0,
+  );
+  const next =
+    Math.max(highest, Number(props.getProperty("KV_STD_SEQUENCE")) || 0) + 1;
+  const id = q.id || "STD" + String(next).padStart(3, "0");
+  if (!q.id) props.setProperty("KV_STD_SEQUENCE", String(next));
+  const account = old ? get_("Users", id) : null;
+  write_("Users", {
+    id,
+    username: data.username,
+    password: account ? account.password : hash_("12345678"),
+    role: "student",
+    status: account ? account.status : "active",
+    fullName: data.fullName,
+    version: account ? account.version : 1,
+    loginHistoryKnown: account ? account.loginHistoryKnown : true,
+  });
+  delete data.username;
+  return clean_(
+    write_(
+      "Students",
+      Object.assign({ id }, data, { status: old ? old.status : "active" }),
+    ),
+  );
+}
+
+function importStudents_(q) {
+  teacher_(q);
+  if (
+    !Array.isArray(q.students) ||
+    !q.students.length ||
+    q.students.length > 100
+  )
+    throw Error("นำเข้าครั้งละ 1–100 คน");
+  const seen = new Set();
+  const data = q.students.map((s) => {
+    const d = studentData_(s, "");
+    if (seen.has(d.username))
+      throw Error("ชื่อซ้ำในรายการนำเข้า: " + d.username);
+    seen.add(d.username);
+    return d;
+  });
+  const props = PropertiesService.getScriptProperties();
+  let next = Math.max(
+    Number(props.getProperty("KV_STD_SEQUENCE")) || 0,
+    rows_("Students").reduce(
+      (n, s) => Math.max(n, Number(String(s.id).replace("STD", "")) || 0),
+      0,
+    ),
+  );
+  const students = [],
+    users = [];
+  data.forEach((d) => {
+    const id = "STD" + String(++next).padStart(3, "0");
+    users.push({
+      id,
+      username: d.username,
+      password: hash_("12345678"),
+      role: "student",
+      status: "active",
+      fullName: d.fullName,
+      version: 1,
+      loginHistoryKnown: true,
+    });
+    delete d.username;
+    students.push(Object.assign({ id }, d));
+  });
+  props.setProperty("KV_STD_SEQUENCE", String(next));
+  batch_("Users", users);
+  batch_("Students", students);
+  return { count: students.length, studentIds: students.map((s) => s.id) };
+}
+
+function replaceRosterPreview_(q) {
+  teacher_(q);
+  const group = get_("Groups", q.groupId);
+  if (group.status !== "active")
+    throw Error("เปิดใช้งานห้องก่อนเปลี่ยนรายชื่อ");
+  if (
+    !Array.isArray(q.students) ||
+    !q.students.length ||
+    q.students.length > 100
+  )
+    throw Error("รายชื่อใหม่ต้องมี 1–100 คน");
+  const seen = new Set();
+  const students = q.students.map((s) => {
+    const d = studentData_(Object.assign({}, s, { groupId: group.id }), "");
+    if (seen.has(d.username)) throw Error("ชื่อซ้ำในรายการ: " + d.username);
+    seen.add(d.username);
+    return d;
+  });
+  const outgoing = rows_("Students").filter((s) => s.groupId === group.id);
+  const ids = new Set(outgoing.map((s) => s.id));
+  const accounts = rows_("Users").filter((u) => ids.has(u.id));
+  const enrollments = rows_("Enrollments").filter((e) => ids.has(e.studentId));
+  const submissions = rows_("Submissions").filter((e) => ids.has(e.studentId));
+  const fingerprint = digest_(
+    JSON.stringify({
+      group,
+      students,
+      outgoing,
+      accounts,
+      enrollments,
+      submissions,
+    }),
+  );
+  return {
+    groupName: group.name,
+    outgoing: outgoing.map((s) => ({ id: s.id, name: s.fullName })),
+    incoming: students.map((s) => s.fullName),
+    enrollmentCount: enrollments.filter((e) => e.status === "active").length,
+    submissionCount: submissions.length,
+    fingerprint,
+  };
+}
+function replaceRoster_(q) {
+  const preview = replaceRosterPreview_(q);
+  if (q.confirmText !== "เปลี่ยนรายชื่อ")
+    throw Error("พิมพ์ เปลี่ยนรายชื่อ ให้ตรงก่อนดำเนินการ");
+  if (q.fingerprint !== preview.fingerprint)
+    throw Error("ข้อมูลเปลี่ยนแล้ว กรุณาตรวจผลกระทบใหม่");
+  const backup = backup_(q);
+  const ids = new Set(preview.outgoing.map((s) => s.id));
+  rewriteRows_(
+    "Students",
+    rows_("Students").map((s) =>
+      ids.has(s.id)
+        ? Object.assign({}, s, { groupId: "", status: "inactive" })
+        : s,
+    ),
+  );
+  rewriteRows_(
+    "Users",
+    rows_("Users").map((u) =>
+      ids.has(u.id)
+        ? Object.assign({}, u, {
+          status: "inactive",
+          version: Number(u.version || 1) + 1,
+        })
+        : u,
+    ),
+  );
+  rewriteRows_(
+    "Enrollments",
+    rows_("Enrollments").map((e) =>
+      ids.has(e.studentId) ? Object.assign({}, e, { status: "inactive" }) : e,
+    ),
+  );
+  rows_("Sessions")
+    .filter((s) => ids.has(s.userId))
+    .forEach((s) => CacheService.getScriptCache().remove("kv_s_" + s.id));
+  rewriteRows_(
+    "Sessions",
+    rows_("Sessions").filter((s) => !ids.has(s.userId)),
+  );
+  const result = importStudents_(
+    Object.assign({}, q, {
+      students: q.students.map((s) =>
+        Object.assign({}, s, { groupId: q.groupId }),
+      ),
+    }),
+  );
+  return { count: result.count, archived: ids.size, backupUrl: backup.url };
+}
+
+function studentsBatchPreview_(q) {
+  teacher_(q);
+  const mode = enum_(q.mode, ["active", "inactive", "move"]);
+  if (
+    !Array.isArray(q.studentIds) ||
+    !q.studentIds.length ||
+    q.studentIds.length > 200
+  )
+    throw Error("เลือกนักเรียน 1–200 คน");
+  const ids = [...new Set(q.studentIds)].sort();
+  const students = ids.map((id) => get_("Students", id)),
+    accounts = ids.map((id) => get_("Users", id));
+  const target = mode === "move" ? get_("Groups", q.groupId) : null;
+  if (target && target.status !== "active") throw Error("ห้องปลายทางปิดใช้งาน");
+  return {
+    count: ids.length,
+    names: students.map((s) => s.fullName),
+    fingerprint: digest_(JSON.stringify({ mode, students, accounts, target })),
+  };
+}
+function studentsBatch_(q) {
+  const preview = studentsBatchPreview_(q);
+  if (q.confirmText !== "ยืนยัน") throw Error("พิมพ์ ยืนยัน ก่อนดำเนินการ");
+  if (q.fingerprint !== preview.fingerprint)
+    throw Error("ข้อมูลเปลี่ยนแล้ว ตรวจรายชื่อใหม่ก่อน");
+  const ids = new Set(q.studentIds);
+  rewriteRows_(
+    "Students",
+    rows_("Students").map((s) =>
+      ids.has(s.id)
+        ? Object.assign(
+          {},
+          s,
+          q.mode === "move" ? { groupId: q.groupId } : { status: q.mode },
+        )
+        : s,
+    ),
+  );
+  if (q.mode !== "move") {
+    rewriteRows_(
+      "Users",
+      rows_("Users").map((u) =>
+        ids.has(u.id)
+          ? Object.assign({}, u, {
+            status: q.mode,
+            version: Number(u.version || 1) + 1,
+          })
+          : u,
+      ),
+    );
+    rows_("Sessions")
+      .filter((s) => ids.has(s.userId))
+      .forEach((s) => CacheService.getScriptCache().remove("kv_s_" + s.id));
+    rewriteRows_(
+      "Sessions",
+      rows_("Sessions").filter((s) => !ids.has(s.userId)),
+    );
+  }
+  return { count: ids.size };
+}
+
+function promote_(q) {
+  teacher_(q);
+  get_("Groups", q.fromId);
+  if (get_("Groups", q.toId).status !== "active")
+    throw Error("ห้องปลายทางปิดใช้งาน");
+  if (q.fromId === q.toId) throw Error("เลือกห้องปลายทางคนละห้อง");
+  const s = book_().getSheetByName("Students"),
+    rows = rows_("Students");
+  let count = 0;
+  const values = rows.map((r) => {
+    if (r.groupId === q.fromId && r.status === "active") {
+      r.groupId = q.toId;
+      count++;
+    }
+    return SCHEMA.Students.map((k) => cell_(r[k]));
+  });
+  if (values.length)
+    s.getRange(2, 1, values.length, SCHEMA.Students.length).setValues(values);
+  delete MEM.Students;
+  return { count };
+}
+
+function saveCourse_(q) {
+  teacher_(q);
+  if (q.id) get_("Courses", q.id);
+  return clean_(
+    write_("Courses", {
+      id: q.id || id_("CRS"),
+      code: need_(q.code, "รหัสวิชา", 50),
+      name: need_(q.name, "ชื่อรายวิชา", 150),
+      description: q.id ? get_("Courses", q.id).description : "",
+      status: enum_(q.status === "hidden" ? "closed" : q.status || "active", [
+        "active",
+        "closed",
+      ]),
+    }),
+  );
+}
+
+function ensureOffering_(q) {
+  teacher_(q);
+  get_("Courses", q.courseId);
+  const existing = rows_("Offerings").find(
+    (o) => o.courseId === q.courseId && o.status === "active",
+  );
+  if (existing) return clean_(existing);
+  return saveOffering_(Object.assign({}, q, { status: "active" }));
+}
+
+function saveOffering_(q) {
+  teacher_(q);
+  get_("Courses", q.courseId);
+  if (q.id) get_("Offerings", q.id);
+  const old = q.id ? get_("Offerings", q.id) : null;
+  const status = enum_(q.status || "active", ["active", "hidden", "closed"]);
+  if (
+    status === "active" &&
+    (!old || old.status !== "active") &&
+    rows_("Offerings").some(
+      (o) =>
+        o.id !== q.id && o.courseId === q.courseId && o.status === "active",
+    )
+  )
+    throw Error("รายวิชานี้เปิดใช้งานแล้ว ใช้ชุดผู้เรียนเดิม");
+  return clean_(
+    write_("Offerings", {
+      id: q.id || id_("OFF"),
+      courseId: q.courseId,
+      year: old ? old.year : "",
+      term: old ? old.term : "",
+      status,
+    }),
+  );
+}
+
+function enroll_(q) {
+  teacher_(q);
+  get_("Offerings", q.offeringId);
+  if (
+    !Array.isArray(q.studentIds) ||
+    !q.studentIds.length ||
+    q.studentIds.length > 200
+  )
+    throw Error("เลือกนักเรียน 1–200 คน");
+  const ids = [...new Set(q.studentIds)],
+    students = new Map(rows_("Students").map((s) => [s.id, s]));
+  ids.forEach((id) => {
+    if (!students.has(id) || students.get(id).status !== "active")
+      throw Error("มีนักเรียนที่ไม่พบหรือปิดใช้งาน");
+  });
+  const members = rows_("Enrollments").map((r) => Object.assign({}, r)),
+    existing = new Map(
+      members
+        .filter((e) => e.offeringId === q.offeringId)
+        .map((e) => [e.studentId, e]),
+    );
+  ids.forEach((id) => {
+    const student = students.get(id),
+      old = existing.get(id);
+    if (old) Object.assign(old, { groupId: student.groupId, status: "active" });
+    else
+      members.push({
+        id: id_("ENR"),
+        offeringId: q.offeringId,
+        studentId: id,
+        groupId: student.groupId,
+        status: "active",
+      });
+  });
+  rewriteRows_("Enrollments", members);
+  return { count: ids.length };
+}
+
+function saveChapter_(q) {
+  teacher_(q);
+  get_("Courses", q.courseId);
+  if (q.id && get_("Chapters", q.id).courseId !== q.courseId)
+    throw Error("ย้ายบทข้ามรายวิชาไม่ได้");
+  const order = Number(q.order);
+  if (!Number.isInteger(order) || order < 1) throw Error("ลำดับบทเริ่มที่ 1");
+  return clean_(
+    write_("Chapters", {
+      id: q.id || id_("CH"),
+      courseId: q.courseId,
+      title: need_(q.title, "ชื่อบท", 150),
+      order,
+      status: enum_(q.status || "active", ["active", "hidden"]),
+    }),
+  );
+}
+
+function uRL_(url) {
+  url = need_(url, "ลิงก์", 2000);
+  if (!/^https:\/\/[^\s<>"']+$/.test(url))
+    throw Error("ใช้ลิงก์ https:// ที่ถูกต้อง");
+  return url;
+}
+
+function saveMaterial_(q) {
+  teacher_(q);
+  const chapter = get_("Chapters", q.chapterId);
+  const old = q.id ? get_("Materials", q.id) : null;
+
+  let fileId = old ? old.fileId : "",
+    mime = old ? old.mime : "",
+    url = q.url ? uRL_(q.url) : old ? old.url : "";
+  const title = need_(q.title, "ชื่อสื่อ", 150),
+    kind = enum_(q.kind, ["knowledge", "extra"]);
+  if (q.file) {
+    if (old && old.fileId) throw Error("ลบสื่อเดิมก่อนอัปโหลดไฟล์ใหม่");
+    mime = enum_(q.file.mime, [
+      "application/pdf",
+      "image/png",
+      "image/jpeg",
+      "image/webp",
+    ]);
+    if (typeof q.file.data !== "string" || q.file.data.length > 4200000)
+      throw Error("ไฟล์ต้องไม่เกิน 3 MB");
+    const bytes = Utilities.base64Decode(q.file.data);
+    if (bytes.length > 3145728) throw Error("ไฟล์ต้องไม่เกิน 3 MB");
+    const root = DriveApp.getFolderById(
+      PropertiesService.getScriptProperties().getProperty("KV_DRIVE_FOLDER_ID"),
+    );
+    const children = root.getFoldersByName(chapter.courseId);
+    const courseFolder = children.hasNext()
+      ? children.next()
+      : root.createFolder(chapter.courseId);
+    const folders = courseFolder.getFoldersByName(chapter.id);
+    const folder = folders.hasNext()
+      ? folders.next()
+      : courseFolder.createFolder(chapter.id);
+    const file = folder.createFile(
+      Utilities.newBlob(bytes, mime, need_(q.file.name, "ชื่อไฟล์", 150)),
+    );
+    try {
+      file.setSharing(
+        DriveApp.Access.ANYONE_WITH_LINK,
+        DriveApp.Permission.VIEW,
+      );
+      fileId = file.getId();
+      url = "https://drive.google.com/file/d/" + fileId + "/view";
+    } catch (err) {
+      file.setTrashed(true);
+      throw Error(
+        "แชร์สื่อไม่ได้: นโยบาย Google Workspace อาจจำกัดการแชร์ ให้ใช้ลิงก์ที่นักเรียนเปิดได้",
+      );
+    }
+  }
+  if (!url) throw Error("ใส่ลิงก์หรือเลือกไฟล์");
+  try {
+    return clean_(
+      write_("Materials", {
+        id: q.id || id_("MAT"),
+        chapterId: q.chapterId,
+        title,
+        kind,
+        url,
+        fileId,
+        mime,
+        status: "active",
+      }),
+    );
+  } catch (err) {
+    if (q.file && fileId) DriveApp.getFileById(fileId).setTrashed(true);
+    throw err;
+  }
+}
+
+function deleteMaterial_(q) {
+  teacher_(q);
+  const m = get_("Materials", q.id);
+  if (q.confirmText !== "ยืนยัน") throw Error("พิมพ์ ยืนยัน ก่อนดำเนินการ");
+  if (q.deleteFile === "true" || q.deleteFile === true) {
+    if (!m.fileId) throw Error("ลบได้เฉพาะไฟล์ที่อัปโหลดผ่านระบบ ลิงก์ภายนอกนำออกจากบทเรียนได้เท่านั้น");
+    if (rows_("Materials").some((r) => r.id !== m.id && r.status !== "deleted" && r.fileId === m.fileId))
+      throw Error("ไฟล์นี้ยังใช้ในบทเรียนอื่น กรุณานำออกจากบทเรียนอื่นก่อน");
+    DriveApp.getFileById(m.fileId).setTrashed(true);
+    write_("Materials", { id: m.id, status: "deleted", url: "", fileId: "", mime: "" });
+    return { deleted: true, fileTrashed: true };
+  }
+  if (m.status !== "deleted") write_("Materials", { id: m.id, status: "deleted" });
+  return { deleted: true, fileTrashed: false };
+}
+
+function questions_(questions) {
+  if (!Array.isArray(questions) || !questions.length || questions.length > 100)
+    throw Error("ต้องมีคำถาม 1–100 ข้อ");
+  const out = questions.map((x, i) => {
+    const type = enum_(x.type, ["text", "single", "boolean"]),
+      points = Number(x.points);
+    if (!Number.isFinite(points) || points <= 0 || points > 100)
+      throw Error("คะแนนข้อ " + (i + 1) + " ต้องมากกว่า 0 และไม่เกิน 100");
+    const options =
+      type === "text"
+        ? []
+        : type === "boolean"
+          ? ["ใช่", "ไม่ใช่"]
+          : (x.options || []).map((o) => need_(o, "ตัวเลือก", 500));
+    if (type !== "text" && (options.length < 2 || options.length > 10))
+      throw Error("ตัวเลือก 2–10 ตัวเลือก");
+    const correct = type === "text" ? null : Number(x.correct);
+    if (
+      type !== "text" &&
+      (!Number.isInteger(correct) || correct < 0 || correct >= options.length)
+    )
+      throw Error("เลือกเฉลยให้ตรงตัวเลือก");
+    return {
+      id: x.id || id_("Q"),
+      text: need_(x.text, "คำถาม", 2000),
+      type,
+      points,
+      options,
+      correct,
+    };
+  });
+  if (new Set(out.map((x) => x.id)).size !== out.length)
+    throw Error("รหัสคำถามซ้ำ");
+  if (JSON.stringify(out).length > 45000)
+    throw Error("คำถามรวมยาวเกินไป กรุณาแยกกิจกรรม");
+  return out;
+}
+
+function saveActivity_(q) {
+  teacher_(q);
+  get_("Chapters", q.chapterId);
+  const old = q.id ? get_("Activities", q.id) : null;
+
+  if (old && rows_("Submissions").some((s) => s.activityId === old.id))
+    throw Error("มีงานส่งแล้ว ให้สร้างกิจกรรมใหม่เพื่อรักษาคะแนนเดิม");
+  if (
+    old &&
+    rows_("Runs").some((r) => r.activityId === old.id && r.status === "started")
+  )
+    throw Error("มีนักเรียนกำลังทำกิจกรรมนี้ ให้สร้างกิจกรรมใหม่แทน");
+  const questions = questions_(q.questions),
+    seconds = Number(q.seconds || 0);
+  if (!Number.isInteger(seconds) || seconds < 0 || seconds > 7200)
+    throw Error("เวลารวมกิจกรรม 0–7200 วินาที");
+  const mode = enum_(q.mode || "quiz", ["quiz", "game"]);
+  if (mode === "game" && questions.some((x) => x.type === "text"))
+    throw Error("เกมตอบคำถามรองรับเฉพาะช้อยส์/ใช่–ไม่ใช่");
+  return clean_(
+    write_("Activities", {
+      id: q.id || id_("ACT"),
+      chapterId: q.chapterId,
+      title: need_(q.title, "ชื่อกิจกรรม", 150),
+      kind: enum_(q.kind, ["worksheet", "quiz"]),
+      mode,
+      seconds,
+      showAnswers: !!q.showAnswers,
+      status: enum_(q.status || "draft", ["draft", "active", "hidden"]),
+      questions: JSON.stringify(questions),
+      allowEdit: !!q.allowEdit,
+      countScore: q.countScore === true,
+      dueAt: q.dueAt ? new Date(q.dueAt).toISOString() : "",
+    }),
+  );
+}
+
+function setStatus_(q) {
+  teacher_(q);
+  const key = enum_(q.entity, [
+    "Groups",
+    "Courses",
+    "Offerings",
+    "Students",
+    "Enrollments",
+    "Chapters",
+    "Activities",
+  ]);
+  const row = get_(key, q.id);
+  const allowed = {
+    Groups: ["active", "inactive"],
+    Courses: ["active", "hidden", "closed"],
+    Offerings: ["active", "hidden", "closed"],
+    Students: ["active", "inactive"],
+    Enrollments: ["active", "inactive"],
+    Chapters: ["active", "hidden"],
+    Activities: ["active", "hidden", "draft"],
+  };
+  if (key === "Courses" && q.status === "hidden") q.status = "closed";
+  enum_(q.status, allowed[key]);
+  if (key === "Activities" && q.status === "active")
+    questions_(json_(row.questions, []));
+  write_(key, { id: q.id, status: q.status });
+  if (key === "Students") {
+    const u = get_("Users", q.id);
+    write_("Users", {
+      id: q.id,
+      status: q.status,
+      version: Number(u.version) + 1,
+    });
+  }
+  return { updated: true };
+}
+
+function resetPassword_(q) {
+  teacher_(q);
+  const u = get_("Users", q.id);
+  if (u.role !== "student") throw Error("รีเซ็ตได้เฉพาะนักเรียน");
+  write_("Users", {
+    id: q.id,
+    password: hash_("12345678"),
+    version: Number(u.version) + 1,
+  });
+  return { updated: true };
+}
+
+function changePassword_(q) {
+  const u = auth_(q),
+    password = need_(q.newPassword, "รหัสผ่านใหม่", 100);
+  if (!password_(u.password, String(q.oldPassword || "")))
+    throw Error("รหัสผ่านเดิมไม่ถูกต้อง");
+  if (password.length < 8) throw Error("รหัสผ่านอย่างน้อย 8 ตัวอักษร");
+  write_("Users", {
+    id: u.id,
+    password: hash_(password),
+    version: Number(u.version) + 1,
+  });
+  return { updated: true, loginAgain: true };
+}
+
+function submissions_(q) {
+  teacher_(q);
+  return summaryCache_("submissions", q, () => submissionsData_(q));
+}
+function submissionsData_(q) {
+  const activeCourses = new Set(
+    rows_("Courses")
+      .filter(
+        (c) => c.status === "active" && (!q.courseId || c.id === q.courseId),
+      )
+      .map((c) => c.id),
+  );
+  const offeringIds = q.offeringId
+    ? new Set([get_("Offerings", q.offeringId).id])
+    : new Set(
+      rows_("Offerings")
+        .filter((o) => o.status === "active" && activeCourses.has(o.courseId))
+        .map((o) => o.id),
+    );
+  const students = new Map(rows_("Students").map((s) => [s.id, s]));
+  const activityNames = new Map();
+  const dueDates = new Map();
+  rows_("Activities").forEach((a) => {
+    activityNames.set(a.id, a.title);
+    if (a.dueAt) {
+      if (!dueDates.has(a.id)) dueDates.set(a.id, []);
+      dueDates.get(a.id).push(new Date(a.dueAt).getTime());
+    }
+  });
+  const groups = new Map(
+    rows_("Enrollments")
+      .filter((e) => offeringIds.has(e.offeringId))
+      .map((e) => [e.offeringId + ":" + e.studentId, e.groupId]),
+  );
+  const scoped = rows_("Submissions").filter(
+    (s) =>
+      offeringIds.has(s.offeringId) &&
+      (!q.groupId ||
+        ((students.get(s.studentId) || {}).groupId ||
+          groups.get(s.offeringId + ":" + s.studentId)) === q.groupId) &&
+      (!q.studentId || s.studentId === q.studentId),
+  );
+  const counts = {
+    total: scoped.length,
+    pending: scoped.filter((s) => s.status === "pending").length,
+    graded: scoped.filter((s) => s.status === "graded").length,
+    returned: scoped.filter((s) => s.status === "returned").length,
+  };
+  const filtered = scoped.filter(
+    (s) =>
+      (!q.status || s.status === q.status) &&
+      (!q.pendingOnly || s.status === "pending") &&
+      (!q.search ||
+        String((students.get(s.studentId) || {}).fullName || "")
+          .toLocaleLowerCase("th")
+          .includes(text_(q.search).toLocaleLowerCase("th"))) &&
+      (!q.activityId || s.activityId === q.activityId),
+  );
+  filtered.sort((a, b) =>
+    String(a.updatedAt).localeCompare(String(b.updatedAt)),
+  );
+  const offset = Math.max(0, Number(q.offset) || 0),
+    limit = 50;
+  return {
+    total: filtered.length,
+    counts,
+    activities: [...new Set(scoped.map((s) => s.activityId))].map((id) => ({
+      id,
+      title: activityNames.get(id) || "กิจกรรม",
+    })),
+    items: filtered.slice(offset, offset + limit).map((s) => ({
+      id: s.id,
+      offeringId: s.offeringId,
+      activityId: s.activityId,
+      activityTitle: activityNames.get(s.activityId) || "กิจกรรม",
+      late:
+        !!s.submittedAt &&
+        (dueDates.get(s.activityId) || []).some(
+          (due) => new Date(s.submittedAt).getTime() > due,
+        ),
+      studentId: s.studentId,
+      studentName: (students.get(s.studentId) || {}).fullName || s.studentId,
+      status: s.status,
+      revision: s.revision,
+      updatedAt: s.updatedAt,
+      scores: json_(s.scores, []),
+      maxScore: json_(s.questionSnapshot, []).reduce((n, x) => n + x.points, 0),
+    })),
+  };
+}
+
+function submission_(q) {
+  teacher_(q);
+  const s = get_("Submissions", q.id);
+  return Object.assign(clean_(s), {
+    history: rows_("History")
+      .filter((r) => r.submissionId === s.id)
+      .map((r) => ({ revision: r.revision, updatedAt: r.updatedAt })),
+    answers: json_(s.answers, []),
+    scores: json_(s.scores, []),
+    questions: json_(s.questionSnapshot, []),
+    studentName: get_("Students", s.studentId).fullName,
+    activityTitle: get_("Activities", s.activityId).title,
+    kind: get_("Activities", s.activityId).kind,
+  });
+}
+
+function grade_(q) {
+  teacher_(q);
+  const s = get_("Submissions", q.id);
+  if (Number(q.revision) !== Number(s.revision))
+    throw Error("นักเรียนแก้ไขงานแล้ว กรุณาเปิดงานล่าสุดก่อนให้คะแนน");
+  const questions = json_(s.questionSnapshot, []);
+  if (!Array.isArray(q.scores) || q.scores.length !== questions.length)
+    throw Error("ให้คะแนนครบทุกข้อ");
+  const scores = q.scores.map((x, i) => {
+    if (
+      x === "" ||
+      x == null ||
+      !Number.isFinite(Number(x)) ||
+      Number(x) < 0 ||
+      Number(x) > questions[i].points
+    )
+      throw Error("คะแนนข้อ " + (i + 1) + " ไม่อยู่ในเกณฑ์");
+    return Number(x);
+  });
+  saveHistory_(s);
+  write_("Submissions", {
+    id: s.id,
+    scores: JSON.stringify(scores),
+    feedback: text_(q.feedback).slice(0, 3000),
+    status: "graded",
+    revision: Number(s.revision) + 1,
+    updatedAt: new Date().toISOString(),
+  });
+  return { score: scores.reduce((a, b) => a + b, 0) };
+}
+
+function progress_(q) {
+  teacher_(q);
+  return summaryCache_("progress", q, () => progressData_(q));
+}
+function progressData_(q) {
+  const o = get_("Offerings", q.offeringId);
+  const chapters = new Set(
+    rows_("Chapters")
+      .filter((c) => c.courseId === o.courseId && c.status === "active")
+      .map((c) => c.id),
+  );
+  const materials = rows_("Materials").filter(
+    (m) =>
+      chapters.has(m.chapterId) &&
+      m.status === "active" &&
+      m.kind === "knowledge",
+  );
+  const activities = rows_("Activities").filter(
+    (a) => chapters.has(a.chapterId) && a.status === "active",
+  );
+  const aids = new Set(activities.map((a) => a.id)),
+    mids = new Set(materials.map((m) => m.id));
+  const submissions = rows_("Submissions").filter(
+    (s) => s.offeringId === q.offeringId && aids.has(s.activityId),
+  );
+  const reads = rows_("Progress").filter(
+    (r) => r.offeringId === q.offeringId && mids.has(r.materialId),
+  );
+  const students = new Map(rows_("Students").map((s) => [s.id, s]));
+  const total = materials.length + activities.length;
+  const scoredActivityIds = new Set(
+    activities
+      .filter((a) =>
+        a.countScore === "" ? a.mode !== "game" : a.countScore === true,
+      )
+      .map((a) => a.id),
+  );
+  const workByStudent = new Map(),
+    readsByStudent = new Map();
+  submissions.forEach((s) => {
+    if (!workByStudent.has(s.studentId)) workByStudent.set(s.studentId, []);
+    workByStudent.get(s.studentId).push(s);
+  });
+  reads.forEach((r) => {
+    if (!readsByStudent.has(r.studentId)) readsByStudent.set(r.studentId, []);
+    readsByStudent.get(r.studentId).push(r);
+  });
+  return rows_("Enrollments")
+    .filter(
+      (e) =>
+        e.offeringId === q.offeringId &&
+        e.status === "active" &&
+        (!q.groupId ||
+          ((students.get(e.studentId) || {}).groupId || e.groupId) ===
+          q.groupId),
+    )
+    .map((e) => {
+      const work = workByStudent.get(e.studentId) || [],
+        read = readsByStudent.get(e.studentId) || [];
+      const submittedIds = new Set(work.map((w) => w.activityId));
+      const done =
+        submittedIds.size + new Set(read.map((r) => r.materialId)).size;
+      const graded = work.filter(
+        (s) => s.status === "graded" && scoredActivityIds.has(s.activityId),
+      );
+      return {
+        studentId: e.studentId,
+        name: (students.get(e.studentId) || {}).fullName || e.studentId,
+        groupId: (students.get(e.studentId) || {}).groupId || e.groupId,
+        expected: activities.length,
+        submitted: submittedIds.size,
+        returned: work.filter((s) => s.status === "returned").length,
+        graded: work.filter((s) => s.status === "graded").length,
+        missing: activities.filter((a) => !submittedIds.has(a.id)).length,
+        readCount: new Set(read.map((r) => r.materialId)).size,
+        materialCount: materials.length,
+        done,
+        total,
+        percent: total ? Math.round((done / total) * 100) : 0,
+        pending: work.filter((s) => s.status === "pending").length,
+        score: graded.reduce(
+          (n, s) =>
+            n + json_(s.scores, []).reduce((a, b) => a + Number(b || 0), 0),
+          0,
+        ),
+        maxScore: graded.reduce(
+          (n, s) =>
+            n + json_(s.questionSnapshot, []).reduce((a, b) => a + b.points, 0),
+          0,
+        ),
+      };
+    });
+}
+
+function studentHome_(q) {
+  const u = auth_(q, "student"),
+    ids = new Set(
+      rows_("Enrollments")
+        .filter((e) => e.studentId === u.id && e.status === "active")
+        .map((e) => e.offeringId),
+    );
+  const courses = new Map(
+    rows_("Courses")
+      .filter((c) => c.status === "active")
+      .map((c) => [c.id, c]),
+  );
+  return rows_("Offerings")
+    .filter(
+      (o) => ids.has(o.id) && o.status === "active" && courses.has(o.courseId),
+    )
+    .map((o) =>
+      Object.assign(clean_(o), {
+        courseName: courses.get(o.courseId).name,
+        code: courses.get(o.courseId).code,
+      }),
+    );
+}
+
+function studentCourse_(q) {
+  const u = auth_(q, "student"),
+    o = enrollment_(u.id, q.offeringId);
+  const Chapters = rows_("Chapters")
+    .filter((c) => c.courseId === o.courseId && c.status === "active")
+    .map(clean_),
+    ids = new Set(Chapters.map((c) => c.id));
+  return {
+    Chapters,
+    Materials: rows_("Materials")
+      .filter((m) => ids.has(m.chapterId) && m.status === "active")
+      .map(clean_),
+    Activities: rows_("Activities")
+      .filter((a) => ids.has(a.chapterId) && a.status === "active")
+      .map((a) => ({
+        id: a.id,
+        chapterId: a.chapterId,
+        title: a.title,
+        dueAt: a.dueAt || "",
+        countScore:
+          a.countScore === "" ? a.mode !== "game" : a.countScore === true,
+        kind: a.kind,
+        mode: a.mode,
+        seconds: a.seconds,
+        allowEdit:
+          a.allowEdit ||
+          rows_("Submissions").some(
+            (s) =>
+              s.studentId === u.id &&
+              s.offeringId === q.offeringId &&
+              s.activityId === a.id &&
+              s.status === "returned",
+          ),
+      })),
+  };
+}
+
+function readMaterial_(q) {
+  const u = auth_(q, "student"),
+    o = enrollment_(u.id, q.offeringId),
+    m = get_("Materials", q.materialId),
+    c = get_("Chapters", m.chapterId);
+  if (
+    c.courseId !== o.courseId ||
+    c.status !== "active" ||
+    m.status !== "active"
+  )
+    throw Error("สื่อยังไม่เปิด");
+  const id = digest_(u.id + ":" + o.id + ":" + m.id);
+  write_("Progress", {
+    id,
+    materialId: m.id,
+    offeringId: o.id,
+    studentId: u.id,
+    updatedAt: new Date().toISOString(),
+  });
+  return { read: true };
+}
+
+function startActivity_(q) {
+  const u = auth_(q, "student"),
+    a = activityAccess_(u.id, q);
+  const old = rows_("Submissions").find(
+    (s) =>
+      s.activityId === a.id &&
+      s.offeringId === q.offeringId &&
+      s.studentId === u.id,
+  );
+  if (old && old.status !== "returned" && (!a.allowEdit || a.kind === "quiz"))
+    throw Error("ส่งกิจกรรมนี้แล้ว");
+  const id = digest_(u.id + ":" + q.offeringId + ":" + a.id);
+  let run = rows_("Runs").find((r) => r.id === id);
+  if (!run) {
+    run = {
+      id,
+      activityId: a.id,
+      offeringId: q.offeringId,
+      studentId: u.id,
+      startedAt: Date.now(),
+      expiresAt: Number(a.seconds) ? Date.now() + Number(a.seconds) * 1000 : 0,
+      status: "started",
+      questionSnapshot: a.questions,
+    };
+    write_("Runs", run);
+  }
+  return {
+    runId: id,
+    expiresAt: run.expiresAt,
+    serverNow: Date.now(),
+    questions: json_(run.questionSnapshot || a.questions, []).map((x) => ({
+      id: x.id,
+      text: x.text,
+      type: x.type,
+      points: x.points,
+      options: x.options,
+    })),
+    answers: old ? json_(old.answers, []) : [],
+  };
+}
+
+function submitActivity_(q) {
+  const u = auth_(q, "student"),
+    a = activityAccess_(u.id, q),
+    id = digest_(u.id + ":" + q.offeringId + ":" + a.id);
+  const run = get_("Runs", id);
+  if (Number(run.expiresAt) && Date.now() > Number(run.expiresAt) + 5000)
+    throw Error("หมดเวลาทำกิจกรรมแล้ว");
+  const old = rows_("Submissions").find((s) => s.id === id);
+  if (old && old.status !== "returned" && (!a.allowEdit || a.kind === "quiz"))
+    throw Error("ส่งกิจกรรมนี้แล้ว");
+  const questions = json_(run.questionSnapshot || a.questions, []);
+  if (!Array.isArray(q.answers) || q.answers.length !== questions.length)
+    throw Error("ตอบคำถามให้ครบ");
+  const answers = q.answers.map((v, i) => {
+    if (questions[i].type === "text")
+      return need_(v, "คำตอบข้อ " + (i + 1), 5000);
+    const n = Number(v);
+    if (
+      v === "" ||
+      v == null ||
+      !Number.isInteger(n) ||
+      n < 0 ||
+      n >= questions[i].options.length
+    )
+      throw Error("คำตอบตัวเลือกไม่ถูกต้อง");
+    return n;
+  });
+  if (JSON.stringify(answers).length > 45000)
+    throw Error("คำตอบรวมยาวเกิน 45,000 ตัวอักษร");
+  const scores = questions.map((x, i) =>
+    x.type === "text" ? null : answers[i] === x.correct ? x.points : 0,
+  );
+  const status = scores.some((x) => x === null) ? "pending" : "graded";
+  if (old) saveHistory_(old);
+  write_("Submissions", {
+    id,
+    activityId: a.id,
+    offeringId: q.offeringId,
+    studentId: u.id,
+    answers: JSON.stringify(answers),
+    scores: JSON.stringify(scores),
+    feedback: "",
+    status,
+    revision: old ? Number(old.revision) + 1 : 1,
+    updatedAt: new Date().toISOString(),
+    questionSnapshot: JSON.stringify(questions),
+    submittedAt: new Date().toISOString(),
+  });
+  write_("Runs", { id, status: "submitted" });
+  return {
+    id,
+    status,
+    score: scores.reduce((n, s) => n + (s || 0), 0),
+    maxScore: questions.reduce((n, x) => n + x.points, 0),
+    correctAnswers: a.showAnswers ? questions.map((x) => x.correct) : undefined,
+  };
+}
+
+function mySubmission_(q) {
+  const u = auth_(q, "student"),
+    a = activityAccess_(u.id, q);
+  const s = rows_("Submissions").find(
+    (s) =>
+      s.activityId === a.id &&
+      s.offeringId === q.offeringId &&
+      s.studentId === u.id,
+  );
+  if (!s) return null;
+  const questions = json_(s.questionSnapshot, []).map((x) => {
+    const r = Object.assign({}, x);
+    if (!a.showAnswers) delete r.correct;
+    return r;
+  });
+  return {
+    id: s.id,
+    answers: json_(s.answers, []),
+    scores: json_(s.scores, []),
+    feedback: s.feedback,
+    status: s.status,
+    questions,
+    allowEdit:
+      a.kind === "worksheet" && (!!a.allowEdit || s.status === "returned"),
+  };
+}
+
+function phoneText_(value) {
+  const phone = text_(value);
+  return typeof value === "number" && /^\d{9}$/.test(phone)
+    ? "0" + phone
+    : phone;
+}
+function profile_(q) {
+  const user = auth_(q);
+  const row = findRow_("Profiles", user.id) || {};
+  const fileId = text_(row.avatarFileId);
+  let imgUrl = "", imageWarning = "";
+  if (fileId) {
+    try {
+      const cache = CacheService.getScriptCache(), key = "kv_avatar_" + fileId;
+      imgUrl = cache.get(key) || "";
+      if (!imgUrl) {
+        const blob = DriveApp.getFileById(fileId).getBlob();
+        const mime = blob.getContentType(), bytes = blob.getBytes();
+        if (!["image/jpeg", "image/png", "image/webp"].includes(mime) || bytes.length > 60000)
+          throw Error("รูปเดิมใหญ่เกินกำหนดหรือชนิดไฟล์ไม่รองรับ กรุณาอัปโหลดรูปใหม่");
+        imgUrl = "data:" + mime + ";base64," + Utilities.base64Encode(bytes);
+        cache.put(key, imgUrl, 21600);
+      }
+    } catch (error) {
+      imageWarning = error.message || "อ่านรูปโปรไฟล์ไม่สำเร็จ";
+    }
+  }
+  return {
+    userId: user.id, role: user.role, username: user.username,
+    fullName: user.fullName, email: row.email || "", phone: phoneText_(row.phone),
+    imgUrl, avatarFileId: fileId, imageWarning,
+  };
+}
+
+function saveProfile_(q) {
+  const user = teacher_(q);
+  const fullName = need_(q.fullName, "ชื่อที่แสดง", 150);
+  const email = text_(q.email),
+    phone = text_(q.phone);
+  if (
+    email.length > 150 ||
+    (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+  )
+    throw Error("อีเมลไม่ถูกต้อง");
+  if (phone.length > 40) throw Error("เบอร์โทรยาวเกินไป");
+  const old = rows_("Profiles").find((p) => p.id === user.id) || {};
+  let avatarFileId = q.removeAvatar ? "" : old.avatarFileId || "";
+  let avatarMime = q.removeAvatar ? "" : old.avatarMime || "";
+  let created;
+  if (q.avatar) {
+    const mime = enum_(q.avatar.mime, [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ]);
+    if (typeof q.avatar.data !== "string" || q.avatar.data.length > 80000)
+      throw Error("รูปโปรไฟล์ใหญ่เกิน 60 KB หลังย่อ");
+    const bytes = Utilities.base64Decode(q.avatar.data),
+      b = bytes.map((n) => (n + 256) % 256);
+    const valid =
+      mime === "image/jpeg"
+        ? b[0] === 255 && b[1] === 216 && b[2] === 255
+        : mime === "image/png"
+          ? b.slice(0, 8).join(",") === "137,80,78,71,13,10,26,10"
+          : b.slice(0, 4).join(",") === "82,73,70,70" &&
+          b.slice(8, 12).join(",") === "87,69,66,80";
+    if (!valid || bytes.length > 60000)
+      throw Error("ไฟล์รูปไม่ถูกต้อง หรือใหญ่เกินกำหนด");
+    const root = DriveApp.getFolderById(
+      PropertiesService.getScriptProperties().getProperty("KV_DRIVE_FOLDER_ID"),
+    );
+    const folders = root.getFoldersByName("Profiles");
+    const folder = folders.hasNext()
+      ? folders.next()
+      : root.createFolder("Profiles");
+    created = folder.createFile(
+      Utilities.newBlob(
+        bytes,
+        mime,
+        user.id +
+        "-" +
+        Utilities.getUuid() +
+        "." +
+        (mime === "image/jpeg" ? "jpg" : mime.split("/")[1]),
+      ),
+    );
+    try {
+      created.setSharing(
+        DriveApp.Access.ANYONE_WITH_LINK,
+        DriveApp.Permission.VIEW,
+      );
+    } catch (error) {
+      try {
+        created.setTrashed(true);
+      } catch (_) { }
+      throw Error(
+        "แชร์รูปโปรไฟล์เพื่อแสดงบนเว็บไม่ได้ รูปเดิมยังคงอยู่ กรุณาตรวจนโยบาย Drive",
+      );
+    }
+    avatarFileId = created.getId();
+    avatarMime = mime;
+  }
+  try {
+    write_("Users", { id: user.id, fullName });
+    write_("Profiles", { id: user.id, email, phone, avatarFileId, avatarMime });
+  } catch (err) {
+    if (created) created.setTrashed(true);
+    throw err;
+  }
+  let cleanupWarning = "";
+  if (old.avatarFileId && old.avatarFileId !== avatarFileId) {
+    CacheService.getScriptCache().remove("kv_avatar_" + old.avatarFileId);
+    try {
+      DriveApp.getFileById(old.avatarFileId).setTrashed(true);
+    } catch (err) {
+      cleanupWarning = "บันทึกแล้ว แต่ย้ายรูปเก่าลงถังขยะไม่สำเร็จ";
+    }
+  }
+  return Object.assign(profile_(q), { cleanupWarning });
+}
+
+function connectionCheck_(q) {
+  teacher_(q);
+  const book = book_();
+  const tables = Object.keys(SCHEMA).map((key) => {
+    const sheet = book.getSheetByName(key);
+    const ok =
+      !!sheet &&
+      sheet.getRange(1, 1, 1, SCHEMA[key].length).getValues()[0].join("|") ===
+      SCHEMA[key].join("|");
+    return { name: key, ok };
+  });
+  let drive = { ok: false, message: "ยังไม่ได้ตั้งโฟลเดอร์ Drive" };
+  try {
+    const folder = DriveApp.getFolderById(
+      PropertiesService.getScriptProperties().getProperty("KV_DRIVE_FOLDER_ID"),
+    );
+    drive = { ok: true, name: folder.getName(), url: folder.getUrl() };
+  } catch (err) {
+    drive.message =
+      "เข้าถึงโฟลเดอร์ Drive ไม่ได้ ให้รัน updatesheet และอนุญาตสิทธิ์";
+  }
+  return {
+    apiVersion: "3.1-admin",
+    serverTime: new Date().toISOString(),
+    sheets: {
+      ok: tables.every((t) => t.ok),
+      name: book.getName(),
+      url: book.getUrl(),
+      tables,
+    },
+    drive,
+    note: "ตรวจการเข้าถึงและหัวตาราง ยังไม่ได้ทดลองเขียนไฟล์หรือส่งงานจริง",
+  };
+}
+
+function saveHistory_(submission) {
+  write_("History", {
+    id: submission.id + ":" + submission.revision,
+    submissionId: submission.id,
+    revision: submission.revision,
+    snapshot: JSON.stringify(clean_(submission)),
+    updatedAt: new Date().toISOString(),
+  });
+}
+function submissionHistory_(q) {
+  teacher_(q);
+  get_("Submissions", q.id);
+  return rows_("History")
+    .filter((r) => r.submissionId === q.id)
+    .map((r) => json_(r.snapshot, {}));
+}
+function maintenance_() {
+  return (
+    PropertiesService.getScriptProperties().getProperty("LMS_MAINTENANCE") ===
+    "1"
+  );
+}
+function setMaintenance_(q) {
+  teacher_(q);
+  PropertiesService.getScriptProperties().setProperty(
+    "LMS_MAINTENANCE",
+    q.enabled === true ? "1" : "0",
+  );
+  return { maintenance: maintenance_() };
+}
+function dashboard_(q) {
+  teacher_(q);
+  return summaryCache_("dashboard", q, () => dashboardData_(q));
+}
+function dashboardData_(q) {
+  const courses = new Map(
+    rows_("Courses")
+      .filter((c) => c.status === "active")
+      .map((c) => [c.id, c]),
+  );
+  const groups = new Map(
+    rows_("Groups")
+      .filter((g) => g.status !== "inactive")
+      .map((g) => [g.id, g]),
+  );
+  const students = new Map(
+    rows_("Students")
+      .filter((s) => s.status === "active" && groups.has(s.groupId))
+      .map((s) => [s.id, s]),
+  );
+  const offerings = rows_("Offerings").filter(
+    (o) =>
+      o.status === "active" &&
+      courses.has(o.courseId) &&
+      (!q.courseId || o.courseId === q.courseId) &&
+      (!q.offeringId || o.id === q.offeringId),
+  );
+  const offeringIds = new Set(offerings.map((o) => o.id));
+  const courseByOffering = new Map(offerings.map((o) => [o.id, o.courseId]));
+  const chapters = new Map(
+    rows_("Chapters")
+      .filter((c) => c.status === "active")
+      .map((c) => [c.id, c.courseId]),
+  );
+  const activities = dashboardRows_("Activities", [
+    "id",
+    "chapterId",
+    "title",
+    "kind",
+    "mode",
+    "seconds",
+    "showAnswers",
+    "status",
+    "dueAt",
+  ]).filter((a) => a.status === "active" && chapters.has(a.chapterId));
+  const tasksByCourse = new Map();
+  activities.forEach((a) => {
+    const courseId = chapters.get(a.chapterId);
+    if (!tasksByCourse.has(courseId)) tasksByCourse.set(courseId, []);
+    tasksByCourse.get(courseId).push(a);
+  });
+  const latest = new Map();
+  dashboardRows_("Submissions", [
+    "id",
+    "activityId",
+    "offeringId",
+    "studentId",
+    "status",
+    "revision",
+    "updatedAt",
+  ])
+    .filter(
+      (s) =>
+        offeringIds.has(s.offeringId) &&
+        ["pending", "graded", "returned"].includes(s.status),
+    )
+    .forEach((s) => {
+      const key = s.offeringId + ":" + s.studentId + ":" + s.activityId;
+      const old = latest.get(key);
+      if (!old || String(s.updatedAt) > String(old.updatedAt))
+        latest.set(key, s);
+    });
+  const members = rows_("Enrollments").filter(
+    (e) =>
+      e.status === "active" &&
+      offeringIds.has(e.offeringId) &&
+      students.has(e.studentId) &&
+      (!q.groupId || students.get(e.studentId).groupId === q.groupId),
+  );
+  const distinct = new Set(),
+    progress = [],
+    pending = { total: 0, items: [] },
+    breakdown = new Map(),
+    waiting = [],
+    overdue = [],
+    upcoming = new Map();
+  const assignedActivityIds = new Set();
+  let expected = 0,
+    submitted = 0,
+    graded = 0,
+    returned = 0;
+  members.forEach((e) => {
+    const student = students.get(e.studentId),
+      courseId = courseByOffering.get(e.offeringId),
+      course = courses.get(courseId),
+      group = groups.get(student.groupId);
+    const key = e.offeringId + ":" + e.studentId;
+    if (distinct.has(key)) return;
+    distinct.add(key);
+    const tasks = tasksByCourse.get(courseId) || [];
+    let done = 0,
+      pendingCount = 0,
+      missing = 0,
+      late = 0;
+    const bucketKey = courseId + ":" + student.groupId;
+    if (!breakdown.has(bucketKey))
+      breakdown.set(bucketKey, {
+        courseId,
+        groupId: group.id,
+        courseName: course.name,
+        groupName: group.name,
+        expected: 0,
+        submitted: 0,
+        graded: 0,
+        returned: 0,
+        pending: 0,
+        missing: 0,
+        students: new Set(),
+      });
+    const bucket = breakdown.get(bucketKey);
+    bucket.students.add(student.id);
+    tasks.forEach((a) => {
+      assignedActivityIds.add(a.id);
+      expected++;
+      bucket.expected++;
+      const work = latest.get(e.offeringId + ":" + e.studentId + ":" + a.id);
+      const due = a.dueAt ? new Date(a.dueAt).getTime() : 0;
+      if (work) {
+        done++;
+        submitted++;
+        bucket.submitted++;
+        if (work.status === "graded") {
+          graded++;
+          bucket.graded++;
+        } else if (work.status === "returned") {
+          returned++;
+          bucket.returned++;
+        } else {
+          pendingCount++;
+          bucket.pending++;
+          pending.total++;
+          pending.items.push({
+            id: work.id,
+            studentId: student.id,
+            studentName: student.fullName,
+            activityTitle: a.title,
+            courseName: course.name,
+            groupId: group.id,
+            offeringId: e.offeringId,
+            updatedAt: work.updatedAt,
+          });
+        }
+      } else {
+        missing++;
+        bucket.missing++;
+        const item = {
+          studentId: student.id,
+          name: student.fullName,
+          groupId: group.id,
+          offeringId: e.offeringId,
+          courseName: course.name,
+          title: a.title,
+          dueAt: a.dueAt || "",
+        };
+        if (due && due < Date.now()) {
+          late++;
+          overdue.push(item);
+        } else waiting.push(item);
+      }
+      if (due >= Date.now() && due <= Date.now() + 604800000) {
+        const ukey = e.offeringId + ":" + group.id + ":" + a.id;
+        if (!upcoming.has(ukey))
+          upcoming.set(ukey, {
+            title: a.title,
+            courseName: course.name,
+            groupId: group.id,
+            dueAt: a.dueAt,
+            expected: 0,
+            submitted: 0,
+          });
+        const item = upcoming.get(ukey);
+        item.expected++;
+        if (work) item.submitted++;
+      }
+    });
+    progress.push({
+      studentId: student.id,
+      name: student.fullName,
+      groupId: group.id,
+      offeringId: e.offeringId,
+      courseId,
+      done,
+      total: tasks.length,
+      percent: tasks.length ? Math.round((done / tasks.length) * 100) : 0,
+      missing,
+      overdue: late,
+      pending: pendingCount,
+    });
+  });
+  pending.items.sort((a, b) =>
+    String(a.updatedAt).localeCompare(String(b.updatedAt)),
+  );
+  const buckets = Array.from(breakdown.values()).map((b) =>
+    Object.assign({}, b, { students: b.students.size }),
+  );
+  const begun = new Set(
+    buckets
+      .filter((b) => b.submitted > 0)
+      .map((b) => b.courseId + ":" + b.groupId),
+  );
+  const startedWaiting = waiting.filter((w) =>
+    begun.has(courseByOffering.get(w.offeringId) + ":" + w.groupId),
+  );
+  return {
+    progress,
+    pending: { total: pending.total, items: pending.items.slice(0, 50) },
+    totals: {
+      activities: assignedActivityIds.size,
+      overdue: overdue.length,
+      expected,
+      submitted,
+      graded,
+      returned,
+      pending: pending.total,
+      missing: expected - submitted,
+      learners: new Set(members.map((e) => e.studentId)).size,
+    },
+    breakdown: buckets,
+    followup: overdue.sort((a, b) =>
+      String(a.dueAt).localeCompare(String(b.dueAt)),
+    ),
+    waiting: startedWaiting,
+    upcoming: Array.from(upcoming.values()).sort((a, b) =>
+      String(a.dueAt).localeCompare(String(b.dueAt)),
+    ),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+const ADMIN_TABLES = [
+  "Groups",
+  "Students",
+  "Users",
+  "Courses",
+  "Offerings",
+  "Enrollments",
+  "Chapters",
+  "Materials",
+  "Activities",
+  "Submissions",
+  "Progress",
+  "Runs",
+  "History",
+  "Profiles",
+];
+const ADMIN_ACTION_NAMES = {
+  adminManage: "จัดการข้อมูลระบบ",
+  backup: "สำรองข้อมูล",
+  deleteEntity: "ลบข้อมูลและเก็บไว้กู้คืน",
+  returnWork: "ส่งงานกลับให้แก้ไข",
+  adminPurge: "นำข้อมูลกู้คืนออก",
+  saveProfile: "แก้ไขข้อมูลครู",
+  changePassword: "เปลี่ยนรหัสผ่าน",
+  saveGroup: "เพิ่มหรือแก้ไขห้อง",
+  saveStudent: "เพิ่มหรือแก้ไขนักเรียน",
+  importStudents: "นำเข้ารายชื่อ",
+  promote: "ย้ายห้องหรือเลื่อนชั้น",
+  saveCourse: "เพิ่มหรือแก้ไขวิชา",
+  saveOffering: "ตั้งสิทธิ์รายวิชา",
+  ensureOffering: "เตรียมผู้เรียนในรายวิชา",
+  enroll: "ลงทะเบียนผู้เรียน",
+  saveChapter: "เพิ่มหรือแก้ไขบทเรียน",
+  saveMaterial: "เพิ่มหรือแก้ไขสื่อ",
+  deleteMaterial: "ลบสื่อ",
+  saveActivity: "เพิ่มหรือแก้ไขกิจกรรม",
+  setStatus: "เปลี่ยนสถานะ",
+  resetPassword: "รีเซ็ตรหัสนักเรียน",
+  grade: "ให้คะแนน",
+  setMaintenance: "เปิดหรือปิดระบบ",
+  bulkManage: "จัดการข้อมูลจำนวนมาก",
+  removeRoom: "นำห้องออกจากรายวิชา",
+  deleteGroup: "ลบห้องเรียน",
+  adminUndo: "ย้อนรายการ",
+  adminRestore: "กู้ข้อมูลจากสำรอง",
+};
+
+function adminReady_() {
+  if (
+    !book_().getSheetByName("AdminHistory") ||
+    !book_().getSheetByName("AdminBackups")
+  )
+    throw Error(
+      "กรุณารัน updatesheet หนึ่งครั้งเพื่อเพิ่มตารางประวัติและไฟล์สำรอง",
+    );
+}
+
+function adminRaw_(key, row) {
+  const out = {};
+  SCHEMA[key].forEach((k) => (out[k] = row[k] == null ? "" : row[k]));
+  return out;
+}
+
+function adminState_(keys) {
+  const out = {};
+  keys.forEach((k) => (out[k] = rows_(k).map((r) => adminRaw_(k, r))));
+  out.maintenance = maintenance_();
+  return out;
+}
+
+function adminKeys_(q) {
+  const scopes = {
+    deleteEntity: [
+      "Groups",
+      "Students",
+      "Users",
+      "Courses",
+      "Offerings",
+      "Enrollments",
+      "Chapters",
+      "Materials",
+      "Activities",
+      "Submissions",
+      "History",
+      "Progress",
+      "Runs",
+      "Profiles",
+    ],
+    returnWork: ["Submissions", "History", "Runs"],
+    studentsBatch: ["Students", "Users"],
+    replaceRoster: ["Students", "Users", "Enrollments"],
+    saveGroup: ["Groups"],
+    saveStudent: ["Students", "Users"],
+    importStudents: ["Students", "Users"],
+    promote: ["Students"],
+    saveCourse: ["Courses"],
+    saveOffering: ["Offerings"],
+    ensureOffering: ["Offerings"],
+    enroll: ["Enrollments"],
+    saveChapter: ["Chapters"],
+    saveMaterial: ["Materials"],
+    deleteMaterial: ["Materials"],
+    saveActivity: ["Activities"],
+    resetPassword: ["Users"],
+    grade: ["Submissions", "History"],
+    setMaintenance: [],
+    removeRoom: ["Enrollments"],
+    bulkManage: ADMIN_TABLES,
+    deleteGroup: [
+      "Groups",
+      "Students",
+      "Users",
+      "Enrollments",
+      "Submissions",
+      "History",
+      "Progress",
+      "Runs",
+      "Profiles",
+    ],
+  };
+  if (q.action === "adminManage")
+    return q.target === "sessions" ? undefined : adminPlan_(q).keys;
+  if (q.action === "deleteEntity")
+    return q.kind === "course"
+      ? [
+        "Courses",
+        "Offerings",
+        "Enrollments",
+        "Chapters",
+        "Materials",
+        "Activities",
+        "Submissions",
+        "History",
+        "Progress",
+        "Runs",
+      ]
+      : [
+        "Students",
+        "Users",
+        "Enrollments",
+        "Submissions",
+        "History",
+        "Progress",
+        "Runs",
+        "Profiles",
+      ];
+  if (q.action === "setStatus")
+    return q.entity === "Students"
+      ? ["Students", "Users"]
+      : [enum_(q.entity, ADMIN_TABLES)];
+  return scopes[q.action];
+}
+
+function adminDiff_(before, after, keys) {
+  const patches = [];
+  keys.forEach((key) => {
+    const old = new Map(before[key].map((r) => [r.id, r])),
+      current = new Map(after[key].map((r) => [r.id, r]));
+    new Set([...old.keys(), ...current.keys()]).forEach((id) => {
+      const a = old.get(id) || null,
+        b = current.get(id) || null;
+      if (JSON.stringify(a) !== JSON.stringify(b))
+        patches.push({ key, id, before: a, after: b });
+    });
+  });
+  if (before.maintenance !== after.maintenance)
+    patches.push({
+      key: "$maintenance",
+      id: "maintenance",
+      before: before.maintenance,
+      after: after.maintenance,
+    });
+  return patches;
+}
+
+function historyFile_(name, content) {
+  const root = DriveApp.getFolderById(PropertiesService.getScriptProperties().getProperty("KV_DRIVE_FOLDER_ID"));
+  const folders = root.getFoldersByName("History");
+  const folder = folders.hasNext() ? folders.next() : root.createFolder("History");
+  return folder.createFile(name, content, MimeType.PLAIN_TEXT);
+}
+
+function adminAudited_(q, fn) {
+  const keys =
+    q.action === "saveProfile" ? ["Users", "Profiles"] : adminKeys_(q);
+  if (!keys && !["saveProfile", "changePassword"].includes(q.action))
+    return fn(q);
+  const actor = auth_(q);
+  if (actor.role !== "teacher") return fn(q);
+  adminReady_();
+  const id = id_("AUD"),
+    now = new Date().toISOString(),
+    before = keys ? adminState_(keys) : null;
+  if (q.action === "saveProfile")
+    before.Users.forEach((u) => delete u.password);
+  const initial = before ? JSON.stringify({ before, keys }) : "";
+  let file = null;
+  if (initial.length > 45000)
+    file = historyFile_("LMS action " + id + ".json", initial);
+  const deleted =
+    ["deleteGroup", "deleteMaterial", "deleteEntity"].includes(q.action) ||
+    (q.action === "bulkManage" && q.mode === "delete") ||
+    (q.action === "adminManage" &&
+      ["delete", "clearWork", "reset"].includes(q.mode));
+  write_("AdminHistory", {
+    id,
+    action: q.action,
+    target: q.id || q.target || q.entity || "",
+    status: "pending",
+    updatedAt: now,
+    snapshotFileId: file ? file.getId() : "",
+    snapshotJson: file ? "" : initial,
+    changeCount: 0,
+    message: "กำลังดำเนินการ",
+    deleted,
+    actor: actor.fullName || "ครู",
+  });
+  let result, error;
+  try {
+    result = fn(q);
+  } catch (e) {
+    error = e;
+  }
+  const after = keys ? adminState_(keys) : null;
+  if (q.action === "saveProfile") after.Users.forEach((u) => delete u.password);
+  const patches = keys ? adminDiff_(before, after, keys) : [];
+  const encoded = JSON.stringify({ patches });
+  try {
+    if (encoded.length > 45000) {
+      if (file) file.setContent(encoded);
+      else
+        file = historyFile_("LMS action " + id + ".json", encoded);
+    }
+    write_("AdminHistory", {
+      id,
+      status: error ? (patches.length ? "partial" : "failed") : "success",
+      snapshotFileId: encoded.length > 45000 ? file.getId() : "",
+      snapshotJson: encoded.length <= 45000 ? encoded : "",
+      changeCount: patches.length,
+      target: adminTarget_(q, patches),
+      message: error ? error.message : adminDescribe_(q, patches, result),
+    });
+    if (file && encoded.length <= 45000) {
+      try {
+        file.setTrashed(true);
+      } catch (_) { }
+    }
+  } catch (auditError) {
+    const uncertain = Error(
+      "ผลการดำเนินการยังยืนยันไม่ได้ กรุณาตรวจข้อมูลและประวัติก่อนทำซ้ำ",
+    );
+    uncertain.code = "REQUEST_UNCERTAIN";
+    throw uncertain;
+  }
+  if (error) {
+    if (patches.length) error.code = "REQUEST_UNCERTAIN";
+    else if (!error.code) error.code = "ACTION_REJECTED";
+    throw error;
+  }
+  return result;
+}
+
+function adminBackup_(q) {
+  teacher_(q);
+  adminReady_();
+  const snapshot = adminState_(ADMIN_TABLES),
+    now = new Date().toISOString();
+  const original = DriveApp.getFileById(book_().getId()).makeCopy(
+    "LMS Backup " +
+    Utilities.formatDate(new Date(), "Asia/Bangkok", "yyyy-MM-dd HH-mm-ss"),
+  );
+  const file = DriveApp.createFile(
+    "LMS restore " + now + ".json",
+    JSON.stringify(snapshot),
+    MimeType.PLAIN_TEXT,
+  );
+  const root = DriveApp.getFolderById(PropertiesService.getScriptProperties().getProperty("KV_DRIVE_FOLDER_ID"));
+  const folders = root.getFoldersByName("Backups");
+  const folder = folders.hasNext() ? folders.next() : root.createFolder("Backups");
+  original.moveTo(folder);
+  file.moveTo(folder);
+  const counts = {};
+  ADMIN_TABLES.forEach((k) => (counts[k] = snapshot[k].length));
+  const record = {
+    id: id_("BAK"),
+    name: original.getName(),
+    updatedAt: now,
+    fileId: original.getId(),
+    snapshotFileId: file.getId(),
+    counts: JSON.stringify(counts),
+  };
+  write_("AdminBackups", record);
+  return { id: record.id, url: original.getUrl(), name: record.name };
+}
+
+function adminHistoryIndex_() {
+  const columns = SCHEMA.AdminHistory.filter((name) => name !== "snapshotJson");
+  if (MEM.AdminHistory)
+    return MEM.AdminHistory.map((row) => {
+      const item = { _row: row._row, hasInlineSnapshot: !!row.snapshotJson };
+      columns.forEach((name) => (item[name] = row[name]));
+      return item;
+    });
+  const sheet = book_().getSheetByName("AdminHistory"),
+    count = sheet.getLastRow() - 1;
+  if (count < 1) return [];
+  return sheet
+    .getRange(2, 1, count, columns.length)
+    .getValues()
+    .map((line, index) => {
+      const item = { _row: index + 2 };
+      columns.forEach((name, col) => (item[name] = line[col]));
+      return item;
+    })
+    .filter((row) => row.id);
+}
+
+function adminHistorySnapshotFlags_(page) {
+  const candidates = page
+    .filter(
+      (row) =>
+        row.hasInlineSnapshot === undefined &&
+        !row.snapshotFileId &&
+        Number(row.changeCount) > 0 &&
+        ["success", "partial"].includes(row.status) &&
+        Date.now() - new Date(row.updatedAt).getTime() <= 90 * 86400000 &&
+        ![
+          "adminUndo",
+          "adminRestore",
+          "saveProfile",
+          "changePassword",
+        ].includes(row.action),
+    )
+    .sort((a, b) => a._row - b._row);
+  if (!candidates.length) return;
+  const sheet = book_().getSheetByName("AdminHistory"),
+    column = SCHEMA.AdminHistory.indexOf("snapshotJson") + 1;
+  const spans = [];
+  candidates.forEach((row) => {
+    const span = spans[spans.length - 1];
+    if (span && row._row === span[span.length - 1]._row + 1) span.push(row);
+    else spans.push([row]);
+  });
+  spans.forEach((span) => {
+    const values = sheet
+      .getRange(span[0]._row, column, span.length, 1)
+      .getValues();
+    span.forEach((row, index) => (row.hasInlineSnapshot = !!values[index][0]));
+  });
+}
+
+function adminOverview_(q) {
+  teacher_(q);
+  adminReady_();
+  return summaryCache_("adminOverview", q, () => adminOverviewData_(q));
+}
+
+function adminOverviewData_(q) {
+  const offset = Math.max(0, Number(q.offset) || 0);
+  const all = adminHistoryIndex_()
+    .slice()
+    .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+  const kind = q.kind || "history";
+  const filtered = all.filter((r) =>
+    kind === "trash"
+      ? r.deleted === true &&
+      ["success", "partial"].includes(r.status) &&
+      Number(r.changeCount) > 0
+      : kind === "alerts"
+        ? ["failed", "partial", "pending"].includes(r.status)
+        : true,
+  );
+  const historyPage = ["status", "manage", "tools", "backups"].includes(kind)
+    ? []
+    : filtered.slice(offset, offset + 25);
+  adminHistorySnapshotFlags_(historyPage);
+  const backups = rows_("AdminBackups")
+    .slice()
+    .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+  return {
+    cleanup: {
+      scheduled:
+        PropertiesService.getScriptProperties().getProperty(
+          "KV_CLEANUP_SCHEDULED",
+        ) === "1",
+      lastRunAt:
+        PropertiesService.getScriptProperties().getProperty(
+          "KV_LAST_CLEANUP_AT",
+        ) || "",
+    },
+    maintenance: maintenance_(),
+    updatedAt: new Date().toISOString(),
+    total: filtered.length,
+    history: ["status", "manage", "tools", "backups"].includes(kind)
+      ? []
+      : historyPage.map((r) => ({
+        id: r.id,
+        action: ADMIN_ACTION_NAMES[r.action] || r.action,
+        status: r.status,
+        updatedAt: r.updatedAt,
+        changeCount: Number(r.changeCount),
+        message: r.message,
+        target: r.target || "",
+        actor: r.actor,
+        expiresAt: new Date(
+          new Date(r.updatedAt).getTime() + 90 * 86400000,
+        ).toISOString(),
+        recoverable:
+          !!(r.snapshotFileId || r.hasInlineSnapshot) &&
+          Date.now() - new Date(r.updatedAt).getTime() <= 90 * 86400000 &&
+          ["success", "partial"].includes(r.status) &&
+          Number(r.changeCount) > 0 &&
+          ![
+            "adminUndo",
+            "adminRestore",
+            "saveProfile",
+            "changePassword",
+          ].includes(r.action),
+      })),
+    alerts: all.filter((r) =>
+      ["failed", "partial", "pending"].includes(r.status),
+    ).length,
+    trash: all.filter(
+      (r) =>
+        r.deleted === true &&
+        ["success", "partial"].includes(r.status) &&
+        Number(r.changeCount) > 0,
+    ).length,
+    backups: (kind === "backups" ? backups : backups.slice(0, 1)).map((r) => ({
+      id: r.id,
+      name: r.name,
+      updatedAt: r.updatedAt,
+      url: "https://docs.google.com/spreadsheets/d/" + r.fileId + "/edit",
+      counts: json_(r.counts, {}),
+    })),
+  };
+}
+
+function adminPatchData_(q) {
+  const event = get_("AdminHistory", q.id);
+  if (
+    !["success", "partial"].includes(event.status) ||
+    !Number(event.changeCount) ||
+    ["adminUndo", "adminRestore", "saveProfile", "changePassword"].includes(
+      event.action,
+    )
+  )
+    throw Error("รายการนี้ไม่สามารถย้อนกลับได้");
+  if (
+    !(event.snapshotFileId || event.snapshotJson) ||
+    Date.now() - new Date(event.updatedAt).getTime() > 90 * 86400000
+  )
+    throw Error("หมดระยะกู้คืน 90 วันแล้ว");
+  const data = JSON.parse(
+    event.snapshotJson ||
+    DriveApp.getFileById(event.snapshotFileId).getBlob().getDataAsString(),
+  );
+  if (!Array.isArray(data.patches))
+    throw Error("ไม่พบข้อมูลกู้คืน กรุณาใช้ไฟล์สำรอง");
+  return { event, patches: data.patches };
+}
+
+function adminCurrentPatch_(p) {
+  if (p.key === "$maintenance") return maintenance_();
+  const row = rows_(p.key).find((r) => r.id === p.id);
+  return row ? adminRaw_(p.key, row) : null;
+}
+
+function adminDependencyConflicts_(patches) {
+  const current = adminState_(ADMIN_TABLES),
+    desired = {};
+  ADMIN_TABLES.forEach(
+    (k) => (desired[k] = new Map(current[k].map((r) => [r.id, r]))),
+  );
+  patches
+    .filter((p) => p.key !== "$maintenance")
+    .forEach((p) => {
+      if (p.before) desired[p.key].set(p.id, p.before);
+      else desired[p.key].delete(p.id);
+    });
+  const links = {
+    Students: { groupId: "Groups" },
+    Offerings: { courseId: "Courses" },
+    Enrollments: {
+      studentId: "Students",
+      offeringId: "Offerings",
+      groupId: "Groups",
+    },
+    Chapters: { courseId: "Courses" },
+    Materials: { chapterId: "Chapters" },
+    Activities: { chapterId: "Chapters" },
+    Submissions: {
+      studentId: "Students",
+      activityId: "Activities",
+      offeringId: "Offerings",
+    },
+    Progress: {
+      studentId: "Students",
+      materialId: "Materials",
+      offeringId: "Offerings",
+    },
+    Runs: {
+      studentId: "Students",
+      activityId: "Activities",
+      offeringId: "Offerings",
+    },
+    History: { submissionId: "Submissions" },
+  };
+  const touched = new Set(patches.map((p) => p.key + ":" + p.id)),
+    conflicts = [];
+  Object.keys(links).forEach((key) =>
+    desired[key].forEach((row) => {
+      Object.keys(links[key]).forEach((field) => {
+        const parent = links[key][field],
+          id = row[field];
+        if (!id || desired[parent].has(id)) return;
+        if (
+          touched.has(key + ":" + row.id) ||
+          current[parent].some((r) => r.id === id)
+        )
+          conflicts.push({
+            table: key,
+            name: row.fullName || row.name || row.title || row.id,
+            operation:
+              "มีข้อมูลอ้างอิง " + parent + " ที่จะหายไปหรือยังไม่ถูกกู้",
+            conflict: true,
+          });
+      });
+    }),
+  );
+  return conflicts;
+}
+
+function adminUndoPreview_(q) {
+  teacher_(q);
+  adminReady_();
+  const data = adminPatchData_(q);
+  const details = data.patches.map((p) => ({
+    table: p.key,
+    name:
+      (p.before || p.after || {}).fullName ||
+      (p.before || p.after || {}).name ||
+      (p.before || p.after || {}).title ||
+      p.id,
+    operation: !p.before
+      ? "นำรายการที่เพิ่มออก"
+      : !p.after
+        ? "กู้รายการที่ลบ"
+        : "คืนค่าเดิม",
+    conflict: JSON.stringify(adminCurrentPatch_(p)) !== JSON.stringify(p.after),
+  }));
+  details.push(...adminDependencyConflicts_(data.patches));
+  return {
+    id: data.event.id,
+    action: ADMIN_ACTION_NAMES[data.event.action] || data.event.action,
+    total: details.length,
+    conflicts: details.filter((r) => r.conflict).length,
+    details: details.slice(0, 100),
+    fingerprint: digest_(JSON.stringify(data.patches.map(adminCurrentPatch_))),
+  };
+}
+
+function adminUndo_(q) {
+  const actor = teacher_(q);
+  adminReady_();
+  if (q.confirmText !== "ยืนยัน") throw Error("พิมพ์ ยืนยัน ก่อนย้อนรายการ");
+  const preview = adminUndoPreview_(q);
+  if (preview.conflicts || preview.fingerprint !== q.fingerprint)
+    throw Error(
+      "ข้อมูลที่เกี่ยวข้องเปลี่ยนภายหลังแล้ว ระบบหยุดเพื่อไม่ทับข้อมูลใหม่",
+    );
+  const data = adminPatchData_(q),
+    backup = adminBackup_(q);
+  const keys = [
+    ...new Set(
+      data.patches.filter((p) => p.key !== "$maintenance").map((p) => p.key),
+    ),
+  ],
+    before = adminState_(keys),
+    desired = {};
+  keys.forEach((key) => {
+    const map = new Map(before[key].map((r) => [r.id, r]));
+    data.patches
+      .filter((p) => p.key === key)
+      .forEach((p) => {
+        if (p.before) {
+          const row = Object.assign({}, p.before);
+          if (key === "Users" && row.role !== "teacher")
+            row.version =
+              Math.max(
+                Number(row.version || 0),
+                Number(map.get(p.id)?.version || 0),
+              ) + 1;
+          map.set(p.id, row);
+        } else map.delete(p.id);
+      });
+    desired[key] = Array.from(map.values());
+  });
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty("LMS_MAINTENANCE", "1");
+  try {
+    keys.forEach((key) => rewriteRows_(key, desired[key]));
+  } catch (e) {
+    let rollbackFailed = false;
+    try {
+      keys.forEach((key) => rewriteRows_(key, before[key]));
+    } catch (_) {
+      rollbackFailed = true;
+      e.message += " · คืนค่าไม่ครบ กรุณากู้จากไฟล์สำรอง";
+    }
+    props.setProperty(
+      "LMS_MAINTENANCE",
+      rollbackFailed || before.maintenance ? "1" : "0",
+    );
+    throw e;
+  }
+  const setting = data.patches.find((p) => p.key === "$maintenance");
+  props.setProperty(
+    "LMS_MAINTENANCE",
+    (setting ? setting.before : before.maintenance) ? "1" : "0",
+  );
+  if (keys.includes("Users")) {
+    const users = new Map(rows_("Users").map((u) => [u.id, u])),
+      removed = rows_("Sessions").filter(
+        (s) =>
+          !users.has(s.userId) ||
+          Number(users.get(s.userId).version) !== Number(s.version),
+      );
+    const ids = new Set(removed.map((s) => s.id));
+    if (ids.size)
+      rewriteRows_(
+        "Sessions",
+        rows_("Sessions").filter((s) => !ids.has(s.id)),
+      );
+    ids.forEach((id) => CacheService.getScriptCache().remove("kv_s_" + id));
+  }
+  write_("AdminHistory", {
+    id: q.id,
+    status: "undone",
+    message: "ย้อนรายการแล้ว",
+  });
+  write_("AdminHistory", {
+    id: id_("AUD"),
+    action: "adminUndo",
+    target: data.event.target || "รายการเดิม",
+    status: "success",
+    updatedAt: new Date().toISOString(),
+    changeCount: preview.total,
+    message: "ย้อนรายการ: " + data.event.message + " · สำรองก่อนย้อนแล้ว",
+    actor: actor.fullName || "ครู",
+  });
+  return { updated: true, backupUrl: backup.url };
+}
+
+function adminRestoreKeys_(scope) {
+  const choices = {
+    all: ADMIN_TABLES,
+    content: ["Courses", "Offerings", "Chapters", "Materials", "Activities"],
+    roster: ["Groups", "Students", "Users", "Enrollments", "Profiles"],
+    work: ["Submissions", "History", "Progress", "Runs"],
+  };
+  return choices[enum_(scope || "all", Object.keys(choices))];
+}
+function adminRestoreState_(saved, before, keys) {
+  const teachers = before.Users.filter((u) => u.role === "teacher"),
+    ids = new Set(teachers.map((u) => u.id)),
+    versions = new Map(before.Users.map((u) => [u.id, Number(u.version || 0)]));
+  const desired = {};
+  ADMIN_TABLES.forEach(
+    (k) => (desired[k] = keys.includes(k) ? saved[k] : before[k]),
+  );
+  if (keys.includes("Users"))
+    desired.Users = teachers.concat(
+      saved.Users.filter((u) => u.role !== "teacher").map((u) =>
+        Object.assign({}, u, {
+          version:
+            Math.max(Number(u.version || 0), versions.get(u.id) || 0) + 1,
+        }),
+      ),
+    );
+  if (keys.includes("Profiles"))
+    desired.Profiles = before.Profiles.filter((p) => ids.has(p.id)).concat(
+      saved.Profiles.filter((p) => !ids.has(p.id)),
+    );
+  validateRestore_(desired);
+  return desired;
+}
+function adminRestorePreview_(q) {
+  teacher_(q);
+  adminReady_();
+  const backup = get_("AdminBackups", q.id),
+    scope = q.scope || "all",
+    keys = adminRestoreKeys_(scope);
+  const saved = JSON.parse(
+    DriveApp.getFileById(backup.snapshotFileId).getBlob().getDataAsString(),
+  );
+  if (!ADMIN_TABLES.every((k) => Array.isArray(saved[k])))
+    throw Error("ไฟล์สำรองไม่ครบ ไม่สามารถกู้คืนได้");
+  const current = adminState_(ADMIN_TABLES);
+  adminRestoreState_(saved, current, keys);
+  return {
+    name: backup.name,
+    scope,
+    details: keys.map((k) => ({
+      table: k,
+      current: current[k].length,
+      saved: saved[k].length,
+    })),
+    fingerprint: digest_(JSON.stringify({ scope, current })),
+  };
+}
+
+function adminRestore_(q) {
+  const actor = teacher_(q);
+  adminReady_();
+  if (q.confirmText !== "กู้คืนข้อมูล")
+    throw Error("พิมพ์ กู้คืนข้อมูล ก่อนดำเนินการ");
+  const preview = adminRestorePreview_(q);
+  if (preview.fingerprint !== q.fingerprint)
+    throw Error("ข้อมูลเปลี่ยนแล้ว กรุณาตรวจผลกระทบอีกครั้ง");
+  const record = get_("AdminBackups", q.id),
+    saved = JSON.parse(
+      DriveApp.getFileById(record.snapshotFileId).getBlob().getDataAsString(),
+    );
+  const before = adminState_(ADMIN_TABLES),
+    backup = adminBackup_(q);
+  const keys = adminRestoreKeys_(q.scope),
+    desired = adminRestoreState_(saved, before, keys);
+  const teacherIds = new Set(
+    before.Users.filter((u) => u.role === "teacher").map((u) => u.id),
+  );
+  const props = PropertiesService.getScriptProperties();
+  props.setProperty("LMS_MAINTENANCE", "1");
+  try {
+    keys.forEach((key) => rewriteRows_(key, desired[key]));
+    const sessions = rows_("Sessions"),
+      removed = sessions.filter((s) => !teacherIds.has(s.userId));
+    rewriteRows_(
+      "Sessions",
+      sessions.filter((s) => teacherIds.has(s.userId)),
+    );
+    removed.forEach((s) =>
+      CacheService.getScriptCache().remove("kv_s_" + s.id),
+    );
+  } catch (e) {
+    let rollbackFailed = false;
+    try {
+      keys.forEach((key) => rewriteRows_(key, before[key]));
+    } catch (_) {
+      rollbackFailed = true;
+      e.message +=
+        " · คืนค่าไม่ครบ ระบบปิดให้นักเรียนเข้าใช้งาน กรุณากู้จากไฟล์สำรอง";
+    }
+    props.setProperty(
+      "LMS_MAINTENANCE",
+      rollbackFailed || before.maintenance ? "1" : "0",
+    );
+    throw e;
+  }
+  props.setProperty(
+    "LMS_MAINTENANCE",
+    (q.scope || "all") === "all"
+      ? saved.maintenance
+        ? "1"
+        : "0"
+      : before.maintenance
+        ? "1"
+        : "0",
+  );
+  write_("AdminHistory", {
+    id: id_("AUD"),
+    action: "adminRestore",
+    target: record.name,
+    status: "success",
+    updatedAt: new Date().toISOString(),
+    changeCount: keys.length,
+    message:
+      "กู้คืน" +
+      {
+        all: "ข้อมูลทั้งระบบ",
+        content: "รายวิชาและบทเรียน",
+        roster: "ชั้นเรียน นักเรียน และสิทธิ์",
+        work: "งาน คะแนน และความก้าวหน้า",
+      }[q.scope || "all"] +
+      " จาก " +
+      record.name +
+      " · นักเรียนต้องเข้าสู่ระบบใหม่",
+    actor: actor.fullName || "ครู",
+  });
+  return { updated: true, backupUrl: backup.url };
+}
+function validateRestore_(state) {
+  const maps = {};
+  ADMIN_TABLES.forEach((k) => {
+    if (!Array.isArray(state[k])) throw Error("ไฟล์สำรองไม่ครบ: " + k);
+    if (
+      state[k].some((r) => !r || !r.id) ||
+      new Set(state[k].map((r) => r.id)).size !== state[k].length
+    )
+      throw Error("ไฟล์สำรองมีรหัสข้อมูลไม่ถูกต้องหรือซ้ำ: " + k);
+    maps[k] = new Set(state[k].map((r) => r.id));
+  });
+  const names = new Set();
+  state.Users.forEach((u) => {
+    const n = name_(u.username);
+    if (!n || names.has(n)) throw Error("ชื่อผู้ใช้ในไฟล์สำรองซ้ำหรือว่าง");
+    names.add(n);
+  });
+  const links = {
+    Students: { groupId: "Groups" },
+    Offerings: { courseId: "Courses" },
+    Enrollments: {
+      studentId: "Students",
+      offeringId: "Offerings",
+      groupId: "Groups",
+    },
+    Chapters: { courseId: "Courses" },
+    Materials: { chapterId: "Chapters" },
+    Activities: { chapterId: "Chapters" },
+    Submissions: {
+      studentId: "Students",
+      activityId: "Activities",
+      offeringId: "Offerings",
+    },
+    Progress: {
+      studentId: "Students",
+      materialId: "Materials",
+      offeringId: "Offerings",
+    },
+    Runs: {
+      studentId: "Students",
+      activityId: "Activities",
+      offeringId: "Offerings",
+    },
+    History: { submissionId: "Submissions" },
+  };
+  Object.keys(links).forEach((k) =>
+    state[k].forEach((r) =>
+      Object.keys(links[k]).forEach((field) => {
+        if (r[field] && !maps[links[k][field]].has(r[field]))
+          throw Error("ไฟล์สำรองมีข้อมูลอ้างอิงที่ไม่พบ: " + k);
+      }),
+    ),
+  );
+}
+
+function adminPurge_(q) {
+  teacher_(q);
+  adminReady_();
+  if (q.confirmText !== "ลบถาวร") throw Error("พิมพ์ ลบถาวร ก่อนดำเนินการ");
+  const row = get_("AdminHistory", q.id);
+  if (row.deleted !== true || !["success", "partial"].includes(row.status))
+    throw Error("รายการนี้ไม่อยู่ในถังขยะ");
+  adminBackup_(q);
+  if (row.snapshotFileId)
+    DriveApp.getFileById(row.snapshotFileId).setTrashed(true);
+  write_("AdminHistory", {
+    id: q.id,
+    status: "purged",
+    snapshotFileId: "",
+    snapshotJson: "",
+    message: "นำข้อมูลกู้คืนของรายการนี้ออกจากระบบแล้ว ไฟล์สำรองเดิมยังอยู่",
+  });
+  write_("AdminHistory", {
+    id: id_("AUD"),
+    action: "adminPurge",
+    target: q.id,
+    status: "success",
+    updatedAt: new Date().toISOString(),
+    changeCount: 0,
+    message: "นำข้อมูลกู้คืนออกจากถังขยะ",
+    actor: teacher_(q).fullName || "ครู",
+  });
+  return { updated: true };
+}
+
+function deleteBackup_(q) {
+  const actor = teacher_(q);
+  if (q.confirmText !== "ลบไฟล์สำรอง") throw Error("พิมพ์ ลบไฟล์สำรอง เพื่อยืนยัน");
+  const record = get_("AdminBackups", q.id);
+  [record.fileId, record.snapshotFileId].filter(Boolean).forEach((id) => {
+    DriveApp.getFileById(id).setTrashed(true);
+  });
+  rewriteRows_("AdminBackups", rows_("AdminBackups").filter((r) => r.id !== q.id));
+  writeOne_("AdminHistory", {
+    id: id_("AUD"), action: "deleteBackup", target: record.name,
+    status: "success", updatedAt: new Date().toISOString(), changeCount: 1,
+    message: "ลบไฟล์สำรองออกจากรายการและย้ายไฟล์ไปถังขยะ Drive", actor: actor.fullName,
+    deleted: false,
+  });
+  return { deleted: true, name: record.name };
+}
+
+function backup_(q) {
+  const result = adminBackup_(q);
+  write_("AdminHistory", {
+    id: id_("AUD"),
+    action: "backup",
+    target: result.name,
+    status: "success",
+    updatedAt: new Date().toISOString(),
+    changeCount: 0,
+    message: "สร้างไฟล์สำรองข้อมูลแล้ว",
+    actor: teacher_(q).fullName || "ครู",
+  });
+  return result;
+}
+function bulkPreview_(q) {
+  teacher_(q);
+  enum_(q.target, ["groups", "students"]);
+  const data = adminState_(ADMIN_TABLES);
+  data.Users = data.Users.map((u) => {
+    const r = Object.assign({}, u);
+    ["lastLoginAt", "lastSeenAt", "hasLoggedIn", "loginHistoryKnown"].forEach(
+      (k) => delete r[k],
+    );
+    return r;
+  });
+  return {
+    groups: data.Groups.length,
+    students: data.Students.length,
+    enrollments: data.Enrollments.length,
+    submissions: data.Submissions.length,
+    fingerprint: digest_(JSON.stringify(data)),
+  };
+}
+function rewriteRows_(key, list) {
+  const sheet = book_().getSheetByName(key),
+    previous = Math.max(0, sheet.getLastRow() - 1);
+  if (key === "Profiles")
+    list = list.map((r) =>
+      Object.assign({}, r, { phone: phoneText_(r.phone) }),
+    );
+  if (list.length) {
+    ensureRows_(sheet, list.length + 1);
+    if (key === "Profiles")
+      sheet
+        .getRange(2, SCHEMA.Profiles.indexOf("phone") + 1, list.length, 1)
+        .setNumberFormat("@");
+    sheet
+      .getRange(2, 1, list.length, SCHEMA[key].length)
+      .setValues(list.map((r) => SCHEMA[key].map((k) => cell_(r[k]))));
+  }
+  if (previous > list.length)
+    sheet
+      .getRange(list.length + 2, 1, previous - list.length, SCHEMA[key].length)
+      .clearContent();
+  if (key === "Users") delete MEM.$auth;
+  MEM[key] = list.map((r, i) => Object.assign({}, r, { _row: i + 2 }));
+}
+function bulkManage_(q) {
+  teacher_(q);
+  enum_(q.target, ["groups", "students"]);
+  enum_(q.mode, ["archive", "delete"]);
+  if (q.confirmText !== "ยืนยัน")
+    throw Error("พิมพ์ ยืนยัน ให้ตรงก่อนดำเนินการ");
+  if (bulkPreview_(q).fingerprint !== q.fingerprint)
+    throw Error("ข้อมูลเปลี่ยนแล้ว เปิดหน้าสรุปผลกระทบใหม่ก่อน");
+  let backup = null;
+  if (q.mode === "delete") {
+    backup = backup_(q);
+    ["Sessions", "Profiles"].forEach((key) =>
+      rewriteRows_(
+        key,
+        rows_(key).filter((r) =>
+          key === "Sessions"
+            ? rows_("Users").some(
+              (u) => u.id === r.userId && u.role === "teacher",
+            )
+            : rows_("Users").some((u) => u.id === r.id && u.role === "teacher"),
+        ),
+      ),
+    );
+    [
+      "Submissions",
+      "History",
+      "Progress",
+      "Runs",
+      "Enrollments",
+      "Students",
+    ].forEach((key) => rewriteRows_(key, []));
+    rewriteRows_(
+      "Users",
+      rows_("Users").filter((u) => u.role === "teacher"),
+    );
+    if (q.target === "groups") rewriteRows_("Groups", []);
+  } else {
+    rewriteRows_(
+      "Users",
+      rows_("Users").map((u) =>
+        u.role === "teacher"
+          ? u
+          : Object.assign({}, u, {
+            status: "inactive",
+            version: Number(u.version) + 1,
+          }),
+      ),
+    );
+    rewriteRows_(
+      "Students",
+      rows_("Students").map((r) =>
+        Object.assign({}, r, { status: "inactive" }),
+      ),
+    );
+    rewriteRows_(
+      "Enrollments",
+      rows_("Enrollments").map((r) =>
+        Object.assign({}, r, { status: "inactive" }),
+      ),
+    );
+    if (q.target === "groups")
+      rewriteRows_(
+        "Groups",
+        rows_("Groups").map((r) =>
+          Object.assign({}, r, { status: "inactive" }),
+        ),
+      );
+  }
+  return { updated: true, backupUrl: backup ? backup.url : "" };
+}
+function removeRoom_(q) {
+  teacher_(q);
+  get_("Offerings", q.offeringId);
+  get_("Groups", q.groupId);
+  let count = 0;
+  rewriteRows_(
+    "Enrollments",
+    rows_("Enrollments").map((r) => {
+      if (
+        r.offeringId === q.offeringId &&
+        r.groupId === q.groupId &&
+        r.status === "active"
+      ) {
+        count++;
+        return Object.assign({}, r, { status: "inactive" });
+      }
+      return r;
+    }),
+  );
+  return { count };
+}
+
+function deleteImpact_(q) {
+  teacher_(q);
+  const kind = enum_(q.kind, ["course", "student"]);
+  const item = clean_(get_(kind === "course" ? "Courses" : "Students", q.id));
+  const state = adminState_(
+    kind === "course"
+      ? [
+        "Courses",
+        "Offerings",
+        "Enrollments",
+        "Chapters",
+        "Materials",
+        "Activities",
+        "Submissions",
+        "History",
+        "Progress",
+        "Runs",
+      ]
+      : [
+        "Students",
+        "Users",
+        "Enrollments",
+        "Submissions",
+        "History",
+        "Progress",
+        "Runs",
+        "Profiles",
+      ],
+  );
+  const submissions = state.Submissions.filter((r) =>
+    kind === "student"
+      ? r.studentId === q.id
+      : state.Offerings.some(
+        (o) => o.id === r.offeringId && o.courseId === q.id,
+      ),
+  );
+  return {
+    name: item.name || item.fullName,
+    submissions: submissions.length,
+    fingerprint: digest_(JSON.stringify({ kind, id: q.id, state })),
+  };
+}
+function deleteEntity_(q) {
+  teacher_(q);
+  const impact = deleteImpact_(q);
+  if (q.confirmText !== "ยืนยัน") throw Error("พิมพ์ ยืนยัน ก่อนลบ");
+  if (q.fingerprint !== impact.fingerprint)
+    throw Error("ข้อมูลเปลี่ยนแล้ว กรุณาตรวจผลกระทบใหม่");
+  const student = q.kind === "student";
+  const offers = new Set(
+    rows_("Offerings")
+      .filter((o) => !student && o.courseId === q.id)
+      .map((o) => o.id),
+  );
+  const chapters = new Set(
+    rows_("Chapters")
+      .filter((c) => !student && c.courseId === q.id)
+      .map((c) => c.id),
+  );
+  const activities = new Set(
+    rows_("Activities")
+      .filter((a) => chapters.has(a.chapterId))
+      .map((a) => a.id),
+  );
+  const materials = new Set(
+    rows_("Materials")
+      .filter((m) => chapters.has(m.chapterId))
+      .map((m) => m.id),
+  );
+  const affected = (r) =>
+    student
+      ? r.studentId === q.id
+      : offers.has(r.offeringId) ||
+      activities.has(r.activityId) ||
+      materials.has(r.materialId);
+  const submissions = new Set(
+    rows_("Submissions")
+      .filter(affected)
+      .map((r) => r.id),
+  );
+  rewriteRows_(
+    "History",
+    rows_("History").filter((r) => !submissions.has(r.submissionId)),
+  );
+  ["Submissions", "Progress", "Runs", "Enrollments"].forEach((key) =>
+    rewriteRows_(
+      key,
+      rows_(key).filter((r) => !affected(r)),
+    ),
+  );
+  if (student) {
+    rows_("Sessions")
+      .filter((s) => s.userId === q.id)
+      .forEach((s) => CacheService.getScriptCache().remove("kv_s_" + s.id));
+    rewriteRows_(
+      "Sessions",
+      rows_("Sessions").filter((s) => s.userId !== q.id),
+    );
+    ["Students", "Users", "Profiles"].forEach((key) =>
+      rewriteRows_(
+        key,
+        rows_(key).filter((r) => r.id !== q.id),
+      ),
+    );
+  } else {
+    ["Materials", "Activities"].forEach((key) =>
+      rewriteRows_(
+        key,
+        rows_(key).filter((r) => !chapters.has(r.chapterId)),
+      ),
+    );
+    rewriteRows_(
+      "Chapters",
+      rows_("Chapters").filter((r) => !chapters.has(r.id)),
+    );
+    rewriteRows_(
+      "Offerings",
+      rows_("Offerings").filter((r) => !offers.has(r.id)),
+    );
+    rewriteRows_(
+      "Courses",
+      rows_("Courses").filter((r) => r.id !== q.id),
+    );
+  }
+  return { deleted: true };
+}
+function returnWork_(q) {
+  teacher_(q);
+  const s = get_("Submissions", q.id),
+    activity = get_("Activities", s.activityId);
+  if (activity.kind !== "worksheet")
+    throw Error("ส่งกลับให้แก้ไขได้เฉพาะใบงาน");
+  if (Number(q.revision) !== Number(s.revision))
+    throw Error("งานเปลี่ยนแล้ว กรุณาเปิดงานล่าสุด");
+  const feedback = need_(q.feedback, "คำแนะนำให้นักเรียนแก้ไข", 3000);
+  saveHistory_(s);
+  write_("Submissions", {
+    id: s.id,
+    status: "returned",
+    feedback,
+    revision: Number(s.revision) + 1,
+    updatedAt: new Date().toISOString(),
+  });
+  rewriteRows_(
+    "Runs",
+    rows_("Runs").filter(
+      (r) =>
+        !(
+          r.studentId === s.studentId &&
+          r.offeringId === s.offeringId &&
+          r.activityId === s.activityId
+        ),
+    ),
+  );
+  return { returned: true };
+}
+function installLmsCleanup() {
+  const existing = ScriptApp.getProjectTriggers().filter(
+    (trigger) => trigger.getHandlerFunction() === "cleanupLmsHistory",
+  );
+  if (!existing.length)
+    ScriptApp.newTrigger("cleanupLmsHistory").timeBased().everyDays(1).create();
+  PropertiesService.getScriptProperties().setProperty(
+    "KV_CLEANUP_SCHEDULED",
+    "1",
+  );
+  return { scheduled: true, frequency: "daily" };
+}
+
+function pruneExpiredSessions_(now) {
+  const sessions = rows_("Sessions"),
+    live = sessions.filter((session) => Number(session.expiresAt) > now);
+  const expired = sessions.filter(
+    (session) => !(Number(session.expiresAt) > now),
+  );
+  if (expired.length) {
+    expired.forEach((session) =>
+      CacheService.getScriptCache().remove("kv_s_" + session.id),
+    );
+    rewriteRows_("Sessions", live);
+  }
+  return expired.length;
+}
+
+function cleanupLmsHistory() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(1000)) return;
+  try {
+    MEM = {};
+    BOOK = null;
+    const now = Date.now(),
+      day = 86400000;
+    const requests = rows_("Requests"),
+      recent = requests.filter(
+        (r) => now - new Date(r.updatedAt).getTime() <= 30 * day,
+      );
+    if (requests.length !== recent.length) rewriteRows_("Requests", recent);
+    const expiredSessions = pruneExpiredSessions_(now);
+    const history = rows_("AdminHistory");
+    let changed = false,
+      snapshotsRemoved = 0;
+    history.forEach((r) => {
+      const age = now - new Date(r.updatedAt).getTime();
+      if (
+        age > 90 * day &&
+        r.status !== "pending" &&
+        (r.snapshotFileId || r.snapshotJson)
+      ) {
+        try {
+          if (r.snapshotFileId)
+            DriveApp.getFileById(r.snapshotFileId).setTrashed(true);
+          r.snapshotFileId = "";
+          r.snapshotJson = "";
+          changed = true;
+          snapshotsRemoved++;
+        } catch (_) { }
+      }
+    });
+    const keep = history.filter(
+      (r) =>
+        r.status === "pending" ||
+        r.snapshotFileId ||
+        r.snapshotJson ||
+        now - new Date(r.updatedAt).getTime() <= 180 * day,
+    );
+    if (changed || keep.length !== history.length)
+      rewriteRows_("AdminHistory", keep);
+    const report = {
+      expiredSessions,
+      requestsRemoved: requests.length - recent.length,
+      historyRemoved: history.length - keep.length,
+      snapshotsRemoved,
+    };
+    SpreadsheetApp.flush();
+    PropertiesService.getScriptProperties().setProperties({
+      KV_LAST_CLEANUP_AT: new Date().toISOString(),
+      KV_LAST_CLEANUP_RESULT: JSON.stringify(report),
+      KV_DATA_REVISION: Utilities.getUuid(),
+    });
+    return report;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+const ACTIONS = {
+  adminHistoryDetails: adminHistoryDetails_,
+  adminManagePreview: adminManagePreview_,
+  adminManage: adminManage_,
+  studentPresence: studentPresence_,
+  presenceHeartbeat: presenceHeartbeat_,
+  deleteImpact: deleteImpact_,
+  deleteEntity: deleteEntity_,
+  returnWork: returnWork_,
+  studentsBatchPreview: studentsBatchPreview_,
+  studentsBatch: studentsBatch_,
+  replaceRosterPreview: replaceRosterPreview_,
+  replaceRoster: replaceRoster_,
+  adminOverview: adminOverview_,
+  adminUndoPreview: adminUndoPreview_,
+  adminUndo: adminUndo_,
+  adminRestorePreview: adminRestorePreview_,
+  adminRestore: adminRestore_,
+  deleteBackup: deleteBackup_,
+  adminPurge: adminPurge_,
+  submissionHistory: submissionHistory_,
+  dashboard: dashboard_,
+  groupImpact: groupImpact_,
+  deleteGroup: deleteGroup_,
+  setMaintenance: setMaintenance_,
+  backup: backup_,
+  bulkPreview: bulkPreview_,
+  bulkManage: bulkManage_,
+  removeRoom: removeRoom_,
+  saveProfile: saveProfile_,
+  connectionCheck: connectionCheck_,
+  login: login_,
+  bootstrap: bootstrap_,
+  courseData: courseData_,
+  saveGroup: saveGroup_,
+  saveStudent: saveStudent_,
+  importStudents: importStudents_,
+  promote: promote_,
+  saveCourse: saveCourse_,
+  saveOffering: saveOffering_,
+  ensureOffering: ensureOffering_,
+  enroll: enroll_,
+  saveChapter: saveChapter_,
+  saveMaterial: saveMaterial_,
+  deleteMaterial: deleteMaterial_,
+  saveActivity: saveActivity_,
+  setStatus: setStatus_,
+  resetPassword: resetPassword_,
+  changePassword: changePassword_,
+  submissions: submissions_,
+  submission: submission_,
+  grade: grade_,
+  progress: progress_,
+  studentHome: studentHome_,
+  studentCourse: studentCourse_,
+  readMaterial: readMaterial_,
+  startActivity: startActivity_,
+  submitActivity: submitActivity_,
+  mySubmission: mySubmission_,
+};
+const READS = [
+  "adminHistoryDetails",
+  "adminManagePreview",
+  "studentPresence",
+  "deleteImpact",
+  "studentsBatchPreview",
+  "replaceRosterPreview",
+  "sessionCheck",
+  "adminOverview",
+  "adminUndoPreview",
+  "adminRestorePreview",
+  "groupImpact",
+  "submissionHistory",
+  "dashboard",
+  "bulkPreview",
+  "bootstrap",
+  "courseData",
+  "submissions",
+  "submission",
+  "progress",
+  "studentHome",
+  "studentCourse",
+  "mySubmission",
+  "profile",
+  "connectionCheck",
+];
+
+function requestPayload_(value) {
+  if (Array.isArray(value)) return value.map(requestPayload_);
+  if (value && typeof value === "object")
+    return Object.keys(value)
+      .filter((key) => !["token", "requestId"].includes(key))
+      .sort()
+      .reduce((out, key) => {
+        out[key] = requestPayload_(value[key]);
+        return out;
+      }, {});
+  return value;
+}
+
+function mutationSync_(q, teacherMutation) {
+  if (!teacherMutation) return null;
+  const tablesByAction = {
+    saveGroup: ["Groups"],
+    saveStudent: ["Students"],
+    importStudents: ["Students"],
+    replaceRoster: ["Students"],
+    studentsBatch: ["Students"],
+    promote: ["Students"],
+    saveCourse: ["Courses"],
+    ensureOffering: ["Offerings"],
+    saveOffering: ["Offerings"],
+    enroll: ["Enrollments"],
+    removeRoom: ["Enrollments"],
+    deleteGroup: ["Groups", "Students", "Enrollments"],
+    saveChapter: [],
+    saveMaterial: [],
+    deleteMaterial: [],
+    saveActivity: [],
+    grade: [],
+    returnWork: [],
+    resetPassword: [],
+    setMaintenance: [],
+    backup: [],
+    saveProfile: [],
+    changePassword: [],
+    adminPurge: [],
+  };
+  let keys = tablesByAction[q.action];
+  if (q.action === "setStatus")
+    keys = [
+      "Groups",
+      "Students",
+      "Courses",
+      "Offerings",
+      "Enrollments",
+    ].includes(q.entity)
+      ? [q.entity]
+      : [];
+  if (q.action === "deleteEntity")
+    keys =
+      q.kind === "course"
+        ? ["Courses", "Offerings", "Enrollments"]
+        : q.kind === "student"
+          ? ["Students", "Enrollments"]
+          : null;
+  if (q.action === "adminManage" && ["sessions", "work"].includes(q.target))
+    keys = [];
+  if (!keys) return null;
+  const tables = {};
+  keys.forEach((key) => (tables[key] = rows_(key).map(clean_)));
+  return { tables, maintenance: maintenance_() };
+}
+
+function apiCall(json) {
+  let lock = null,
+    requestId = "",
+    requestHash = "",
+    executed = false,
+    mutation = false,
+    teacherMutation = false;
+  const startedAt = Date.now();
+  try {
+    MEM = {};
+    BOOK = null;
+    const q = typeof json === "string" ? JSON.parse(json) : json;
+    if (!q || typeof q !== "object" || Array.isArray(q))
+      throw Error("คำขอไม่ถูกต้อง");
+    q.action = q.action || "login";
+    if (
+      !ACTIONS[q.action] &&
+      !["sessionCheck", "sessionTouch", "logout", "profile"].includes(q.action)
+    )
+      throw Error("คำสั่งนี้ไม่รองรับ กรุณาตรวจเวอร์ชันของเว็บและ GAS");
+    mutation =
+      !READS.includes(q.action) &&
+      !["login", "logout", "sessionTouch", "presenceHeartbeat"].includes(
+        q.action,
+      );
+    if (!READS.includes(q.action) && q.action !== "login") {
+      lock = LockService.getScriptLock();
+      if (!lock.tryLock(5000)) {
+        const e = Error("ระบบกำลังบันทึกข้อมูล กรุณาลองใหม่ในอีกสักครู่");
+        e.code = "SYSTEM_BUSY";
+        throw e;
+      }
+    }
+    if (q.requestId && mutation) {
+      const user = auth_(q);
+      teacherMutation = user.role === "teacher";
+      requestId = digest_(user.id + ":" + need_(q.requestId, "รหัสคำขอ", 150));
+      requestHash = digest_(JSON.stringify(requestPayload_(q)));
+      const previous = findRow_("Requests", requestId);
+      if (previous) {
+        if (
+          previous.action !== q.action ||
+          previous.payloadHash !== requestHash
+        )
+          throw Error("รหัสคำขอซ้ำกับข้อมูลอื่น กรุณาโหลดข้อมูลล่าสุด");
+        const replayed = JSON.parse(previous.result);
+        delete replayed.sync;
+        return JSON.stringify(replayed);
+      }
+      writeOne_("Requests", {
+        id: requestId,
+        action: q.action,
+        payloadHash: requestHash,
+        updatedAt: new Date().toISOString(),
+        result: JSON.stringify({
+          status: "error",
+          code: "REQUEST_UNCERTAIN",
+          message:
+            "คำขอนี้เริ่มทำงานแล้วแต่ยังไม่มีผลยืนยัน กรุณาตรวจข้อมูลและประวัติก่อนส่งคำสั่งใหม่",
+        }),
+      });
+      SpreadsheetApp.flush();
+    }
+    executed = true;
+    let data;
+    if (["sessionCheck", "sessionTouch"].includes(q.action))
+      data = sessionInfo_(q, q.action === "sessionTouch");
+    else if (q.action === "logout") {
+      auth_(q);
+      const id = digest_(q.token);
+      writeOne_("Sessions", { id, expiresAt: 0 });
+      CacheService.getScriptCache().remove("kv_s_" + id);
+      data = { loggedOut: true };
+    } else if (q.action === "profile") data = profile_(q);
+    else data = adminAudited_(q, ACTIONS[q.action]);
+    const response = { status: "success", action: q.action, data };
+    if (mutation && q.requestId) {
+      try {
+        const sync = mutationSync_(q, teacherMutation);
+        if (sync && JSON.stringify({ ...response, sync }).length < 40000)
+          response.sync = sync;
+      } catch (_) { }
+    }
+    response.serverMs = Date.now() - startedAt;
+    const result = JSON.stringify(response);
+    if (requestId) {
+      const storedResponse = { ...response };
+      delete storedResponse.sync;
+      const persistedResult = JSON.stringify(storedResponse);
+      if (persistedResult.length > 45000)
+        throw Error("ผลคำขอใหญ่เกินกำหนด กรุณาตรวจรายการล่าสุด");
+      writeOne_("Requests", { id: requestId, result: persistedResult });
+    }
+    return result;
+  } catch (err) {
+    const result = JSON.stringify({
+      status: "error",
+      message: err.message || String(err),
+      code: err.code || "API_ERROR",
+      authReason: err.authReason || "",
+    });
+    if (requestId && executed) {
+      try {
+        writeOne_("Requests", { id: requestId, result });
+      } catch (_) { }
+    }
+    return result;
+  } finally {
+    if (mutation && executed) {
+      try {
+        PropertiesService.getScriptProperties().setProperty(
+          "KV_DATA_REVISION",
+          Utilities.getUuid(),
+        );
+      } catch (_) { }
+    }
+    if (lock && lock.hasLock()) {
+      try {
+        SpreadsheetApp.flush();
+      } finally {
+        lock.releaseLock();
+      }
+    }
+  }
+}
+
+function doPost(e) {
+  return ContentService.createTextOutput(
+    apiCall(e && e.postData ? e.postData.contents : "{}"),
+  ).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet() {
+  return ContentService.createTextOutput(
+    JSON.stringify({
+      status: "success",
+      service: "KruVanda LMS API",
+      version: "3.1-admin",
+    }),
+  ).setMimeType(ContentService.MimeType.JSON);
+}
+
+function cleanupExpiredSessions() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    MEM = {};
+    BOOK = null;
+    return { expiredSessions: pruneExpiredSessions_(Date.now()) };
+  } finally {
+    SpreadsheetApp.flush();
+    lock.releaseLock();
+  }
+}
+function shareProfileImages() {
+  MEM = {};
+  BOOK = null;
+  const result = { shared: 0, failed: 0 };
+  const teacherIds = new Set(
+    rows_("Users")
+      .filter((user) => user.role === "teacher")
+      .map((user) => user.id),
+  );
+  rows_("Profiles").forEach((profile) => {
+    if (!teacherIds.has(profile.id) || !profile.avatarFileId) return;
+    try {
+      DriveApp.getFileById(profile.avatarFileId).setSharing(
+        DriveApp.Access.ANYONE_WITH_LINK,
+        DriveApp.Permission.VIEW,
+      );
+      result.shared++;
+    } catch (error) {
+      result.failed++;
+    }
+  });
+  console.log(JSON.stringify(result));
+  return result;
+}
+function ensureRows_(sheet, end) {
+  if (end > sheet.getMaxRows())
+    sheet.insertRowsAfter(sheet.getMaxRows(), end - sheet.getMaxRows());
+}
+
+function adminPlan_(q) {
+  const target = enum_(q.target, [
+    "courses",
+    "groups",
+    "students",
+    "work",
+    "system",
+    "sessions",
+  ]);
+  const mode = enum_(
+    q.mode,
+    target === "sessions"
+      ? ["expired", "logoutStudents"]
+      : target === "system"
+        ? ["reset"]
+        : target === "work"
+          ? ["clearWork"]
+          : ["active", "inactive", "delete"],
+  );
+  const table = { courses: "Courses", groups: "Groups", students: "Students" }[
+    target
+  ];
+  const ids = table
+    ? q.ids === "all"
+      ? rows_(table).map((r) => r.id)
+      : Array.isArray(q.ids)
+        ? [...new Set(q.ids)]
+        : []
+    : [];
+  if (table && !ids.length) throw Error("เลือกข้อมูลอย่างน้อยหนึ่งรายการ");
+  if (table && ids.some((id) => !rows_(table).some((r) => r.id === id)))
+    throw Error("มีรายการที่ถูกลบไปแล้ว กรุณาโหลดข้อมูลล่าสุด");
+  if (target === "sessions") {
+    const teachers = new Set(
+      rows_("Users")
+        .filter((u) => u.role === "teacher")
+        .map((u) => u.id),
+    );
+    const sessions = rows_("Sessions").filter((s) =>
+      mode === "expired"
+        ? Number(s.expiresAt) <= Date.now()
+        : !teachers.has(s.userId),
+    );
+    return {
+      keys: [],
+      sessionIds: sessions.map((s) => s.id),
+      count: sessions.length,
+      labels: [],
+      desired: {},
+    };
+  }
+  const keys =
+    mode === "reset"
+      ? ADMIN_TABLES.slice()
+      : table && mode !== "delete"
+        ? target === "students"
+          ? ["Students", "Users"]
+          : [table]
+        : target === "work"
+          ? ["Submissions", "History", "Progress", "Runs"]
+          : target === "courses"
+            ? [
+              "Courses",
+              "Offerings",
+              "Enrollments",
+              "Chapters",
+              "Materials",
+              "Activities",
+              "Submissions",
+              "History",
+              "Progress",
+              "Runs",
+            ]
+            : [
+              "Groups",
+              "Students",
+              "Users",
+              "Enrollments",
+              "Submissions",
+              "History",
+              "Progress",
+              "Runs",
+              "Profiles",
+            ];
+  const before = adminState_(keys),
+    desired = {};
+  keys.forEach(
+    (k) => (desired[k] = before[k].map((r) => Object.assign({}, r))),
+  );
+  const selected = new Set(ids),
+    labels = table
+      ? rows_(table)
+        .filter((r) => selected.has(r.id))
+        .map((r) => r.fullName || r.name)
+      : [];
+  if (mode === "reset") {
+    const teachers = new Set(
+      before.Users.filter((u) => u.role === "teacher").map((u) => u.id),
+    );
+    keys.forEach(
+      (k) =>
+      (desired[k] =
+        k === "Users"
+          ? before[k].filter((u) => teachers.has(u.id))
+          : k === "Profiles"
+            ? before[k].filter((p) => teachers.has(p.id))
+            : []),
+    );
+  } else if (mode === "active" || mode === "inactive") {
+    const status =
+      target === "courses" && mode === "inactive" ? "closed" : mode;
+    desired[table].forEach((r) => {
+      if (selected.has(r.id)) r.status = status;
+    });
+    if (target === "students")
+      desired.Users.forEach((r) => {
+        if (selected.has(r.id)) {
+          r.status = status;
+          r.version = Number(r.version || 0) + 1;
+        }
+      });
+  } else {
+    const students = new Set(
+      target === "students"
+        ? ids
+        : target === "groups"
+          ? before.Students.filter((s) => selected.has(s.groupId)).map(
+            (s) => s.id,
+          )
+          : [],
+    );
+    const offerings = new Set(
+      target === "courses"
+        ? before.Offerings.filter((o) => selected.has(o.courseId)).map(
+          (o) => o.id,
+        )
+        : q.courseId
+          ? rows_("Offerings")
+            .filter((o) => o.courseId === q.courseId)
+            .map((o) => o.id)
+          : [],
+    );
+    if (target === "work") {
+      if (q.courseId) get_("Courses", q.courseId);
+      if (q.groupId) get_("Groups", q.groupId);
+      if (q.studentId) get_("Students", q.studentId);
+      if (q.activityId) get_("Activities", q.activityId);
+    }
+    const groupStudents = new Set(
+      target === "work" && q.groupId
+        ? rows_("Students")
+          .filter((s) => s.groupId === q.groupId)
+          .map((s) => s.id)
+        : [],
+    );
+    const enrollGroups = new Set(
+      target === "work" && q.groupId
+        ? rows_("Enrollments")
+          .filter((e) => e.groupId === q.groupId)
+          .map((e) => e.offeringId + ":" + e.studentId)
+        : [],
+    );
+    const chapters = new Set(
+      target === "courses"
+        ? before.Chapters.filter((c) => selected.has(c.courseId)).map(
+          (c) => c.id,
+        )
+        : [],
+    );
+    const activities = new Set(
+      target === "courses"
+        ? before.Activities.filter((a) => chapters.has(a.chapterId)).map(
+          (a) => a.id,
+        )
+        : [],
+    );
+    const materials = new Set(
+      target === "courses"
+        ? before.Materials.filter((m) => chapters.has(m.chapterId)).map(
+          (m) => m.id,
+        )
+        : [],
+    );
+    const affected = (r) =>
+      target === "work"
+        ? (!q.courseId || offerings.has(r.offeringId)) &&
+        (!q.groupId ||
+          groupStudents.has(r.studentId) ||
+          enrollGroups.has(r.offeringId + ":" + r.studentId)) &&
+        (!q.studentId || r.studentId === q.studentId) &&
+        (!q.activityId || r.activityId === q.activityId) &&
+        (!q.activityId || !r.materialId)
+        : students.has(r.studentId) ||
+        offerings.has(r.offeringId) ||
+        activities.has(r.activityId) ||
+        materials.has(r.materialId);
+    const work = new Set(before.Submissions.filter(affected).map((s) => s.id));
+    desired.History = before.History.filter((r) => !work.has(r.submissionId));
+    ["Submissions", "Progress", "Runs", "Enrollments"].forEach((k) => {
+      if (desired[k]) desired[k] = before[k].filter((r) => !affected(r));
+    });
+    if (target === "courses") {
+      desired.Courses = before.Courses.filter((r) => !selected.has(r.id));
+      desired.Offerings = before.Offerings.filter((r) => !offerings.has(r.id));
+      desired.Chapters = before.Chapters.filter((r) => !chapters.has(r.id));
+      ["Activities", "Materials"].forEach(
+        (k) =>
+          (desired[k] = before[k].filter((r) => !chapters.has(r.chapterId))),
+      );
+    }
+    if (target === "groups")
+      desired.Enrollments = desired.Enrollments.filter(
+        (r) => !selected.has(r.groupId),
+      );
+    if (target === "students" || target === "groups") {
+      ["Students", "Users", "Profiles"].forEach(
+        (k) => (desired[k] = before[k].filter((r) => !students.has(r.id))),
+      );
+      if (target === "groups")
+        desired.Groups = before.Groups.filter((r) => !selected.has(r.id));
+    }
+  }
+  const patches = adminDiff_(
+    before,
+    Object.assign({ maintenance: before.maintenance }, desired),
+    keys,
+  );
+  return { keys, before, desired, patches, labels, count: patches.length };
+}
+function adminManagePreview_(q) {
+  teacher_(q);
+  adminReady_();
+  const p = adminPlan_(q);
+  const details = p.keys
+    .map((k) => ({
+      table: k,
+      current: p.before[k].length,
+      remaining: p.desired[k].length,
+      changed: p.patches.filter((x) => x.key === k).length,
+    }))
+    .filter((d) => d.changed);
+  const signed = {
+    target: q.target,
+    mode: q.mode,
+    ids: q.ids || "",
+    courseId: q.courseId || "",
+    groupId: q.groupId || "",
+    studentId: q.studentId || "",
+    activityId: q.activityId || "",
+    patches: p.patches || [],
+    sessionIds: p.sessionIds || [],
+  };
+  return {
+    total: p.count,
+    names: p.labels.slice(0, 200),
+    details,
+    fingerprint: digest_(JSON.stringify(signed)),
+    confirmText:
+      q.mode === "reset"
+        ? "เริ่มระบบใหม่"
+        : ["delete", "clearWork"].includes(q.mode)
+          ? "ลบข้อมูล"
+          : "ยืนยัน",
+  };
+}
+function adminManage_(q) {
+  const preview = adminManagePreview_(q);
+  if (q.confirmText !== preview.confirmText)
+    throw Error("พิมพ์ " + preview.confirmText + " ให้ตรงก่อนดำเนินการ");
+  if (q.fingerprint !== preview.fingerprint)
+    throw Error("ข้อมูลเปลี่ยนแล้ว กรุณาตรวจผลกระทบอีกครั้ง");
+  const plan = adminPlan_(q);
+  if (!plan.count) return { updated: true, count: 0 };
+  if (q.target === "sessions") {
+    const ids = new Set(plan.sessionIds);
+    rewriteRows_(
+      "Sessions",
+      rows_("Sessions").filter((s) => !ids.has(s.id)),
+    );
+    plan.sessionIds.forEach((id) =>
+      CacheService.getScriptCache().remove("kv_s_" + id),
+    );
+    write_("AdminHistory", {
+      id: id_("AUD"),
+      action: "adminManage",
+      target: "sessions:" + q.mode,
+      status: "success",
+      updatedAt: new Date().toISOString(),
+      changeCount: ids.size,
+      actor: teacher_(q).fullName,
+      message: "จัดการเซสชัน " + ids.size + " รายการ",
+    });
+    return { updated: true, count: ids.size };
+  }
+  const destructive = ["delete", "clearWork", "reset"].includes(q.mode);
+  const backup = destructive ? adminBackup_(q) : null;
+  const props = PropertiesService.getScriptProperties(),
+    previous = maintenance_();
+  let rollbackFailed = false;
+  if (destructive) props.setProperty("LMS_MAINTENANCE", "1");
+  try {
+    plan.keys
+      .filter((k) => plan.patches.some((p) => p.key === k))
+      .forEach((k) => rewriteRows_(k, plan.desired[k]));
+    if (destructive || q.target === "students" || q.target === "groups") {
+      const users = new Map(rows_("Users").map((u) => [u.id, u]));
+      const revokeAll = q.mode === "reset";
+      const removed = rows_("Sessions").filter((s) => {
+        const u = users.get(s.userId);
+        return (
+          !u ||
+          (u.role !== "teacher" &&
+            (revokeAll ||
+              Number(s.version) !== Number(u.version) ||
+              u.status !== "active"))
+        );
+      });
+      const ids = new Set(removed.map((s) => s.id));
+      if (ids.size)
+        rewriteRows_(
+          "Sessions",
+          rows_("Sessions").filter((s) => !ids.has(s.id)),
+        );
+      ids.forEach((id) => CacheService.getScriptCache().remove("kv_s_" + id));
+    }
+  } catch (e) {
+    try {
+      plan.keys.forEach((k) => rewriteRows_(k, plan.before[k]));
+    } catch (_) {
+      rollbackFailed = true;
+      e.message +=
+        " · คืนค่าอัตโนมัติไม่ครบ ระบบปิดให้นักเรียนเข้าใช้งาน กรุณากู้จากไฟล์สำรอง";
+    }
+    throw e;
+  } finally {
+    if (destructive)
+      props.setProperty(
+        "LMS_MAINTENANCE",
+        q.mode === "reset" || rollbackFailed ? "1" : previous ? "1" : "0",
+      );
+  }
+  return {
+    updated: true,
+    count: plan.count,
+    backupUrl: backup ? backup.url : "",
+  };
+}
+
+function adminTarget_(q, patches) {
+  if (q.action === "adminManage") {
+    if (q.target === "work")
+      return [
+        q.courseId ? get_("Courses", q.courseId).name : "ทุกรายวิชา",
+        q.groupId ? get_("Groups", q.groupId).name : "ทุกชั้นเรียน",
+        q.studentId ? get_("Students", q.studentId).fullName : "นักเรียนทุกคน",
+        q.activityId ? get_("Activities", q.activityId).title : "ทุกกิจกรรม",
+      ].join(" · ");
+    const key = { courses: "Courses", groups: "Groups", students: "Students" }[
+      q.target
+    ];
+    if (!key)
+      return q.target === "system" ? "ข้อมูลทั้งระบบ" : "เซสชันนักเรียน";
+    const selected = patches
+      .filter((p) => p.key === key)
+      .map((p) => (p.after || p.before).fullName || (p.after || p.before).name);
+    return (
+      selected.slice(0, 3).join(", ") +
+      (selected.length > 3
+        ? " และอีก " + (selected.length - 3) + " รายการ"
+        : "")
+    );
+  }
+  const scopes = {
+    saveGroup: "Groups",
+    deleteGroup: "Groups",
+    saveStudent: "Students",
+    saveCourse: "Courses",
+    saveChapter: "Chapters",
+    saveMaterial: "Materials",
+    deleteMaterial: "Materials",
+    saveActivity: "Activities",
+    resetPassword: "Users",
+    grade: "Submissions",
+    returnWork: "Submissions",
+  };
+  const key =
+    q.action === "setStatus"
+      ? q.entity
+      : q.action === "deleteEntity"
+        ? q.kind === "course"
+          ? "Courses"
+          : "Students"
+        : scopes[q.action];
+  const patch = patches.find((p) => p.key === key && (!q.id || p.id === q.id));
+  const row = patch && (patch.after || patch.before);
+  if (key === "Submissions" && row) {
+    const student = rows_("Students").find((s) => s.id === row.studentId),
+      activity = rows_("Activities").find((a) => a.id === row.activityId);
+    return (
+      (student ? student.fullName : "นักเรียน") +
+      " · " +
+      (activity ? activity.title : "กิจกรรม")
+    );
+  }
+  return row
+    ? row.fullName || row.name || row.title || q.target || ""
+    : q.action === "promote"
+      ? get_("Groups", q.fromId).name + " → " + get_("Groups", q.toId).name
+      : q.target || "";
+}
+function adminDescribe_(q, patches, result) {
+  const targets = {
+    courses: "รายวิชา",
+    groups: "ชั้นเรียนพร้อมนักเรียน",
+    students: "นักเรียน",
+    work: "งาน คะแนน และความก้าวหน้า",
+    system: "ข้อมูลทั้งระบบ",
+    sessions: "เซสชัน",
+  };
+  if (q.action === "adminManage") {
+    const verb =
+      {
+        active: "เปิดใช้งาน",
+        inactive: "ปิดใช้งาน",
+        delete: "ลบ",
+        clearWork: "ล้าง",
+        reset: "เริ่มระบบใหม่ ล้าง",
+      }[q.mode] || "จัดการ";
+    return verb + targets[q.target] + " · " + patches.length + " รายการข้อมูล";
+  }
+  if (
+    [
+      "saveGroup",
+      "saveStudent",
+      "saveCourse",
+      "saveChapter",
+      "saveMaterial",
+      "saveActivity",
+    ].includes(q.action)
+  ) {
+    const labels = {
+      saveGroup: "ชั้นเรียน",
+      saveStudent: "นักเรียน",
+      saveCourse: "รายวิชา",
+      saveChapter: "บทเรียน",
+      saveMaterial: "สื่อ",
+      saveActivity: "กิจกรรม",
+    };
+    return (q.id ? "แก้ไข" : "เพิ่ม") + labels[q.action];
+  }
+  if (q.action === "importStudents")
+    return "นำเข้านักเรียน " + Number((result && result.count) || 0) + " คน";
+  if (q.action === "studentsBatch")
+    return (
+      (q.mode === "move"
+        ? "ย้ายนักเรียนไป " + get_("Groups", q.groupId).name
+        : q.mode === "active"
+          ? "เปิดใช้งานนักเรียน"
+          : "ปิดใช้งานนักเรียน") +
+      " " +
+      Number((result && result.count) || 0) +
+      " คน"
+    );
+  if (q.action === "replaceRoster")
+    return (
+      "เปลี่ยนรายชื่อชั้นเรียน " +
+      get_("Groups", q.groupId).name +
+      " · ปิดรายชื่อเดิม " +
+      Number((result && result.archived) || 0) +
+      " คน · เพิ่ม " +
+      Number((result && result.count) || 0) +
+      " คน"
+    );
+  if (q.action === "setStatus")
+    return (
+      "เปลี่ยนสถานะเป็น " +
+      ({
+        active: "เปิดใช้งาน",
+        inactive: "ปิดใช้งาน",
+        closed: "ปิดรายวิชา",
+        hidden: "ซ่อน",
+        draft: "ฉบับร่าง",
+      }[q.status] || q.status)
+    );
+  if (q.action === "setMaintenance")
+    return q.enabled
+      ? "ปิดให้นักเรียนเข้าใช้งาน ครูยังเข้าได้"
+      : "เปิดให้นักเรียนเข้าใช้งาน";
+  if (q.action === "deleteEntity")
+    return q.kind === "course"
+      ? "ลบรายวิชาพร้อมบทเรียน กิจกรรม งาน และคะแนนที่เกี่ยวข้อง"
+      : "ลบนักเรียนพร้อมบัญชี งาน และคะแนนทุกวิชา";
+  if (q.action === "deleteGroup")
+    return q.mode === "room"
+      ? "ลบเฉพาะชั้นเรียน เก็บนักเรียน งาน และคะแนนไว้"
+      : "ลบชั้นเรียนพร้อมนักเรียน งาน และคะแนนทุกวิชา";
+  if (q.action === "grade")
+    return (
+      "ตรวจและบันทึกคะแนน " + Number((result && result.score) || 0) + " คะแนน"
+    );
+  if (q.action === "returnWork")
+    return "ส่งใบงานกลับให้นักเรียนแก้ไข พร้อมคำแนะนำ";
+  if (q.action === "resetPassword")
+    return "รีเซ็ตรหัสผ่านนักเรียน และยกเลิกเซสชันเดิม";
+  if (q.action === "saveProfile") return "แก้ไขข้อมูลส่วนตัวครู";
+  if (q.action === "changePassword")
+    return "เปลี่ยนรหัสผ่านครู ไม่บันทึกรหัสผ่านในประวัติ";
+  if (q.action === "promote")
+    return "ย้ายนักเรียน " + Number((result && result.count) || 0) + " คน";
+  return ADMIN_ACTION_NAMES[q.action] || "จัดการข้อมูล";
+}
+function adminHistoryDetails_(q) {
+  teacher_(q);
+  adminReady_();
+  const event = get_("AdminHistory", q.id),
+    payload = event.snapshotJson
+      ? json_(event.snapshotJson, {})
+      : event.snapshotFileId
+        ? json_(
+          DriveApp.getFileById(event.snapshotFileId)
+            .getBlob()
+            .getDataAsString(),
+          {},
+        )
+        : {};
+  const patches = Array.isArray(payload.patches) ? payload.patches : [];
+  const labels = {
+    name: "ชื่อ",
+    fullName: "ชื่อ–นามสกุล",
+    username: "ชื่อผู้ใช้",
+    prefix: "คำนำหน้า",
+    firstName: "ชื่อ",
+    lastName: "นามสกุล",
+    groupId: "ชั้นเรียน",
+    courseId: "รายวิชา",
+    offeringId: "ชุดผู้เรียน",
+    chapterId: "บทเรียน",
+    studentId: "นักเรียน",
+    activityId: "กิจกรรม",
+    materialId: "สื่อ",
+    code: "รหัสวิชา",
+    description: "คำอธิบาย",
+    status: "สถานะ",
+    title: "ชื่อรายการ",
+    order: "ลำดับบท",
+    kind: "ประเภท",
+    mode: "รูปแบบ",
+    seconds: "เวลาทำกิจกรรม (วินาที)",
+    showAnswers: "แสดงเฉลย",
+    questions: "คำถาม",
+    allowEdit: "อนุญาตแก้ไขงาน",
+    countScore: "นับคะแนน",
+    dueAt: "กำหนดส่ง",
+    answers: "คำตอบ",
+    scores: "คะแนนรายข้อ",
+    feedback: "คำแนะนำ",
+    email: "อีเมล",
+    phone: "โทรศัพท์",
+    avatarFileId: "รูปโปรไฟล์",
+    url: "ลิงก์สื่อ",
+    fileId: "ไฟล์สื่อ",
+    mime: "ชนิดไฟล์",
+  };
+  const tableLabels = {
+    Groups: "ชั้นเรียน",
+    Students: "นักเรียน",
+    Users: "บัญชีผู้ใช้",
+    Courses: "รายวิชา",
+    Offerings: "ชุดผู้เรียน",
+    Enrollments: "สิทธิ์รายวิชา",
+    Chapters: "บทเรียน",
+    Materials: "สื่อ",
+    Activities: "กิจกรรม",
+    Submissions: "งานและคะแนน",
+    Progress: "ความก้าวหน้า",
+    Runs: "รอบทำกิจกรรม",
+    History: "ประวัติงาน",
+    Profiles: "โปรไฟล์",
+    $maintenance: "การเข้าใช้งานระบบ",
+  };
+  const referenceTables = {
+    groupId: "Groups",
+    courseId: "Courses",
+    offeringId: "Offerings",
+    chapterId: "Chapters",
+    studentId: "Students",
+    activityId: "Activities",
+    materialId: "Materials",
+  },
+    maps = {};
+  Object.values(referenceTables).forEach((k) => {
+    if (maps[k]) return;
+    maps[k] = new Map(
+      rows_(k).map((r) => [
+        r.id,
+        r.fullName ||
+        r.name ||
+        r.title ||
+        (k === "Offerings"
+          ? (rows_("Courses").find((c) => c.id === r.courseId) || {}).name
+          : "") ||
+        "รายการ",
+      ]),
+    );
+    patches
+      .filter((p) => p.key === k)
+      .forEach((p) => {
+        const r = p.before || p.after;
+        if (r) maps[k].set(p.id, r.fullName || r.name || r.title || r.id);
+      });
+  });
+  function display(key, value) {
+    if (value === "" || value == null) return "—";
+    if (referenceTables[key])
+      return (
+        maps[referenceTables[key]].get(value) || "รายการเดิมที่ไม่อยู่ในระบบ"
+      );
+    if (["avatarFileId", "fileId"].includes(key))
+      return value ? "มีไฟล์" : "ไม่มีไฟล์";
+    if (key === "questions") {
+      const list = json_(value, []);
+      return (
+        list.length +
+        " ข้อ · " +
+        list
+          .map((x, i) => i + 1 + ". " + x.text + " (" + x.points + " คะแนน)")
+          .join(" | ")
+          .slice(0, 1000)
+      );
+    }
+    if (["answers", "scores"].includes(key))
+      return JSON.stringify(json_(value, [])).slice(0, 1000);
+    if (typeof value === "boolean") return value ? "เปิด" : "ปิด";
+    if (key === "status")
+      return (
+        {
+          active: "เปิดใช้งาน",
+          inactive: "ปิดใช้งาน",
+          closed: "ปิดรายวิชา",
+          hidden: "ซ่อน",
+          draft: "ฉบับร่าง",
+          pending: "รอตรวจ",
+          graded: "ตรวจแล้ว",
+          returned: "ส่งกลับให้แก้ไข",
+          deleted: "ลบแล้ว",
+          submitted: "ส่งแล้ว",
+          started: "เริ่มทำแล้ว",
+        }[value] || String(value)
+      );
+    return String(value).slice(0, 1000);
+  }
+  const offset = Math.max(0, Number(q.offset) || 0),
+    page = patches.slice(offset, offset + 50);
+  return {
+    id: event.id,
+    action: ADMIN_ACTION_NAMES[event.action] || event.action,
+    target: event.target || "",
+    status: event.status,
+    updatedAt: event.updatedAt,
+    actor: event.actor,
+    message: event.message,
+    total: patches.length,
+    offset,
+    hasMore: offset + 50 < patches.length,
+    details: page.map((p) => {
+      if (p.key === "$maintenance")
+        return {
+          table: "การเข้าใช้งานระบบ",
+          name: "นักเรียน",
+          operation: "แก้ไข",
+          fields: [
+            {
+              label: "การเข้าใช้งาน",
+              before: p.before ? "ปิด" : "เปิด",
+              after: p.after ? "ปิด" : "เปิด",
+            },
+          ],
+        };
+      const a = p.before || {},
+        b = p.after || {},
+        r = p.after || p.before || {};
+      return {
+        table: tableLabels[p.key] || p.key,
+        name: r.fullName || r.name || r.title || tableLabels[p.key] || "รายการ",
+        operation: !p.before ? "เพิ่ม" : !p.after ? "ลบ" : "แก้ไข",
+        fields: Object.keys(labels)
+          .filter((k) => JSON.stringify(a[k]) !== JSON.stringify(b[k]))
+          .map((k) => ({
+            label: labels[k],
+            before: display(k, a[k]),
+            after: display(k, b[k]),
+          })),
+      };
+    }),
+  };
+}

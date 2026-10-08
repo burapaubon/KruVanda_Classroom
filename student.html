@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Student | KruVanda Classroom</title>
+    <script>
+        (() => {
+            let u = {};
+            try {
+                u = JSON.parse(sessionStorage.getItem("userData") || "{}") || {};
+            } catch { }
+            if (!u.token || !["teacher", "student"].includes(u.role)) {
+                location.replace("index.html");
+                return;
+            }
+            if (u.role === "teacher") location.replace("teacher.html");
+        })();
+    </script>
+    <style>
+        body {
+            margin: 0;
+            background: #fffaf4;
+            color: #603a24;
+            font:
+                16px/1.6 Tahoma,
+                sans-serif;
+        }
+
+        main {
+            max-width: 640px;
+            margin: 36px auto;
+            padding: 24px;
+        }
+
+        button {
+            font: inherit;
+            padding: 10px 18px;
+            border: 1px solid #d8c2ac;
+            border-radius: 12px;
+            background: #fff7ed;
+            color: #754622;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h1>KruVanda Classroom</h1>
+        <p id="studentName"></p>
+        <button type="button" id="studentLogout">ออกจากระบบ</button>
+    </main>
+    <script>
+        (() => {
+            let user;
+            try {
+                user = JSON.parse(sessionStorage.getItem("userData") || "{}");
+            } catch {
+                user = {};
+            }
+            if (!user.token || !["teacher", "student"].includes(user.role)) {
+                location.replace("index.html");
+                return;
+            }
+            let leaving = false,
+                pending = false,
+                lastSent = 0,
+                queued = 0;
+            const idleMs = user.role === "student" ? 900000 : 3600000;
+            const url = sessionStorage.getItem("kruvandaGasUrl") || "";
+            const stateKey = "kruvandaActivity";
+            let state;
+            try {
+                state = JSON.parse(sessionStorage.getItem(stateKey) || "{}");
+            } catch {
+                state = {};
+            }
+            let lastActive = state.token === user.token ? Number(state.at) : 0;
+            if (!lastActive)
+                lastActive =
+                    Date.now() -
+                    Math.max(
+                        0,
+                        Number(user.serverNow || 0) +
+                        idleMs -
+                        Number(user.expiresAt || 0),
+                    );
+            let deadline = lastActive + idleMs;
+            let warning;
+            function clearLogin(reason) {
+                if (leaving) return;
+                leaving = true;
+                clearTimeout(queued);
+                const token = user.token;
+                sessionStorage.removeItem("userData");
+                sessionStorage.removeItem(stateKey);
+                sessionStorage.removeItem("kruvandaBaseSnapshot");
+                sessionStorage.removeItem("kruvandaMutationRequests");
+                sessionStorage.setItem(
+                    "kruvandaLoginNotice",
+                    reason || "เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่",
+                );
+                if (warning) warning.remove();
+                document.documentElement.style.visibility = "hidden";
+                if (
+                    /^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)
+                ) {
+                    fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify({ action: "logout", token }),
+                        keepalive: true,
+                    }).catch(() => { });
+                }
+                location.replace("index.html");
+            }
+            window.kruvandaSession = { expire: clearLogin };
+            if (user.sessionPolicy !== "idle-v1") {
+                clearLogin(
+                    "ระบบปรับการหมดอายุเมื่อไม่ได้ใช้งาน กรุณาเข้าสู่ระบบใหม่หนึ่งครั้ง",
+                );
+                return;
+            }
+            function saveActivity() {
+                sessionStorage.setItem(
+                    stateKey,
+                    JSON.stringify({ token: user.token, at: lastActive }),
+                );
+            }
+            function warningView(remaining) {
+                if (!warning) {
+                    warning = document.createElement("div");
+                    warning.setAttribute("role", "alert");
+                    warning.style.cssText =
+                        "position:fixed;bottom:18px;left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 24px));z-index:100000;background:#fff5e5;color:#603a24;border:1px solid #daa66d;border-radius:16px;padding:18px;box-shadow:0 8px 30px #0002;font:14px/1.6 Tahoma,sans-serif;text-align:center";
+                    warning.innerHTML =
+                        '<strong>ใกล้หมดเวลาเข้าใช้งาน</strong><p data-idle-count></p><p>หากกำลังกรอกข้อมูล ให้บันทึกก่อนออกจากระบบ</p><button type="button" style="padding:10px 20px;border:0;border-radius:10px;background:#a84d20;color:white;font:inherit">ใช้งานต่อ</button>';
+                    warning
+                        .querySelector("button")
+                        .addEventListener("click", (e) => activity(e, true));
+                    document.body.appendChild(warning);
+                }
+                warning.querySelector("[data-idle-count]").textContent =
+                    `ไม่ได้ใช้งานต่อเนื่อง ระบบจะกลับหน้าเข้าสู่ระบบใน ${Math.max(1, Math.ceil(remaining / 1000))} วินาที`;
+            }
+            function tick() {
+                if (leaving) return;
+                const remaining =
+                    Math.min(deadline, lastActive + idleMs) - Date.now();
+                if (remaining <= 0) {
+                    clearLogin("ออกจากระบบเพราะไม่มีการใช้งานนาน กรุณาเข้าสู่ระบบใหม่");
+                    return;
+                }
+                if (!document.hidden && remaining <= 60000) warningView(remaining);
+            }
+            async function request(action) {
+                if (
+                    leaving ||
+                    pending ||
+                    !/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)
+                )
+                    return;
+                pending = true;
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 20000);
+                try {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify({ action, token: user.token }),
+                        signal: controller.signal,
+                    });
+                    if (!response.ok) return;
+                    const result = await response.json();
+                    if (result.code === "AUTH_EXPIRED") {
+                        clearLogin(result.message);
+                        return;
+                    }
+                    if (result.status !== "success" || !result.data?.expiresAt) return;
+                    deadline =
+                        Date.now() +
+                        Math.max(
+                            0,
+                            Number(result.data.expiresAt) - Number(result.data.serverNow),
+                        );
+                    user.expiresAt = result.data.expiresAt;
+                    user.serverNow = result.data.serverNow;
+                    if (!leaving) {
+                        let current = {};
+                        try {
+                            current = JSON.parse(
+                                sessionStorage.getItem("userData") || "{}",
+                            );
+                        } catch (_) { }
+                        if (current.token === user.token)
+                            sessionStorage.setItem(
+                                "userData",
+                                JSON.stringify({
+                                    ...current,
+                                    expiresAt: user.expiresAt,
+                                    serverNow: user.serverNow,
+                                }),
+                            );
+                    }
+                } catch (_) {
+                } finally {
+                    clearTimeout(timeout);
+                    pending = false;
+                    tick();
+                }
+            }
+            function sendActivity() {
+                queued = 0;
+                if (leaving || document.hidden || Date.now() - lastActive >= idleMs)
+                    return;
+                if (pending) {
+                    queued = setTimeout(sendActivity, 1000);
+                    return;
+                }
+                lastSent = Date.now();
+                request("sessionTouch");
+            }
+            function activity(event, immediate = false) {
+                if (!event.isTrusted || leaving || document.hidden) return;
+                if (Date.now() >= Math.min(deadline, lastActive + idleMs)) {
+                    tick();
+                    return;
+                }
+                lastActive = Date.now();
+                saveActivity();
+                if (warning) {
+                    warning.remove();
+                    warning = null;
+                }
+                if (immediate || Date.now() - lastSent >= 60000) {
+                    clearTimeout(queued);
+                    sendActivity();
+                } else if (!queued)
+                    queued = setTimeout(sendActivity, 60000 - (Date.now() - lastSent));
+            }
+            ["pointerdown", "keydown", "input", "wheel", "touchmove"].forEach(
+                (name) =>
+                    document.addEventListener(name, activity, {
+                        capture: true,
+                        passive: true,
+                    }),
+            );
+            document.addEventListener("visibilitychange", () => {
+                tick();
+                if (!document.hidden && !leaving) request("sessionCheck");
+            });
+            window.addEventListener("pageshow", () => {
+                tick();
+            });
+            saveActivity();
+            tick();
+            setInterval(tick, 1000);
+        })();
+        (() => {
+            let pending = false,
+                lastAt = 0;
+            async function heartbeat() {
+                if (pending || document.hidden || Date.now() - lastAt < 45000) return;
+                let u;
+                try {
+                    u = JSON.parse(sessionStorage.getItem("userData") || "{}");
+                } catch {
+                    return;
+                }
+                const url = sessionStorage.getItem("kruvandaGasUrl") || "";
+                if (
+                    !u.token ||
+                    u.role !== "student" ||
+                    !/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec$/.test(url)
+                )
+                    return;
+                pending = true;
+                lastAt = Date.now();
+                const controller = new AbortController(),
+                    timer = setTimeout(() => controller.abort(), 20000);
+                try {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        body: JSON.stringify({
+                            action: "presenceHeartbeat",
+                            token: u.token,
+                        }),
+                        signal: controller.signal,
+                    });
+                    if (!response.ok) return;
+                    const result = await response.json();
+                    if (result.code === "AUTH_EXPIRED")
+                        window.kruvandaSession?.expire(result.message);
+                } catch {
+                } finally {
+                    clearTimeout(timer);
+                    pending = false;
+                }
+            }
+            document.addEventListener("visibilitychange", () => {
+                if (!document.hidden) heartbeat();
+            });
+            heartbeat();
+            setInterval(heartbeat, 60000);
+        })();
+        let currentUser = {};
+        try {
+            currentUser =
+                JSON.parse(sessionStorage.getItem("userData") || "{}") || {};
+        } catch { }
+        document.getElementById("studentName").textContent =
+            currentUser.fullName || "";
+        document
+            .getElementById("studentLogout")
+            .addEventListener("click", () =>
+                window.kruvandaSession?.expire(
+                    "ออกจากระบบแล้ว กรุณาเข้าสู่ระบบด้วยบัญชีของตนเอง",
+                ),
+            );
+    </script>
+</body>
+
+</html>
