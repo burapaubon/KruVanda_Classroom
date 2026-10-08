@@ -16049,6 +16049,318 @@
       }
     }
   </style>
+
+  <style>
+    body .main #content .room-card>.dash-section-head {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 8px;
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+    }
+
+    body .main #content .room-card>.dash-section-head>.badge {
+      grid-column: 2;
+      grid-row: 1;
+      justify-self: end;
+      width: auto !important;
+      min-width: max-content;
+      max-width: 100%;
+      white-space: nowrap !important;
+      flex-shrink: 0;
+      padding: 5px 9px;
+      line-height: 1.4;
+    }
+
+    body .main #content .room-card>.dash-section-head>h3 {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      min-width: 0;
+      width: 100%;
+      margin: 0;
+      white-space: normal !important;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      line-height: 1.5;
+      font-size: clamp(16px, 1.3vw, 20px);
+    }
+
+    body .main #content .settings-workspace .admin-history-list>.dash-section-head {
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    body .main #content .settings-workspace .admin-history-list>.subtle {
+      text-align: left;
+      margin: 10px 0 16px;
+    }
+
+    body .main #content .settings-workspace .admin-history-list .dash-entry {
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      text-align: left !important;
+      gap: 12px 20px;
+      padding: 14px 16px !important;
+      min-height: 0 !important;
+    }
+
+    body .main #content .settings-workspace .admin-history-list .dash-entry :is(strong, p, small) {
+      text-align: left !important;
+      overflow-wrap: anywhere;
+    }
+
+    body .main #content .settings-workspace .admin-history-list .dash-entry p {
+      margin: 5px 0;
+      line-height: 1.5;
+    }
+
+    body .main #content .settings-workspace .admin-history-list .dash-entry .actions {
+      justify-content: flex-end !important;
+      width: auto;
+      max-width: 360px;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 !important;
+    }
+
+    body .main #content .settings-workspace .settings-backup-note>span {
+      display: block;
+      text-align: left;
+      line-height: 1.65;
+    }
+
+    body .main #content .settings-workspace .settings-backup-note>span+span {
+      margin-top: 8px;
+    }
+
+    @media (max-width: 760px) {
+      body .main #content .settings-workspace .admin-history-list .dash-entry {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+
+      body .main #content .settings-workspace .admin-history-list .dash-entry .actions {
+        justify-content: center !important;
+        max-width: 100%;
+      }
+    }
+  </style>
+
+  <style id="center-course-room-cards">
+    body .main #content .course-card>h3,
+    body .main #content .room-card>.dash-section-head>h3 {
+      width: 100%;
+      text-align: center !important;
+      align-self: center;
+      white-space: normal !important;
+      overflow-wrap: anywhere;
+    }
+
+    body .main #content :is(.course-card, .room-card)>.actions {
+      display: flex !important;
+      width: 100%;
+      justify-content: center !important;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    body .main #content :is(.course-card, .room-card)>.actions> :is(.btn, .more-menu) {
+      flex: 0 1 auto !important;
+      max-width: 100%;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    body .main #content .room-card> :is(.room-count, .subtle) {
+      text-align: center !important;
+    }
+  </style>
+
+  <style id="student-alignment-history-layout">
+    body .main #content .student-table :is(th, td) {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+
+    body .main #content .student-table .student-name-cell {
+      justify-content: center !important;
+    }
+
+    body .main #content .student-table .student-name-cell strong {
+      flex: 0 1 auto !important;
+      text-align: center !important;
+    }
+
+    body .main #content .student-table td .actions {
+      justify-content: center !important;
+    }
+
+    body .main #content .settings-workspace .settings-backup-note>span {
+      text-align: center !important;
+    }
+
+    body .main #content .settings-workspace .admin-history-list .history-record {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) !important;
+      gap: 14px;
+      padding: 18px !important;
+      margin: 14px 0;
+      border: 1px solid #eadbcc;
+      border-radius: 16px;
+      background: #fffdf9;
+      box-shadow: 0 3px 12px #78502c08;
+      text-align: left !important;
+    }
+
+    body .main #content .history-record-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    body .main #content .history-record-heading strong {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    body .main #content .history-target {
+      padding: 10px 12px;
+      background: #faf3eb;
+      border-radius: 9px;
+      overflow-wrap: anywhere;
+    }
+
+    body .main #content .history-target>span {
+      display: block;
+      font-size: 12px;
+      color: #806b57;
+      margin-bottom: 3px;
+    }
+
+    body .main #content .history-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    body .main #content .history-meta>span {
+      min-width: 0;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    body .main #content .history-meta b {
+      display: block;
+      font-weight: normal;
+      color: #806b57;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    body .main #content .history-recovery {
+      font-size: 12px;
+      color: #806b57;
+      margin: 12px 0 0 !important;
+    }
+
+    body .main #content .settings-workspace .admin-history-list .history-record>.actions {
+      justify-content: flex-start !important;
+      max-width: none;
+      width: 100%;
+      border-top: 1px solid #eee3d8;
+      padding-top: 12px;
+    }
+
+    .history-field {
+      margin: 14px 0;
+      border: 1px solid #e9dfd5;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .history-field h4 {
+      margin: 0;
+      padding: 10px 12px;
+      background: #faf3eb;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    .history-comparison {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .history-comparison>div {
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .history-comparison>div+div {
+      border-left: 1px solid #e9dfd5;
+      background: #f4faf6;
+    }
+
+    .history-comparison b {
+      font-size: 12px;
+      color: #806b57;
+    }
+
+    .history-comparison p {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      text-align: left;
+    }
+
+    @media(max-width:600px) {
+      body .main #content .history-meta {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      body .main #content .settings-workspace .admin-history-list .history-record>.actions {
+        justify-content: center !important;
+      }
+
+      .history-comparison {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .history-comparison>div+div {
+        border-left: 0;
+        border-top: 1px solid #e9dfd5;
+      }
+    }
+  </style>
+  <style id="full-class-labels">
+    .responsive-class-name {
+      display: inline-block;
+      max-width: 100%;
+      white-space: nowrap !important;
+      vertical-align: middle;
+    }
+  </style>
+
+  <style id="balanced-admin-tabs">
+    @container (min-width: 600px) and (max-width: 819.98px) {
+      body .main #content .settings-workspace .admin-tabs {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
+
+      body .main #content .settings-workspace .admin-tabs>.btn {
+        grid-column: span 2;
+      }
+
+      body .main #content .settings-workspace .admin-tabs>.btn:nth-child(4),
+      body .main #content .settings-workspace .admin-tabs>.btn:nth-child(5) {
+        grid-column: span 3;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -18359,11 +18671,11 @@
           )
           .join(
             "",
-          )}</div><p class="settings-backup-note">ไฟล์สำรองเก็บข้อมูลในชีตและที่อยู่ของไฟล์สื่อ เช่น ลิงก์ PDF แต่ไม่ได้ทำสำเนา PDF หรือรูปภาพ หากลบไฟล์สื่อออกจาก Drive การกู้คืนชีตจะได้ลิงก์เดิมกลับมา แต่เปิดไฟล์ที่ลบไปแล้วไม่ได้</p><div class="actions">${button("สำรองข้อมูลตอนนี้", "backup", "", true)}</div></section><section class="dash-panel"><h2>เลือกไฟล์สำรองเพื่อกู้คืน</h2><div class="settings-backup-steps"><div><strong>1. เลือกไฟล์สำรอง</strong><span>เลือกวันที่ของข้อมูลที่ต้องการกู้คืน</span></div><div><strong>2. เลือกส่วนที่จะกู้</strong><span>ตรวจจำนวนข้อมูลและผลกระทบ</span></div><div><strong>3. ยืนยันกู้คืน</strong><span>พิมพ์ “กู้คืนข้อมูล” แล้วบันทึก</span></div></div><p class="settings-backup-note">ส่วนที่เลือกจะกลับเป็นข้อมูล ณ วันสำรอง การเปลี่ยนแปลงหลังวันนั้นจะถูกแทนที่ ระบบสำรองข้อมูลปัจจุบันก่อนกู้คืน</p><div class="actions">${button("กู้คืนรายการที่ลบ (" + s.trash + ")", "admin-tab", "trash")}${button("กู้คืนจากประวัติ", "admin-tab", "history")}</div>${s.backups.map((r) => `<div class="dash-entry"><div><strong>${esc(r.name)}</strong><p>${esc(new Date(r.updatedAt).toLocaleString("th-TH"))}</p></div><div class="actions"><a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">เปิดไฟล์สำรอง</a>${button("ดูข้อมูลสำรอง", "backup-details", r.id)}${button("เลือกส่วนที่จะกู้คืน", "admin-restore-preview", r.id)}${button("ลบไฟล์สำรอง", "backup-delete-preview", r.id)}</div></div>`).join("") || empty("ยังไม่มีไฟล์สำรอง")}</section>`;
+          )}</div><p class="settings-backup-note"><span><strong>ข้อมูลที่เก็บ:</strong> ข้อมูลในชีตและที่อยู่ของไฟล์สื่อ เช่น ลิงก์ PDF โดยไม่ได้ทำสำเนา PDF หรือรูปภาพ</span><span><strong>ข้อจำกัดการกู้คืน:</strong> หากลบไฟล์สื่อออกจาก Drive การกู้คืนชีตจะได้ลิงก์เดิมกลับมา แต่เปิดไฟล์ที่ลบไปแล้วไม่ได้</span></p><div class="actions">${button("สำรองข้อมูลตอนนี้", "backup", "", true)}</div></section><section class="dash-panel"><h2>เลือกไฟล์สำรองเพื่อกู้คืน</h2><div class="settings-backup-steps"><div><strong>1. เลือกไฟล์สำรอง</strong><span>เลือกวันที่ของข้อมูลที่ต้องการกู้คืน</span></div><div><strong>2. เลือกส่วนที่จะกู้</strong><span>ตรวจจำนวนข้อมูลและผลกระทบ</span></div><div><strong>3. ยืนยันกู้คืน</strong><span>พิมพ์ “กู้คืนข้อมูล” แล้วบันทึก</span></div></div><p class="settings-backup-note">ส่วนที่เลือกจะกลับเป็นข้อมูล ณ วันสำรอง การเปลี่ยนแปลงหลังวันนั้นจะถูกแทนที่ ระบบสำรองข้อมูลปัจจุบันก่อนกู้คืน</p><div class="actions">${button("กู้คืนรายการที่ลบ (" + s.trash + ")", "admin-tab", "trash")}${button("กู้คืนจากประวัติ", "admin-tab", "history")}</div>${s.backups.map((r) => `<div class="dash-entry"><div><strong>${esc(r.name)}</strong><p>${esc(new Date(r.updatedAt).toLocaleString("th-TH"))}</p></div><div class="actions"><a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">เปิดไฟล์สำรอง</a>${button("ดูข้อมูลสำรอง", "backup-details", r.id)}${button("เลือกส่วนที่จะกู้คืน", "admin-restore-preview", r.id)}${button("ลบไฟล์สำรอง", "backup-delete-preview", r.id)}</div></div>`).join("") || empty("ยังไม่มีไฟล์สำรอง")}</section>`;
       else if (adminTab === "tools")
         body = `<section class="dash-panel admin-danger"><h2>ล้างข้อมูลที่เลือก</h2><p>เลือกรายการและตรวจผลกระทบก่อนยืนยัน ระบบสำรองข้อมูลก่อนล้าง</p><div class="actions admin-clear-actions">${button("งานและคะแนน", "admin-manage-open", "work")}${button("นักเรียนทั้งหมด", "admin-delete-all", "students")}${button("ชั้นเรียนและนักเรียน", "admin-delete-all", "groups")}${button("รายวิชาและบทเรียน", "admin-delete-all", "courses")}</div></section><section class="dash-panel admin-reset-card"><h2>ล้างข้อมูลเพื่อเริ่มระบบใหม่</h2><p>ล้างรายวิชา บทเรียน ชั้นเรียน นักเรียน งาน และคะแนนทั้งหมด แล้วปิดการเข้าใช้งานของนักเรียน</p><p class="subtle">บัญชีและรหัสผ่านครูยังใช้ได้ เชื่อมต่อชีตและ Drive เดิม<br>ไฟล์สำรองและประวัติยังเปิดดูได้ ไฟล์สื่อใน Drive ไม่ถูกลบ แต่บทเรียนและลิงก์ในระบบจะถูกล้าง</p>${button("ตรวจผลกระทบก่อนล้างทั้งระบบ", "admin-reset-preview")}</section>`;
       else
-        body = `<section class="dash-panel"><div class="dash-section-head"><h2>${adminTab === "trash" ? "รายการที่ลบและเก็บข้อมูลกู้คืน" : adminTab === "alerts" ? "รายการที่ต้องตรวจสอบ" : "ประวัติการจัดการ"}</h2>${button("อัปเดตรายการ", "admin-refresh")}</div><p class="subtle">${adminTab === "trash" ? "เลือกกู้คืนรายการที่ลบภายใน 90 วัน ระบบตรวจข้อมูลที่เปลี่ยนภายหลังก่อนยืนยัน" : "เลือก “ดูรายละเอียด” เพื่อดูข้อมูลก่อน–หลัง หากต้องการยกเลิกการเปลี่ยนแปลง<br>ให้เลือก “กู้คืนก่อนการเปลี่ยนแปลง” ภายใน 90 วัน ระบบจะไม่ทับรายการที่แก้ไขภายหลัง"}</p>${s.history.map((r) => `<div class="dash-entry"><div><strong>${esc(adminEventTitle(r))}</strong>${r.target ? `<p>${esc(r.target)}</p>` : ""}<p><span class="badge">${esc(adminStatusNames[r.status] || r.status)}</span> · ${r.changeCount} รายการข้อมูล</p><small>${esc(new Date(r.updatedAt).toLocaleString("th-TH"))} · ${esc(r.actor)}${r.recoverable ? "<br>กู้คืนได้ถึง " + esc(new Date(r.expiresAt).toLocaleDateString("th-TH")) : ""}</small></div><div class="actions">${button("ดูรายละเอียด", "admin-history-details", r.id)}${r.recoverable ? button(adminTab === "trash" ? "กู้คืนรายการที่ลบ" : "กู้คืนก่อนการเปลี่ยนแปลง", "admin-undo-preview", r.id) : ""}${adminTab === "trash" ? button("นำออกจากถังขยะ", "admin-purge-preview", r.id) : ""}</div></div>`).join("") || '<div class="dash-empty">ไม่มีรายการในส่วนนี้</div>'}<div class="actions">${adminOffset ? button("← ก่อนหน้า", "admin-prev") : ""}${adminOffset + 25 < s.total ? button("ถัดไป →", "admin-next") : ""}</div></section>`;
+        body = `<section class="dash-panel admin-history-list"><div class="dash-section-head"><h2>${adminTab === "trash" ? "รายการที่ลบและเก็บข้อมูลกู้คืน" : adminTab === "alerts" ? "รายการที่ต้องตรวจสอบ" : "ประวัติการจัดการ"}</h2>${button("อัปเดตรายการ", "admin-refresh")}</div><p class="subtle">${adminTab === "trash" ? "เลือกกู้คืนรายการที่ลบภายใน 90 วัน ระบบตรวจข้อมูลที่เปลี่ยนภายหลังก่อนยืนยัน" : "เลือก “ดูรายละเอียด” เพื่อดูข้อมูลก่อน–หลัง หากต้องการยกเลิกการเปลี่ยนแปลง<br>ให้เลือก “กู้คืนก่อนการเปลี่ยนแปลง” ภายใน 90 วัน ระบบจะไม่ทับรายการที่แก้ไขภายหลัง"}</p>${s.history.map((r) => `<article class="dash-entry history-record"><div class="history-record-main"><div class="history-record-heading"><strong>${esc(adminEventTitle(r))}</strong><span class="badge">${esc(adminStatusNames[r.status] || r.status)}</span></div>${r.target ? `<p class="history-target"><span>รายการที่เกี่ยวข้อง</span>${esc(r.target)}</p>` : ""}<div class="history-meta"><span><b>วันและเวลา</b>${esc(new Date(r.updatedAt).toLocaleString("th-TH"))}</span><span><b>ผู้ดำเนินการ</b>${esc(r.actor || "—")}</span><span><b>ข้อมูลที่เปลี่ยน</b>${esc(String(Number(r.changeCount) || 0))} รายการ</span></div><p class="history-recovery">${r.recoverable ? "กู้คืนได้ถึง " + esc(new Date(r.expiresAt).toLocaleDateString("th-TH")) : "ไม่สามารถกู้คืนจากรายการนี้"}</p></div><div class="actions">${button("ดูรายละเอียด", "admin-history-details", r.id)}${r.recoverable ? button(adminTab === "trash" ? "กู้คืนรายการที่ลบ" : "กู้คืนก่อนการเปลี่ยนแปลง", "admin-undo-preview", r.id) : ""}${adminTab === "trash" ? button("นำออกจากถังขยะ", "admin-purge-preview", r.id) : ""}</div></article>`).join("") || '<div class="dash-empty">ไม่มีรายการในส่วนนี้</div>'}<div class="actions">${adminOffset ? button("← ก่อนหน้า", "admin-prev") : ""}${adminOffset + 25 < s.total ? button("ถัดไป →", "admin-next") : ""}</div></section>`;
       return `<div class="settings-workspace">${header}${body}${adminTab === "history" && localApiAlerts.length ? localAlertsView() : ""}</div>`;
     }
 
@@ -19336,7 +19648,7 @@
         });
         return modal(
           "รายละเอียดประวัติการจัดการ",
-          `<p><strong>${esc(p.message || p.action)}</strong></p><p>${esc(p.target)} · ${esc(new Date(p.updatedAt).toLocaleString("th-TH"))} · ${esc(p.actor)}</p><p>ผล: ${esc(adminStatusNames[p.status] || p.status)}</p><div class="admin-history-detail">${p.details.map((d) => `<section><h3>${esc(d.operation)} · ${esc(d.table)} · ${esc(d.name)}</h3>${d.fields.map((f) => `<p><strong>${esc(f.label)}</strong><br>ก่อน: ${esc(f.before)}<br>หลัง: ${esc(f.after)}</p>`).join("") || "<p>ข้อมูลที่เกี่ยวข้องกับรายการนี้</p>"}</section>`).join("") || "<p>รายการนี้ไม่มีรายละเอียดก่อน–หลัง หรือพ้นระยะเก็บรายละเอียด 90 วันแล้ว ดูผลการดำเนินการด้านบน</p>"}</div><div class="actions">${p.offset ? button("ก่อนหน้า", "admin-history-details", eventId + "|" + Math.max(0, p.offset - 50)) : ""}${p.hasMore ? button("ถัดไป", "admin-history-details", eventId + "|" + (p.offset + 50)) : ""}${button("ปิด", "close")}</div>`,
+          `<p><strong>${esc(p.message || p.action)}</strong></p><p>${esc(p.target)} · ${esc(new Date(p.updatedAt).toLocaleString("th-TH"))} · ${esc(p.actor)}</p><p>ผล: ${esc(adminStatusNames[p.status] || p.status)}</p><div class="admin-history-detail">${p.details.map((d) => `<section><h3>${esc(d.operation)} · ${esc(d.table)} · ${esc(d.name)}</h3>${d.fields.map((f) => `<div class="history-field"><h4>${esc(f.label)}</h4><div class="history-comparison"><div><b>ก่อนเปลี่ยนแปลง</b><p>${esc(f.before)}</p></div><div><b>หลังเปลี่ยนแปลง</b><p>${esc(f.after)}</p></div></div></div>`).join("") || "<p>ข้อมูลที่เกี่ยวข้องกับรายการนี้</p>"}</section>`).join("") || "<p>รายการนี้ไม่มีรายละเอียดก่อน–หลัง หรือพ้นระยะเก็บรายละเอียด 90 วันแล้ว ดูผลการดำเนินการด้านบน</p>"}</div><div class="actions">${p.offset ? button("ก่อนหน้า", "admin-history-details", eventId + "|" + Math.max(0, p.offset - 50)) : ""}${p.hasMore ? button("ถัดไป", "admin-history-details", eventId + "|" + (p.offset + 50)) : ""}${button("ปิด", "close")}</div>`,
         );
       }
       if (a === "admin-manage-open") return adminManageForm(id);
@@ -21130,21 +21442,22 @@
         "ม.": "ชั้นมัธยมศึกษาปีที่ ", "ป.": "ชั้นประถมศึกษาปีที่ ",
         "ปวช.": "ประกาศนียบัตรวิชาชีพ ชั้นปีที่ ",
       };
-      const pattern = /(ปวช\.|ป\.|ม\.)\s*(\d+)(?:\/(\d+))?/g;
+      const pattern = /((?:ชั้น)?มัธยมศึกษาปีที่|(?:ชั้น)?ประถมศึกษาปีที่|ประกาศนียบัตรวิชาชีพ\s*ชั้นปีที่|ปวช\.|ป\.|ม\.)\s*(\d+)(?:\/(\d+))?/g;
       let scheduled = false;
       const labels = new Set();
       const resize = new ResizeObserver(() => schedule());
       const observed = new WeakSet();
       function fit(el) {
         el.textContent = el.dataset.fullClass;
-        const host = el.closest("td,th,h3,strong,.course-class-chip,.class-compare-heading,p,label") || el.parentElement;
+        el.style.fontSize = "";
+        el.style.whiteSpace = "nowrap";
+        const host = el.closest("td,th,h3,.course-class-chip,.class-compare-heading,p,label") || el.parentElement;
         const bounds = host.getBoundingClientRect();
-        const rect = el.getBoundingClientRect();
-        const table = el.closest(".table-wrap");
-        const available = bounds.right - rect.left;
-        if (window.innerWidth < 768 || rect.width > available + 1 ||
-          (table && table.scrollWidth > table.clientWidth + 1))
-          el.textContent = el.dataset.shortClass;
+        const style = getComputedStyle(host);
+        const available = Math.max(1, bounds.width - parseFloat(style.paddingLeft || 0) - parseFloat(style.paddingRight || 0));
+        const width = el.getBoundingClientRect().width;
+        const base = parseFloat(getComputedStyle(el).fontSize);
+        if (width > available) el.style.fontSize = (base * available / width * 0.98) + "px";
       }
       function scan() {
         scheduled = false;
@@ -21168,7 +21481,7 @@
               const el = document.createElement("span");
               el.className = "responsive-class-name";
               el.dataset.shortClass = match[1] + match[2] + (match[3] ? "/" + match[3] : "");
-              el.dataset.fullClass = levels[match[1]] + match[2] + (match[3] ? "/" + match[3] : "");
+              el.dataset.fullClass = (levels[match[1]] || match[1] + " ") + match[2] + (match[3] ? "/" + match[3] : "");
               el.title = el.dataset.fullClass;
               el.setAttribute("aria-label", el.dataset.fullClass);
               fragment.append(el); labels.add(el);
@@ -21182,8 +21495,7 @@
           const m = raw.match(/^(ปวช\.|ป\.|ม\.)\s*(\d+)(?:\/(\d+))?(.*)$/);
           if (!m) continue;
           option.dataset.classOption = raw;
-          const desired = window.innerWidth >= 1024 && option.parentElement.clientWidth >= 260
-            ? levels[m[1]] + m[2] + (m[3] ? "/" + m[3] : "") + m[4] : raw;
+          const desired = levels[m[1]] + m[2] + (m[3] ? "/" + m[3] : "") + m[4];
           if (option.textContent !== desired) option.textContent = desired;
         }
         for (const el of labels) {
