@@ -19143,6 +19143,79 @@
         font-size: 10px
       }
     }
+
+    body .main #content .workspace-summary>div:first-child>p,
+    body .main #content .workspace-summary>div:first-child>p * {
+      font-weight: 700 !important
+    }
+
+    /* Separate filter labels from fields, and center the course member controls. */
+    body .main #content .student-filters>label,
+    body .main #content .review-filter-panel label,
+    body #modal .members-manager .toolbar>label {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 9px !important;
+      line-height: 1.5
+    }
+
+    body .main #content .student-filters>label :is(input, select),
+    body .main #content .review-filter-panel label :is(input, select),
+    body #modal .members-manager .toolbar>label :is(input, select) {
+      margin: 0 !important;
+      width: 100% !important;
+      min-height: 40px
+    }
+
+    body .main #content .course-member-controls {
+      background: #fff0df !important;
+      background-image: none !important
+    }
+
+    body .main #content .course-member-controls>h2 {
+      text-align: center;
+      background: transparent !important
+    }
+
+    body .main #content .course-member-controls>.toolbar {
+      background: transparent !important;
+      background-image: none !important
+    }
+
+    body .main #content .course-member-controls>.toolbar {
+      display: flex !important;
+      justify-content: center !important;
+      gap: 14px !important;
+      flex-wrap: wrap;
+      padding: 12px 0 !important
+    }
+
+    body .main #content .course-member-controls>.toolbar>.btn {
+      width: clamp(160px, 22vw, 260px) !important;
+      justify-content: center !important;
+      text-align: center !important;
+      min-height: 42px
+    }
+
+    @media(max-width:600px) {
+      body .main #content .course-member-controls>.toolbar {
+        gap: 8px !important
+      }
+
+      body .main #content .course-member-controls>.toolbar>.btn {
+        width: calc(50% - 4px) !important;
+        min-width: 0 !important
+      }
+    }
+
+    body .main #content .workspace-summary>div:first-child>p .responsive-class-name {
+      font: inherit !important;
+      color: inherit !important;
+      opacity: 1 !important;
+      line-height: inherit !important;
+      vertical-align: baseline !important
+    }
   </style>
 </head>
 
@@ -21128,7 +21201,7 @@
             "ยังไม่ลงทะเบียน หรือรายวิชายังไม่เปิด",
           ],
         ]) +
-        `<div class="toolbar student-filters"><label>แสดงรายชื่อนักเรียน<select id="studentGroup"><option value="">ทุกชั้นเรียน</option>${sortedGroups().map((g) => `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}${g.status === "inactive" ? " (ปิดใช้งาน)" : ""}</option>`).join("")}</select></label><label>ค้นหานักเรียน<input id="studentSearch" value="${esc(studentSearch)}" placeholder="ชื่อ–นามสกุล"></label></div><div class="list-order-bar"><span class="student-order-note">นักเรียนทั้งหมด ${rows.length} คน</span>${orderButton("students")}</div><div class="toolbar selection-toolbar"><label><input type="checkbox" id="selectVisibleStudents"> เลือกทั้งหมดที่แสดง</label><details class="more-menu" id="batchStudentMenu" hidden><summary>จัดการนักเรียนที่เลือก ▾</summary><div>${button("เปิดการเข้าใช้งาน", "batch-students", "active")}${button("ปิดการเข้าใช้งาน", "batch-students", "inactive")}${button("ลบนักเรียนที่เลือก", "delete-selected-students")}</div></details></div><div class="panel table-wrap student-table"><table><thead><tr><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>รายวิชา</th><th>สิทธิ์เข้าใช้งาน</th><th>สถานะการใช้งาน</th><th>จัดการ</th></tr></thead><tbody>${rows.map((s) => `<tr data-student-row="${esc(s.fullName)}"><td><div class="student-name-cell"><input type="checkbox" name="selectedStudent" value="${esc(s.id)}" aria-label="เลือก ${esc(s.fullName)}"><strong title="${esc(s.fullName)}" tabindex="0" data-full-student-name="${esc(s.fullName)}">${esc(s.fullName)}</strong></div></td><td>${esc(groupName(s.groupId))}</td><td>${[...(studentCourses.get(s.id) || [])].map((name) => `<span class="student-course-tag">${esc(name)}</span>`).join(" ") || (registeredStudents.has(s.id) ? "รายวิชาที่ลงทะเบียนยังไม่เปิดใช้งาน" : "ยังไม่ได้เพิ่มเข้ารายวิชา")}</td><td><span class="access-badge ${studentAccess(s) === "เข้าใช้งานได้" ? "available" : "restricted"}">${esc(studentAccess(s))}</span></td><td><span data-presence-id="${esc(s.id)}">${presenceBadge(s.id)}</span></td><td><div class="actions">${button("แก้ไขข้อมูลนักเรียน", "edit-student", s.id)}<details class="more-menu"><summary>จัดการ ▾</summary><div>${button("รีเซ็ตรหัสผ่านเป็นค่าเริ่มต้น", "reset-password", s.id)}${button(s.status === "active" ? "ปิดการเข้าใช้งาน" : "เปิดการเข้าใช้งาน", "toggle-student", s.id)}${button("ลบนักเรียน", "delete-entity", "student|" + s.id)}</div></details></div></td></tr>`).join("")}</tbody></table>${rows.length ? "" : empty("ยังไม่มีนักเรียน")}</div>`
+        `<div class="toolbar student-filters"><label><span>แสดงรายชื่อนักเรียน</span><select id="studentGroup"><option value="">ทุกชั้นเรียน</option>${sortedGroups().map((g) => `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}${g.status === "inactive" ? " (ปิดใช้งาน)" : ""}</option>`).join("")}</select></label><label><span>ค้นหานักเรียน</span><input id="studentSearch" value="${esc(studentSearch)}" placeholder="ชื่อ–นามสกุล"></label></div><div class="list-order-bar"><span class="student-order-note">นักเรียนทั้งหมด ${rows.length} คน</span>${orderButton("students")}</div><div class="toolbar selection-toolbar"><label><input type="checkbox" id="selectVisibleStudents"> เลือกทั้งหมดที่แสดง</label><details class="more-menu" id="batchStudentMenu" hidden><summary>จัดการนักเรียนที่เลือก ▾</summary><div>${button("เปิดการเข้าใช้งาน", "batch-students", "active")}${button("ปิดการเข้าใช้งาน", "batch-students", "inactive")}${button("ลบนักเรียนที่เลือก", "delete-selected-students")}</div></details></div><div class="panel table-wrap student-table"><table><thead><tr><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>รายวิชา</th><th>สิทธิ์เข้าใช้งาน</th><th>สถานะการใช้งาน</th><th>จัดการ</th></tr></thead><tbody>${rows.map((s) => `<tr data-student-row="${esc(s.fullName)}"><td><div class="student-name-cell"><input type="checkbox" name="selectedStudent" value="${esc(s.id)}" aria-label="เลือก ${esc(s.fullName)}"><strong title="${esc(s.fullName)}" tabindex="0" data-full-student-name="${esc(s.fullName)}">${esc(s.fullName)}</strong></div></td><td>${esc(groupName(s.groupId))}</td><td>${[...(studentCourses.get(s.id) || [])].map((name) => `<span class="student-course-tag">${esc(name)}</span>`).join(" ") || (registeredStudents.has(s.id) ? "รายวิชาที่ลงทะเบียนยังไม่เปิดใช้งาน" : "ยังไม่ได้เพิ่มเข้ารายวิชา")}</td><td><span class="access-badge ${studentAccess(s) === "เข้าใช้งานได้" ? "available" : "restricted"}">${esc(studentAccess(s))}</span></td><td><span data-presence-id="${esc(s.id)}">${presenceBadge(s.id)}</span></td><td><div class="actions">${button("แก้ไขข้อมูลนักเรียน", "edit-student", s.id)}<details class="more-menu"><summary>จัดการ ▾</summary><div>${button("รีเซ็ตรหัสผ่านเป็นค่าเริ่มต้น", "reset-password", s.id)}${button(s.status === "active" ? "ปิดการเข้าใช้งาน" : "เปิดการเข้าใช้งาน", "toggle-student", s.id)}${button("ลบนักเรียน", "delete-entity", "student|" + s.id)}</div></details></div></td></tr>`).join("")}</tbody></table>${rows.length ? "" : empty("ยังไม่มีนักเรียน")}</div>`
       );
     }
 
@@ -21203,7 +21276,7 @@
           )
           .join(
             "",
-          )}</nav>${courseDetailTab === "members" ? `<section class="panel">${courseDetailTab === "members" ? "<h2>ผู้เรียนในรายวิชา</h2>" : ""}<div class="toolbar"><div class="course-room-buttons" aria-label="ชั้นเรียนในรายวิชา">${offers.map(o => `<button type="button" class="btn ${o.id === selectedOffering ? 'primary' : ''}" data-action="select-course-room" data-id="${esc(o.id)}" aria-pressed="${o.id === selectedOffering}">${esc(offeringName(o))}</button>`).join('')}</div>${selectedOffering && courseDetailTab === "members" ? button("ตั้งสิทธิ์รายวิชา", "edit-offering", selectedOffering) + button("จัดการผู้เรียน", "members", "", true) : ""}</div>${courseDetailTab === "members" ? `<p class="muted">${members.length} คนที่ลงทะเบียนในรายวิชานี้ · การย้ายชั้นเรียนไม่ลงทะเบียนวิชาใหม่ให้อัตโนมัติ</p>` : ""}</section>` : ""}
+          )}</nav>${courseDetailTab === "members" ? `<section class="panel course-member-controls">${courseDetailTab === "members" ? "<h2>ผู้เรียนในรายวิชา</h2>" : ""}<div class="toolbar" style="display:flex;justify-content:center;gap:14px">${selectedOffering && courseDetailTab === "members" ? button("ตั้งสิทธิ์รายวิชา", "edit-offering", selectedOffering) + button("จัดการผู้เรียน", "members", "", true) : ""}</div></section>` : ""}
   ${courseDetailTab === "members"
           ? `<section class="panel table-wrap course-members-panel"><h2>ผู้เรียนในรายวิชานี้ (${members.length} คน)</h2><table><thead><tr><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>งาน</th></tr></thead><tbody>${members.map((e) => `<tr><td>${esc(db.Students.find((s) => s.id === e.studentId)?.fullName || "ไม่พบข้อมูลนักเรียน")}</td><td>${esc(groupName(db.Students.find((s) => s.id === e.studentId)?.groupId || e.groupId))}</td><td>${button("ดูงานรายคน", "student-work", e.studentId)}</td></tr>`).join("")}</tbody></table>${members.length ? "" : empty("ยังไม่มีผู้เรียน ลงทะเบียนด้วยปุ่มเพิ่มผู้เรียน")}</section>`
           : courseDetailTab === "scores"
@@ -21722,7 +21795,7 @@
     }
     function membersModal() {
       const rows = db.Enrollments.filter(e => e.offeringId === selectedOffering && e.status === 'active');
-      modal("จัดการผู้เรียน", `<section class="members-manager"><div class="toolbar"><label>ค้นหาผู้เรียน<input id="memberSearch" placeholder="ชื่อ–นามสกุล หรือชั้นเรียน"></label>${button("เพิ่มผู้เรียน", "enroll", "", true)}${rows.length ? button("นำผู้เรียนทั้งห้องออก", "remove-room") : ''}</div><div class="table-wrap"><table class="student-table"><thead><tr><th>ลำดับ</th><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>จัดการ</th></tr></thead><tbody>${rows.map((e, i) => { const student = db.Students.find(s => s.id === e.studentId); const name = student?.fullName || 'ไม่พบข้อมูลนักเรียน', group = groupName(student?.groupId || e.groupId); return `<tr data-member-search="${esc(name + ' ' + group)}"><td>${i + 1}</td><td>${esc(name)}</td><td>${esc(group)}</td><td><div class="actions">${student ? button("แก้ไขข้อมูล", "edit-student", student.id) : ''}${button("ดูงาน", "student-work", e.studentId)}${button("นำออก", "remove-member", e.id)}</div></td></tr>` }).join('')}</tbody></table></div><p id="memberSearchEmpty" class="empty" hidden>ไม่พบผู้เรียนตามคำค้น</p>${rows.length ? '' : empty('ยังไม่มีผู้เรียน กดเพิ่มผู้เรียนเพื่อเริ่มต้น')}<p class="subtle">นำออกจากรายวิชา: เก็บบัญชี งาน และคะแนนไว้ · แก้ไขข้อมูล: มีผลกับข้อมูลนักเรียนทุกวิชา</p><div class="actions">${button("ปิด", "close")}</div></section>`);
+      modal("จัดการผู้เรียน", `<section class="members-manager"><div class="toolbar"><label>ชั้นเรียน<select id="memberOffering">${db.Offerings.filter(o => o.courseId === selectedCourse).map(o => `<option value="${esc(o.id)}" ${o.id === selectedOffering ? "selected" : ""}>${esc(offeringName(o))}</option>`).join("")}</select></label><label>ค้นหาผู้เรียน<input id="memberSearch" placeholder="ชื่อ–นามสกุล หรือชั้นเรียน"></label>${button("เพิ่มผู้เรียน", "enroll", "", true)}${rows.length ? button("นำผู้เรียนทั้งห้องออก", "remove-room") : ''}</div><div class="table-wrap"><table class="student-table"><thead><tr><th>ลำดับ</th><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>จัดการ</th></tr></thead><tbody>${rows.map((e, i) => { const student = db.Students.find(s => s.id === e.studentId); const name = student?.fullName || 'ไม่พบข้อมูลนักเรียน', group = groupName(student?.groupId || e.groupId); return `<tr data-member-search="${esc(name + ' ' + group)}"><td>${i + 1}</td><td>${esc(name)}</td><td>${esc(group)}</td><td><div class="actions">${student ? button("แก้ไขข้อมูล", "edit-student", student.id) : ''}${button("ดูงาน", "student-work", e.studentId)}${button("นำออก", "remove-member", e.id)}</div></td></tr>` }).join('')}</tbody></table></div><p id="memberSearchEmpty" class="empty" hidden>ไม่พบผู้เรียนตามคำค้น</p>${rows.length ? '' : empty('ยังไม่มีผู้เรียน กดเพิ่มผู้เรียนเพื่อเริ่มต้น')}<p class="subtle">นำออกจากรายวิชา: เก็บบัญชี งาน และคะแนนไว้ · แก้ไขข้อมูล: มีผลกับข้อมูลนักเรียนทุกวิชา</p><div class="actions">${button("ปิด", "close")}</div></section>`);
     }
     function chooseContent(chapterId, kind) {
       if (kind === "quiz" || kind === "game") return activityForm("", chapterId, kind);
@@ -23204,6 +23277,9 @@
         return navigate("review");
       }
       if (a === "student-work") {
+        if (busy) return;
+        if (!(await discardModalChanges())) return;
+        $("modal").close();
         reviewStudent = id;
         reviewPending = false;
         reviewStatus = "";
@@ -23336,6 +23412,7 @@
         reviewOffset = 0;
         navigate(currentPage);
       }
+      if (el.id === "memberOffering") { selectedOffering = el.value; void navigate("course").then(() => membersModal()); return; }
       if (el.id === "courseOffering") {
         selectedOffering = el.value;
         navigate("course");
