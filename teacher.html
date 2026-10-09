@@ -3105,7 +3105,7 @@
     .main .btn:disabled,
     #modal .btn:disabled {
       opacity: 0.55;
-      cursor: wait;
+      cursor: not-allowed;
     }
 
     .main .btn:focus-visible,
@@ -14082,6 +14082,64 @@
       white-space: nowrap;
       vertical-align: baseline;
     }
+
+
+    /* Popup actions remain centered at every viewport size. */
+    body #modal .actions,
+    body #modal .minigame-arena .actions,
+    body .system-confirm-actions {
+      justify-content: center !important;
+      align-items: center !important;
+      text-align: center
+    }
+
+    body #modal .actions .btn,
+    body #modalBody>button.btn {
+      justify-content: center;
+      text-align: center
+    }
+
+    body #modalBody>button.btn {
+      display: flex;
+      width: max-content;
+      margin: 14px auto
+    }
+
+    body #modal .content-choice-grid button {
+      justify-content: center;
+      text-align: center
+    }
+
+    body #content .resource-name-group .resource-format {
+      margin-left: 0 !important
+    }
+
+    body #content .student-resource-name {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      text-align: left
+    }
+
+    body #content .student-resource-name strong {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    body #content .student-resource-name .resource-format {
+      flex: 0 0 auto;
+      border: 1px solid #decbb7;
+      border-radius: 7px;
+      background: #f9eddf;
+      color: #78512c;
+      padding: 4px 7px;
+      font-weight: 700;
+      font-size: 10px
+    }
   </style>
 
   <style id="teacher-gentle-sizing">
@@ -16848,6 +16906,2244 @@
       }
     }
   </style>
+  <style>
+    /* Course and unit layout, October 2026 */
+    body .main #content .course-detail-hero {
+      min-height: 0 !important;
+      padding: 36px 28px !important;
+      background: radial-gradient(ellipse at 50% 0%, #fffdf7, transparent 65%), linear-gradient(120deg, #fff0dd, #ffdfbd, #fff0d5) !important
+    }
+
+    body .main #content .course-tabs {
+      display: flex;
+      gap: 5px;
+      padding: 6px;
+      background: #f7eee5;
+      border: 1px solid #ead8c7;
+      border-radius: 16px;
+      margin: 20px 0
+    }
+
+    body .main #content .course-tabs>.btn {
+      flex: 1;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 11px;
+      min-width: 0
+    }
+
+    body .main #content .course-tabs>.btn.primary {
+      background: #fff;
+      color: #9c581f;
+      box-shadow: 0 3px 10px #8b502415
+    }
+
+    body .main #content .section-intro {
+      margin: 24px 0 14px !important;
+      gap: 12px
+    }
+
+    body .main #content details.learning-unit {
+      margin: 0 0 16px !important;
+      border: 1px solid #e8d5c3 !important;
+      border-radius: 20px !important;
+      background: #fffdfa;
+      box-shadow: 0 4px 16px #7a492609;
+      overflow: hidden
+    }
+
+    body .main #content details.learning-unit>.unit-heading {
+      display: grid !important;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+      padding: 20px !important;
+      background: linear-gradient(110deg, #fff1e1, #fffaf4) !important;
+      list-style: none !important;
+      border: 0
+    }
+
+    body .main #content details.learning-unit>.unit-heading::marker {
+      content: ""
+    }
+
+    body .main #content details.learning-unit>.unit-heading::before,
+    body .main #content details.learning-unit>.unit-heading::after {
+      display: none !important
+    }
+
+    body .main #content .learning-unit .unit-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #ffe4bd, #ffc98f);
+      color: #8b4f23;
+      font-size: 24px;
+      display: grid;
+      place-items: center
+    }
+
+    body .main #content .learning-unit h3 {
+      font-size: 19px !important;
+      line-height: 1.45;
+      margin: 3px 0 0 !important
+    }
+
+    body .main #content .learning-unit .chapter-summary-text .subtle {
+      font-size: 11px;
+      color: #a57550
+    }
+
+    body .main #content .learning-unit .unit-heading-status {
+      display: flex;
+      align-items: center;
+      gap: 9px
+    }
+
+    body .main #content .learning-unit .unit-heading-status>.btn {
+      padding: 7px 10px;
+      font-size: 12px;
+      min-height: 34px;
+      background: #ffffffb0;
+      border-color: #e9d4bf
+    }
+
+    body .main #content .learning-unit .chapter-body {
+      padding: 16px 20px 20px !important;
+      border-top: 1px solid #f0e3d6;
+      background: #fffdfa
+    }
+
+    body .main #content .learning-unit .unit-empty {
+      margin: 0 !important;
+      padding: 12px 0 18px;
+      text-align: center;
+      color: #a38b77;
+      font-size: 12px
+    }
+
+    body .main #content .learning-unit .unit-add-actions {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 !important;
+      padding-top: 14px;
+      border-top: 1px solid #eee2d7
+    }
+
+    body .main #content .learning-unit .unit-add-actions>.btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-width: 0;
+      min-height: 46px;
+      padding: 8px;
+      font-size: 12px;
+      border-radius: 12px;
+      white-space: normal;
+      background: #fff8ed;
+      border-color: #f0d6b3;
+      color: #97652c
+    }
+
+    body .main #content .learning-unit .unit-add-actions>.add-resource-worksheet {
+      background: #f0f7f3;
+      border-color: #cfe4d9;
+      color: #437961
+    }
+
+    body .main #content .learning-unit .unit-add-actions>.add-resource-quiz {
+      background: #f1f4fc;
+      border-color: #d7dff0;
+      color: #627ba5
+    }
+
+    body .main #content .learning-unit .unit-add-actions>.add-resource-game {
+      background: #f8f1fa;
+      border-color: #e7d6ec;
+      color: #986ca3
+    }
+
+    body .main #content .add-resource-icon {
+      font-size: 18px;
+      line-height: 1
+    }
+
+    body .main #content .learning-unit .resource-row {
+      border: 1px solid #ede3d9;
+      border-radius: 12px;
+      box-shadow: none;
+      padding: 12px;
+      margin-bottom: 10px
+    }
+
+    body .main #content .learning-unit[data-unit-status]:not([data-unit-status="active"])>.unit-heading {
+      background: linear-gradient(110deg, #ededed, #f6f6f6) !important
+    }
+
+    body .main #content .learning-unit[data-unit-status]:not([data-unit-status="active"]) .unit-number {
+      background: #dfe2e5;
+      color: #747b82
+    }
+
+    @media(max-width:760px) {
+      body .main #content details.learning-unit>.unit-heading {
+        grid-template-columns: 40px minmax(0, 1fr);
+        padding: 16px !important;
+        gap: 10px
+      }
+
+      body .main #content .learning-unit .unit-number {
+        width: 40px;
+        height: 40px;
+        font-size: 21px
+      }
+
+      body .main #content .learning-unit .unit-heading-status {
+        grid-column: 2;
+        justify-content: flex-start;
+        flex-wrap: wrap
+      }
+
+      body .main #content .learning-unit h3 {
+        font-size: 17px !important
+      }
+
+      body .main #content .learning-unit .unit-chevron {
+        margin-left: auto
+      }
+
+      body .main #content .learning-unit .chapter-body {
+        padding: 14px 16px 16px !important
+      }
+
+      body .main #content .learning-unit .unit-add-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr))
+      }
+
+      body .main #content .course-tabs>.btn {
+        font-size: 12px;
+        padding: 10px 6px
+      }
+
+      body .main #content .course-detail-hero {
+        padding: 42px 20px 26px !important
+      }
+    }
+  </style>
+
+  <style>
+    body .main #content .course-detail-hero {
+      background: radial-gradient(ellipse at 50% 46%, #fffaf0 0%, #fff3e2 40%, transparent 76%), linear-gradient(180deg, #ffdbaf 0%, #ffe9cd 26%, #fff0db 53%, #ffe5c4 78%, #ffd8aa 100%) !important;
+      border-color: #e9af73;
+      min-height: 235px !important;
+      padding: 42px 100px !important;
+      box-shadow: 0 9px 25px #a2561917, inset 0 1px #ffffffcc
+    }
+
+    body .main #content .course-detail-hero::before,
+    body .main #content .course-detail-hero::after {
+      display: none
+    }
+
+    body .main #content .course-detail-hero .course-hero-copy {
+      position: relative;
+      z-index: 2;
+      margin: auto;
+      max-width: 850px
+    }
+
+    body .main #content .course-detail-hero h2 {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      margin: 12px 0 14px;
+      color: #55331d;
+      font-weight: 800
+    }
+
+    body .main #content .course-detail-hero .course-hero-copy>.actions {
+      margin-top: 18px
+    }
+
+    body .main #content .course-detail-hero .course-hero-corner {
+      z-index: 3
+    }
+
+    body .main #content .course-detail-hero>.welcome-computer-scene,
+    body .main #content .course-detail-hero>.welcome-learning-scene {
+      opacity: .45;
+      pointer-events: none
+    }
+
+    body .main #content .course-detail-hero[data-course-status]:not([data-course-status="active"]) {
+      background: linear-gradient(135deg, #f6f6f6, #e4e6e8) !important;
+      border-color: #d4d7db
+    }
+
+    body .main #content .course-detail-hero[data-course-status]:not([data-course-status="active"])> :is(svg, .welcome-computer-scene, .welcome-learning-scene, .welcome-paper-shower, .welcome-orbit, .welcome-spark, .welcome-code-mark) {
+      filter: grayscale(1);
+      opacity: .2
+    }
+
+    @media(max-width:760px) {
+      body .main #content .course-detail-hero {
+        min-height: 210px !important;
+        padding: 50px 20px 28px !important
+      }
+
+      body .main #content .course-detail-hero h2 {
+        font-size: 22px !important;
+        white-space: normal
+      }
+
+      body .main #content .course-detail-hero .course-hero-copy {
+        max-width: 100%
+      }
+    }
+  </style>
+  <style>
+    body .main #content .course-detail-hero {
+      background: radial-gradient(ellipse at 50% 48%, #fffdf5 0%, #fff4e3 42%, transparent 78%), linear-gradient(135deg, #ffdfba, #fff0d9 50%, #ffdfb9) !important
+    }
+
+    body .main #content .course-detail-hero>.course-learning-art {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0
+    }
+
+    body .main #content .course-detail-hero .course-hero-copy {
+      max-width: 720px;
+      width: 100%
+    }
+
+    body .main #content .course-detail-hero[data-course-status]:not([data-course-status="active"])>.course-learning-art {
+      filter: grayscale(1);
+      opacity: .3
+    }
+
+    @media(max-width:760px) {
+      body .main #content .course-detail-hero>.course-learning-art {
+        opacity: .35
+      }
+
+      body .main #content .course-detail-hero .course-hero-copy {
+        max-width: 100%
+      }
+    }
+  </style>
+  <style>
+    body .main #content .course-detail-hero {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) !important;
+      place-items: center !important;
+      box-sizing: border-box;
+      min-height: 260px !important;
+      padding: 58px 140px !important;
+      position: relative;
+      overflow: hidden
+    }
+
+    body .main #content .course-detail-hero>.course-hero-copy {
+      position: relative !important;
+      inset: auto !important;
+      transform: none !important;
+      display: flex !important;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      width: 100% !important;
+      max-width: 850px !important;
+      margin: 0 !important;
+      text-align: center;
+      z-index: 2
+    }
+
+    body .main #content .course-detail-hero .course-hero-copy>h2 {
+      width: 100%;
+      margin: 0 !important;
+      line-height: 1.5;
+      white-space: normal !important;
+      text-align: center !important
+    }
+
+    body .main #content .course-detail-hero .course-hero-copy>.course-code {
+      margin: 0 !important;
+      text-align: center
+    }
+
+    body .main #content .course-detail-hero .course-hero-copy>.actions {
+      margin: 0 !important;
+      padding: 0 !important;
+      display: flex !important;
+      justify-content: center !important;
+      width: 100%;
+      border: 0
+    }
+
+    body .main #content .course-detail-hero>.course-hero-corner {
+      position: absolute !important;
+      top: 16px !important;
+      right: 20px !important;
+      left: auto !important;
+      bottom: auto !important;
+      transform: none !important;
+      margin: 0 !important;
+      width: auto !important;
+      z-index: 3
+    }
+
+    body .main #content .course-detail-hero>.course-learning-decoration {
+      position: absolute !important;
+      width: 90px;
+      height: 100px;
+      pointer-events: none;
+      opacity: .4;
+      z-index: 0;
+      overflow: visible
+    }
+
+    body .main #content .course-detail-hero>.decoration-0 {
+      left: 20px;
+      top: 20px;
+      transform: rotate(-10deg)
+    }
+
+    body .main #content .course-detail-hero>.decoration-1 {
+      right: 20px;
+      bottom: 20px;
+      transform: rotate(9deg)
+    }
+
+    body .main #content .course-detail-hero>.decoration-2 {
+      left: 24px;
+      bottom: 16px;
+      width: 108px;
+      height: 75px;
+      transform: rotate(7deg)
+    }
+
+    body .main #content .course-detail-hero>.decoration-3 {
+      right: 116px;
+      top: 20px;
+      width: 94px;
+      height: 65px;
+      transform: rotate(-8deg)
+    }
+
+    body .main #content .course-detail-hero[data-course-status]:not([data-course-status="active"])>.course-learning-decoration {
+      filter: grayscale(1);
+      opacity: .22
+    }
+
+    @media(max-width:1000px) {
+      body .main #content .course-detail-hero {
+        padding: 62px 90px !important
+      }
+
+      body .main #content .course-detail-hero>.course-learning-decoration {
+        width: 65px;
+        height: 78px
+      }
+
+      body .main #content .course-detail-hero>.decoration-2 {
+        width: 76px;
+        height: 54px
+      }
+
+      body .main #content .course-detail-hero>.decoration-3 {
+        width: 65px;
+        height: 48px;
+        right: 112px
+      }
+    }
+
+    @media(max-width:600px) {
+      body .main #content .course-detail-hero {
+        padding: 84px 22px 80px !important;
+        min-height: 280px !important
+      }
+
+      body .main #content .course-detail-hero>.course-learning-decoration {
+        width: 48px;
+        height: 60px;
+        opacity: .3
+      }
+
+      body .main #content .course-detail-hero>.decoration-0 {
+        left: 12px;
+        top: 12px
+      }
+
+      body .main #content .course-detail-hero>.decoration-1 {
+        right: 12px;
+        bottom: 10px
+      }
+
+      body .main #content .course-detail-hero>.decoration-2 {
+        left: 12px;
+        bottom: 10px;
+        width: 60px;
+        height: 44px
+      }
+
+      body .main #content .course-detail-hero>.decoration-3 {
+        left: 78px;
+        right: auto;
+        top: 16px;
+        width: 52px;
+        height: 40px
+      }
+
+      body .main #content .course-detail-hero>.course-hero-corner {
+        right: 12px !important;
+        top: 14px !important
+      }
+
+      body .main #content .course-detail-hero h2 {
+        font-size: clamp(18px, 5vw, 24px) !important
+      }
+    }
+  </style>
+  <style>
+    #modal .dialog-head {
+      margin-bottom: 0;
+    }
+
+    #modal #modalBody {
+      padding: 16px 24px 22px;
+    }
+
+    #modal #modalBody> :first-child,
+    #modal #modalBody>.form> :first-child {
+      margin-top: 0 !important;
+    }
+
+    #modal #modalBody>p:first-child {
+      margin-bottom: 14px;
+    }
+
+    #modal #modalBody .form {
+      padding-top: 0;
+    }
+
+    body .main #content .unit-chevron {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      flex: 0 0 40px;
+      border: 1px solid #ead8c4;
+      border-radius: 50%;
+      background: #fffaf3;
+      margin-left: 4px;
+    }
+
+    body .main #content .unit-chevron svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    body .main #content .learning-unit .unit-heading-status {
+      margin-left: auto;
+      gap: 10px;
+    }
+
+    #modal .question-row>.toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #modal .question-row .question-delete {
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px;
+      color: #a85243;
+    }
+
+    .add-resource-icon {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    @media(max-width:600px) {
+      #modal #modalBody {
+        padding: 14px 16px 18px;
+      }
+
+      body .main #content .learning-unit .unit-chevron {
+        width: 40px;
+        height: 40px;
+        grid-area: auto;
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      body .main #content .unit-chevron {
+        transition: none;
+      }
+    }
+  </style>
+  <style>
+    /* Compact native confirmation dialog, independent of full-size content dialogs. */
+    dialog.system-confirm-dialog[open] {
+      position: fixed !important;
+      inset: 0 !important;
+      margin: auto !important;
+      width: min(360px, calc(100vw - 36px)) !important;
+      max-width: 360px !important;
+      height: fit-content !important;
+      min-height: 0 !important;
+      max-height: calc(100dvh - 40px) !important;
+      padding: 22px !important;
+      display: block !important;
+      border: 1px solid #ead1b9;
+      border-radius: 20px;
+      background: #fffaf5;
+      text-align: center !important;
+      overflow: auto;
+      font-family: inherit;
+    }
+
+    dialog.system-confirm-dialog h2 {
+      text-align: center;
+      margin: 0 0 10px !important;
+      font-size: 18px !important;
+      line-height: 1.5;
+    }
+
+    dialog.system-confirm-dialog p {
+      text-align: center;
+      margin: 0 0 18px !important;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    dialog.system-confirm-dialog .system-confirm-actions {
+      display: flex;
+      justify-content: center !important;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    dialog.system-confirm-dialog .system-confirm-actions button {
+      flex: 0 0 auto !important;
+      width: auto !important;
+      min-width: 92px;
+      min-height: 40px;
+      padding: 9px 16px;
+    }
+  </style>
+  <style>
+    #modal [hidden] {
+      display: none !important
+    }
+
+    .form .activity-options {
+      display: grid;
+      gap: 12px;
+      grid-column: 1/-1
+    }
+
+    .form label.option-check,
+    .form label:has(>input[type="checkbox"]) {
+      display: flex !important;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      min-width: 0
+    }
+
+    .form label.option-check input,
+    .form label>input[type="checkbox"] {
+      width: 18px !important;
+      height: 18px;
+      flex: 0 0 18px;
+      margin: 0
+    }
+
+    .form label.option-check span {
+      min-width: 0
+    }
+
+    .schedule-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      grid-column: 1/-1;
+      align-items: start
+    }
+
+    .fit-line,
+    #modalTitle,
+    .system-confirm-actions button,
+    .actions button {
+      white-space: nowrap;
+      min-width: 0;
+      max-width: 100%
+    }
+
+    #modal .form {
+      align-content: start
+    }
+
+    #modal .form>label {
+      align-self: start
+    }
+
+    @media(max-width:480px) {
+      .schedule-fields {
+        grid-template-columns: 1fr
+      }
+
+      .actions {
+        gap: 6px
+      }
+
+      .actions .btn {
+        padding-inline: 10px
+      }
+    }
+  </style>
+  <style>
+    #modalTitle {
+      text-align: center;
+      flex: 1
+    }
+
+    #modal>.dialog-head {
+      display: grid !important;
+      grid-template-columns: 40px minmax(0, 1fr) 40px;
+      align-items: center
+    }
+
+    #modal>.dialog-head>#modalTitle {
+      grid-column: 2;
+      width: 100%;
+      margin-inline: 0 !important
+    }
+
+    #modal>.dialog-head>#closeModal {
+      grid-column: 3;
+      justify-self: end
+    }
+
+    #modalBody>p,
+    #modalBody>.form>p,
+    #modalBody h2,
+    #modalBody>.form>h3 {
+      text-align: center
+    }
+
+    .schedule-fields:has(>[hidden]) {
+      grid-template-columns: minmax(0, 1fr)
+    }
+
+    .boolean-options {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-block: 14px
+    }
+
+    .boolean-options label {
+      display: flex !important;
+      align-items: center;
+      gap: 8px
+    }
+
+    .boolean-options input {
+      width: 18px !important;
+      flex: none
+    }
+
+    .question-pair {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 40px;
+      gap: 8px;
+      align-items: end
+    }
+
+    .question-pair>button {
+      height: 42px
+    }
+
+    .question-options {
+      display: grid;
+      gap: 10px;
+      margin-block: 12px
+    }
+
+    .question-option {
+      display: flex;
+      align-items: end;
+      gap: 8px
+    }
+
+    .question-option label {
+      flex: 1;
+      min-width: 0
+    }
+
+    .question-option>button {
+      flex: none;
+      height: 42px
+    }
+  </style>
+  <style>
+    .attachment-fields {
+      display: grid;
+      gap: 10px;
+      grid-column: 1/-1;
+      min-width: 0
+    }
+
+    .attachment-fields .option-check span {
+      overflow-wrap: anywhere
+    }
+
+    .attachment-fields small {
+      color: #725941
+    }
+
+    .attachment-fields [data-selected-files] p {
+      margin: 4px 0;
+      overflow-wrap: anywhere
+    }
+  </style>
+  <style>
+    #modal .choice-remove {
+      width: 34px !important;
+      height: 34px !important;
+      min-width: 34px;
+      padding: 0 !important;
+      border-radius: 50%;
+      border: 1px solid #f1c1b9;
+      background: #fff1ed;
+      color: #ad3a30;
+      font-size: 22px;
+      align-self: end;
+      flex: none;
+      cursor: pointer
+    }
+
+    #modal .add-option-button {
+      justify-self: start;
+      background: #fff8e9;
+      border: 1px dashed #d9af59;
+      color: #805b17;
+      box-shadow: none
+    }
+
+    #modal .add-pair-button {
+      justify-self: start;
+      background: #edf8f4;
+      border: 1px dashed #71ab98;
+      color: #256b55;
+      box-shadow: none
+    }
+
+    #modal .add-question-button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 16px;
+      border-radius: 14px;
+      font-weight: 700
+    }
+
+    #modal .btn:disabled {
+      cursor: not-allowed
+    }
+
+    #modal .btn[aria-busy="true"] {
+      cursor: progress
+    }
+  </style>
+  <style>
+    #modal .attachment-fields {
+      gap: 8px;
+      align-content: start;
+      grid-auto-rows: min-content;
+      min-height: 0;
+      padding: 0;
+      margin: 0
+    }
+
+    #modal .attachment-fields [data-selected-files]:empty,
+    #modal #attachmentStatus:empty,
+    #modal #formError:empty,
+    #modal #studentSelectedFiles:empty {
+      display: none !important
+    }
+
+    #modal .attachment-fields p,
+    #modal .attachment-fields small {
+      margin: 0;
+      min-height: 0;
+      line-height: 1.5
+    }
+
+    #modal .form[data-form="material"] {
+      gap: 12px;
+      grid-auto-rows: min-content;
+      align-content: start
+    }
+  </style>
+  <style>
+    .time-parts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px
+    }
+
+    .time-parts label {
+      min-width: 0
+    }
+
+    .time-parts input {
+      width: 100%;
+      min-width: 0
+    }
+  </style>
+  <style>
+    .protected-activity .question-row h3,
+    .protected-activity .question-row small,
+    .protected-activity .check-list label,
+    .protected-activity .matching-row>span {
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none
+    }
+  </style>
+  <style>
+    .form .activity-options {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px
+    }
+
+    .activity-options:has(>input[type=hidden]) .activity-option-card:last-child {
+      grid-column: 1/-1
+    }
+
+    .form .activity-option-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 26px;
+      align-items: center;
+      gap: 6px;
+      padding: 13px 12px;
+      border: 1px solid #ead5bf;
+      border-radius: 14px;
+      background: #fffaf4;
+      min-width: 0
+    }
+
+    .form .activity-option-card:has(input:checked) {
+      border-color: #dda86d;
+      background: #fff0de
+    }
+
+    .form .activity-option-card .option-check {
+      margin: 0 !important;
+      cursor: pointer;
+      font-size: clamp(12px, 1.3vw, 14px);
+      line-height: 1.5
+    }
+
+    .form .activity-option-card .fit-line {
+      font-size: inherit;
+      white-space: nowrap
+    }
+
+    .option-help summary {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border: 1px solid #ddc2a5;
+      border-radius: 50%;
+      color: #79512b;
+      cursor: pointer;
+      list-style: none;
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .option-help summary::-webkit-details-marker {
+      display: none
+    }
+
+    .option-help p {
+      display: none;
+      position: absolute;
+      inset-inline: 8px;
+      top: calc(100% - 4px);
+      z-index: 20;
+      padding: 12px;
+      margin: 0 !important;
+      border: 1px solid #dfc3a7;
+      border-radius: 10px;
+      background: #fffaf4;
+      box-shadow: 0 5px 18px #60402020;
+      font-size: 13px;
+      text-align: left !important;
+      line-height: 1.7;
+      white-space: normal
+    }
+
+    .option-help[open] p,
+    .activity-option-card.hint-visible .option-help p {
+      display: block
+    }
+
+    @media(max-width:600px) {
+      .form .activity-options {
+        grid-template-columns: 1fr
+      }
+
+      .form .activity-option-card .option-check {
+        font-size: 14px
+      }
+    }
+  </style>
+  <style>
+    .form .score-summary {
+      grid-column: 1/-1;
+      padding: 16px;
+      border: 1px solid #e2c6a6;
+      border-radius: 14px;
+      background: #fff3e4
+    }
+
+    .score-summary strong {
+      display: block;
+      color: #71461f;
+      font-size: 16px
+    }
+
+    .score-breakdown {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px
+    }
+
+    .score-breakdown span {
+      padding: 5px 10px;
+      background: #fffaf4;
+      border-radius: 8px;
+      font-size: 13px;
+      white-space: nowrap
+    }
+
+    .score-summary p {
+      margin: 8px 0 0;
+      font-size: 13px
+    }
+  </style>
+  <style>
+    .form .score-summary {
+      text-align: center;
+      padding: 20px 16px
+    }
+
+    .score-total>strong {
+      font-size: 16px;
+      font-weight: 600
+    }
+
+    .score-total-value {
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      gap: 8px;
+      margin: 5px 0 16px;
+      color: #805022
+    }
+
+    .score-total-value b {
+      font-size: 36px;
+      line-height: 1.25;
+      font-weight: 800
+    }
+
+    .score-total-value span {
+      font-size: 15px
+    }
+
+    .score-total-value .score-invalid {
+      font-size: 14px
+    }
+
+    .score-breakdown {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+      gap: 8px;
+      margin: 0
+    }
+
+    .score-breakdown .score-question {
+      display: grid;
+      justify-items: center;
+      gap: 3px;
+      padding: 10px 6px;
+      border: 1px solid #ecd9c4;
+      border-radius: 11px;
+      background: #fffaf4
+    }
+
+    .score-question-label {
+      padding: 0 !important;
+      background: none !important;
+      font-size: 12px;
+      color: #856c57
+    }
+
+    .score-question strong {
+      font-size: 21px
+    }
+
+    .score-question small {
+      font-size: 11px;
+      color: #856c57
+    }
+
+    .form .activity-options {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 8px
+    }
+
+    .form .activity-options:has(>input[type=hidden]) {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important
+    }
+
+    .activity-options:has(>input[type=hidden]) .activity-option-card:last-child {
+      grid-column: auto
+    }
+
+    .form .activity-option-card {
+      padding: 12px 8px;
+      grid-template-columns: minmax(0, 1fr) 22px;
+      gap: 4px
+    }
+
+    .form .activity-option-card .option-check {
+      font-size: clamp(10px, 1.2vw, 14px);
+      gap: 6px
+    }
+
+    .form .activity-option-card .fit-line {
+      display: block;
+      width: 100%;
+      min-width: 0
+    }
+
+    .form .activity-options:has(>input[type=hidden]) .activity-option-card {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 12px 6px 10px
+    }
+
+    .form .activity-options:has(>input[type=hidden]) .option-check {
+      flex-direction: column;
+      gap: 8px;
+      text-align: center
+    }
+
+    .activity-options:has(>input[type=hidden]) .option-help {
+      position: absolute;
+      right: 4px;
+      top: 4px
+    }
+
+    .option-help summary {
+      width: 20px;
+      height: 20px;
+      font-size: 11px
+    }
+
+    .option-help p {
+      position: fixed;
+      left: 50%;
+      right: auto;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(320px, calc(100vw - 36px));
+      white-space: pre-line;
+      pointer-events: none;
+      text-align: center !important
+    }
+
+    @media(max-width:600px) {
+      .form .activity-option-card .option-check {
+        font-size: 11px
+      }
+
+      .form .activity-option-card input[type=checkbox] {
+        width: 15px !important;
+        height: 15px;
+        flex-basis: 15px
+      }
+
+      .score-total-value b {
+        font-size: 32px
+      }
+    }
+  </style>
+  <style>
+    #operationLoading {
+      position: fixed !important;
+      inset: 0 !important;
+      margin: auto !important;
+      width: min(350px, calc(100vw - 36px)) !important;
+      height: fit-content !important;
+      max-height: 80dvh !important;
+      padding: 26px !important;
+      border: 1px solid #ead4bc;
+      border-radius: 20px;
+      background: #fffaf5;
+      text-align: center;
+      z-index: 9999
+    }
+
+    #operationLoading::backdrop {
+      background: #33221155;
+      backdrop-filter: blur(3px)
+    }
+
+    #operationLoading h2 {
+      font-size: 18px;
+      margin: 14px 0 8px
+    }
+
+    #operationLoading p {
+      font-size: 14px;
+      margin: 0;
+      overflow-wrap: anywhere;
+      line-height: 1.6
+    }
+
+    .operation-spinner {
+      width: 36px;
+      height: 36px;
+      margin: auto;
+      border: 3px solid #f4ddc6;
+      border-top-color: #d38536;
+      border-radius: 50%;
+      animation: operation-spin .8s linear infinite
+    }
+
+    @keyframes operation-spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    body #toast {
+      position: fixed !important;
+      inset: auto !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      max-width: calc(100vw - 32px) !important;
+      z-index: 10000 !important;
+      padding: 16px 24px !important;
+      border: 1px solid #e0bb95 !important;
+      border-radius: 16px !important;
+      background: #fff7ea !important;
+      color: #73491f !important;
+      box-shadow: 0 12px 40px #44220030 !important;
+      font-size: 15px !important;
+      text-align: center !important;
+      pointer-events: none !important
+    }
+
+    body .main #content .resource-row.resource-compact {
+      display: grid !important;
+      grid-template-columns: 26px minmax(0, 1fr) auto auto 32px auto !important;
+      align-items: center !important;
+      gap: 9px !important;
+      padding: 12px !important;
+      min-width: 0;
+      flex-wrap: nowrap !important
+    }
+
+    .resource-compact>* {
+      min-width: 0
+    }
+
+    .resource-icon svg,
+    .resource-preview svg {
+      display: block;
+      width: 22px;
+      height: 22px
+    }
+
+    .resource-icon {
+      color: #af733d
+    }
+
+    .resource-title {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 14px
+    }
+
+    .resource-format {
+      font-size: 11px;
+      color: #8c725b;
+      white-space: nowrap
+    }
+
+    .resource-state .badge {
+      font-size: 10px !important;
+      padding: 4px 7px !important;
+      white-space: nowrap
+    }
+
+    .resource-preview {
+      display: grid !important;
+      place-items: center;
+      padding: 4px !important;
+      width: 32px !important;
+      min-height: 30px !important
+    }
+
+    .resource-manage>summary {
+      font-size: 12px !important;
+      white-space: nowrap;
+      padding: 6px 10px !important;
+      min-height: 30px !important
+    }
+
+    .resource-manage>div {
+      width: max-content;
+      min-width: max-content;
+      text-align: center
+    }
+
+    .resource-manage>div .btn {
+      text-align: center !important;
+      justify-content: center !important;
+      white-space: nowrap
+    }
+
+    body .main #content .learning-unit .unit-heading {
+      display: grid !important;
+      grid-template-columns: 50px minmax(0, 1fr) auto !important;
+      gap: 12px !important
+    }
+
+    .chapter-summary-text {
+      min-width: 0 !important;
+      overflow: hidden
+    }
+
+    .chapter-summary-text h3 {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .unit-heading-status {
+      min-width: 0
+    }
+
+    @media(max-width:1100px) {
+      body .main #content .learning-unit .unit-heading {
+        grid-template-columns: 42px minmax(0, 1fr) !important
+      }
+
+      body .main #content .learning-unit .unit-heading-status {
+        grid-column: 1/-1 !important;
+        justify-content: flex-end !important;
+        flex-wrap: nowrap !important
+      }
+
+      body .main #content .learning-unit .unit-heading-status>.btn {
+        font-size: 11px !important;
+        padding: 6px 8px !important
+      }
+    }
+
+    @media(max-width:600px) {
+      body .main #content .resource-row.resource-compact {
+        grid-template-columns: 18px minmax(0, 1fr) auto auto 24px auto !important;
+        gap: 4px !important;
+        padding: 9px 7px !important
+      }
+
+      .resource-title {
+        font-size: 11px !important
+      }
+
+      .resource-format {
+        font-size: 8px !important
+      }
+
+      .resource-icon svg,
+      .resource-preview svg {
+        width: 17px;
+        height: 17px
+      }
+
+      .resource-preview {
+        width: 24px !important;
+        min-height: 26px !important
+      }
+
+      .resource-state .badge {
+        font-size: 8px !important;
+        padding: 3px 4px !important
+      }
+
+      .resource-manage>summary {
+        font-size: 9px !important;
+        padding: 5px !important;
+        min-height: 26px !important
+      }
+    }
+  </style>
+  <style>
+    @media(max-width:600px) {
+      body .main #content .learning-unit .unit-heading-status {
+        gap: 5px !important
+      }
+
+      body .main #content .learning-unit .unit-heading-status>.btn {
+        font-size: 10px !important;
+        padding: 5px !important;
+        min-height: 28px !important
+      }
+
+      .unit-heading-status .badge {
+        font-size: 9px !important;
+        padding: 4px !important
+      }
+
+      body .main #content .learning-unit .unit-chevron {
+        width: 28px !important;
+        height: 28px !important;
+        flex: 0 0 28px !important
+      }
+    }
+  </style>
+  <style>
+    body .main #content .resource-row.resource-compact {
+      grid-template-columns: 26px minmax(0, 1fr) auto 32px auto !important
+    }
+
+    .resource-name-group {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start !important;
+      gap: 9px;
+      min-width: 0;
+      text-align: left !important
+    }
+
+    .resource-name-group .resource-title {
+      flex: 0 1 auto;
+      min-width: 0
+    }
+
+    .resource-name-group .resource-format {
+      flex: 0 0 auto;
+      border: 1px solid #decbb7;
+      border-radius: 7px;
+      background: #f9eddf;
+      color: #78512c;
+      padding: 4px 8px;
+      font-weight: 700;
+      font-size: 10px;
+      line-height: 1.3
+    }
+
+    .resource-row[data-resource-status="hidden"] .resource-format {
+      background: #e9e9e9;
+      border-color: #d3d3d3;
+      color: #777
+    }
+
+    #modal .material-open-actions {
+      display: flex !important;
+      justify-content: center !important;
+      margin-top: 18px
+    }
+
+    .material-open-actions a {
+      min-width: 100px;
+      text-align: center
+    }
+
+    body #toast[data-kind="success"] {
+      display: flex !important;
+      align-items: center;
+      gap: 16px;
+      min-width: min(330px, calc(100vw - 32px));
+      padding: 22px 26px !important;
+      background: linear-gradient(135deg, #fffdf8, #fff0d9) !important;
+      border: 1px solid #e6c294 !important;
+      border-radius: 22px !important;
+      text-align: left !important;
+      box-shadow: 0 18px 65px #71471f35 !important
+    }
+
+    body #toast[hidden] {
+      display: none !important
+    }
+
+    .notice-success-icon {
+      display: grid;
+      place-items: center;
+      flex: 0 0 48px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #deefdf;
+      color: #357c4e;
+      box-shadow: 0 0 0 6px #eef6e9
+    }
+
+    .notice-success-icon svg {
+      width: 27px;
+      height: 27px
+    }
+
+    .notice-success-copy {
+      display: grid;
+      gap: 5px
+    }
+
+    .notice-success-copy strong {
+      font-size: 19px;
+      color: #634322
+    }
+
+    .notice-success-copy>span {
+      font-size: 13px;
+      line-height: 1.6
+    }
+
+    #modal .minigame-arena {
+      grid-column: 1/-1;
+      min-width: 0;
+      padding: 22px;
+      border-radius: 24px;
+      border: 1px solid #d7dcef;
+      background: radial-gradient(circle at 95% 0, #fff1cd, transparent 40%), linear-gradient(145deg, #f0f2ff, #faf9ff 65%, #fff7e7);
+      box-shadow: inset 0 1px 0 #fff, 0 10px 25px #5555800b;
+      animation: game-enter .2s ease-out
+    }
+
+    .minigame-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0
+    }
+
+    .game-emblem {
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      display: grid;
+      place-items: center;
+      background: #6769af;
+      color: white;
+      border-radius: 15px;
+      transform: rotate(-7deg)
+    }
+
+    .game-emblem svg {
+      width: 25px;
+      height: 25px
+    }
+
+    .game-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.3px;
+      color: #7072a4
+    }
+
+    .minigame-header h3 {
+      margin: 3px 0 !important;
+      font-size: 20px;
+      color: #47496f
+    }
+
+    .minigame-header p {
+      margin: 0 !important;
+      font-size: 12px;
+      color: #73748b
+    }
+
+    .game-level {
+      margin-left: auto;
+      white-space: nowrap;
+      color: #595b8c;
+      background: white;
+      border: 1px solid #dfe0ec;
+      padding: 9px 12px;
+      border-radius: 12px;
+      font-weight: 700
+    }
+
+    .game-level small {
+      display: block;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 400;
+      margin-top: 2px
+    }
+
+    .game-route {
+      position: relative;
+      height: 7px;
+      margin: 28px 14px 16px;
+      border-radius: 8px;
+      background: #dddfee
+    }
+
+    .game-route-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #7779bd, #b6a4d8);
+      transition: width .3s ease
+    }
+
+    .game-route-stop {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #e7e7f2;
+      border: 3px solid white;
+      box-shadow: 0 0 0 1px #d5d5e6
+    }
+
+    .game-route-stop.reached {
+      background: #8183bd
+    }
+
+    .game-route-stop:last-child {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      background: #fff4d5;
+      color: #bd8a36
+    }
+
+    .game-route-stop svg {
+      width: 17px;
+      height: 17px
+    }
+
+    .game-progress-copy {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #74748c;
+      margin-bottom: 14px
+    }
+
+    #modal .minigame-arena .question-row {
+      background: #ffffffdf !important;
+      border: 1px solid #e0e1ee !important;
+      box-shadow: 0 6px 18px #55558008;
+      padding: 20px !important;
+      border-radius: 18px !important;
+      margin: 0 0 16px !important
+    }
+
+    .minigame-arena .question-row h3 {
+      font-size: 18px;
+      line-height: 1.6
+    }
+
+    .minigame-arena .check-list {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px !important;
+      margin-top: 16px
+    }
+
+    #modal .minigame-arena .check-list label.item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px !important;
+      border: 2px solid #e1dfef !important;
+      border-radius: 15px !important;
+      background: #f8f6ff !important;
+      cursor: pointer;
+      transition: transform .15s, border-color .15s, background .15s;
+      min-width: 0;
+      overflow-wrap: anywhere
+    }
+
+    .minigame-arena .check-list label.item:nth-child(2n) {
+      background: #fff8eb !important
+    }
+
+    .minigame-arena .check-list label.item:hover {
+      transform: translateY(-2px)
+    }
+
+    #modal .minigame-arena .check-list label.item:has(input:checked) {
+      border-color: #7779b9 !important;
+      background: #eeedff !important;
+      box-shadow: 0 4px 12px #7371ad20
+    }
+
+    .minigame-arena input[type=radio] {
+      accent-color: #7475b4;
+      width: 18px !important;
+      flex: 0 0 18px
+    }
+
+    .minigame-arena select {
+      border-color: #d4d3e8 !important;
+      background: #faf9ff !important
+    }
+
+    .minigame-arena .actions {
+      justify-content: space-between !important;
+      gap: 8px
+    }
+
+    .minigame-arena .actions .primary {
+      background: linear-gradient(135deg, #7779bd, #5d609a) !important;
+      border-color: #686aab !important;
+      color: white !important;
+      box-shadow: 0 5px 12px #6a689525
+    }
+
+    @keyframes game-enter {
+      from {
+        opacity: .7;
+        transform: translateY(5px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @media(max-width:600px) {
+      body .main #content .resource-row.resource-compact {
+        grid-template-columns: 18px minmax(0, 1fr) auto 24px auto !important
+      }
+
+      .resource-name-group {
+        gap: 4px
+      }
+
+      .resource-name-group .resource-format {
+        font-size: 8px;
+        padding: 3px 4px
+      }
+
+      #modal .minigame-arena {
+        padding: 13px;
+        border-radius: 18px
+      }
+
+      .minigame-header {
+        gap: 8px
+      }
+
+      .game-emblem {
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
+        border-radius: 11px
+      }
+
+      .minigame-header h3 {
+        font-size: 15px
+      }
+
+      .minigame-header p {
+        font-size: 10px
+      }
+
+      .game-level {
+        font-size: 12px;
+        padding: 7px
+      }
+
+      .minigame-arena .check-list {
+        grid-template-columns: 1fr
+      }
+
+      #modal .minigame-arena .question-row {
+        padding: 14px !important
+      }
+
+      .notice-success-copy strong {
+        font-size: 17px
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      #modal .minigame-arena {
+        animation: none
+      }
+
+      .game-route-fill,
+      .minigame-arena .check-list label.item {
+        transition: none
+      }
+    }
+
+    /* Keep activity statuses on a shared column, regardless of label width. */
+    body .main #content .resource-row.resource-compact {
+      grid-template-columns: 24px minmax(0, 1fr) 96px 32px auto !important
+    }
+
+    body #content .resource-state {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 0;
+      text-align: center
+    }
+
+    body #modal .preview-note,
+    body #modal .external-preview-note,
+    body #modal .external-preview-note .empty {
+      text-align: center !important
+    }
+
+    body #modal .worksheet-file-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px auto
+    }
+
+    @media(max-width:600px) {
+      body .main #content .resource-row.resource-compact {
+        grid-template-columns: 18px minmax(0, 1fr) 66px 24px auto !important
+      }
+    }
+
+    body #modal .minigame-arena {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      border: 2px solid #c4d1eb !important;
+      background: radial-gradient(circle at 85% 10%, #fff7c9 0, transparent 27%), linear-gradient(150deg, #e8f5ff, #f4edff 62%, #fff0d9) !important;
+      box-shadow: inset 0 0 0 5px #ffffff80, 0 10px 28px #666b9820
+    }
+
+    .minigame-arena:before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      background-image: radial-gradient(#929bc740 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
+      pointer-events: none
+    }
+
+    body #modal .minigame-arena .question-row {
+      border: 2px solid #d7dcf0 !important;
+      box-shadow: 0 7px 0 #cbd1e350 !important;
+      margin-top: 20px !important
+    }
+
+    .minigame-arena .check-list {
+      counter-reset: game-choice
+    }
+
+    body #modal .minigame-arena .check-list label.item {
+      counter-increment: game-choice;
+      box-shadow: 0 4px 0 #d8d5e8;
+      min-height: 64px
+    }
+
+    .minigame-arena .check-list label.item:before {
+      content: counter(game-choice);
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+      border-radius: 9px;
+      background: #e8e6f5;
+      color: #66699e;
+      font-weight: 800
+    }
+
+    body #modal .minigame-arena .check-list label.item:has(input:checked) {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #8a86bf !important
+    }
+
+    .minigame-arena .check-list label.item:has(input:checked):before {
+      content: "✓";
+      background: #7779bd;
+      color: white
+    }
+
+    body #modal .game-victory {
+      text-align: center;
+      padding: 28px 20px;
+      border: 2px solid #e5d6ac;
+      border-radius: 24px;
+      background: radial-gradient(circle at 50% 15%, #fff3b5, transparent 50%), linear-gradient(150deg, #fffdf6, #eef1ff);
+      animation: game-award-in .4s ease-out
+    }
+
+    .game-trophy {
+      width: 92px;
+      margin: 0 auto;
+      filter: drop-shadow(0 7px 5px #a68b3425)
+    }
+
+    .game-trophy svg {
+      width: 100%;
+      height: auto
+    }
+
+    .game-stars {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      font-size: 38px;
+      color: #ddd7c8
+    }
+
+    .game-stars .earned {
+      color: #e6ac35;
+      text-shadow: 0 3px 0 #b88729;
+      animation: game-star-in .5s ease-out both
+    }
+
+    .game-stars span:nth-child(2) {
+      animation-delay: .1s
+    }
+
+    .game-stars span:nth-child(3) {
+      animation-delay: .2s
+    }
+
+    body #modal .game-victory h3 {
+      font-size: 24px;
+      margin: 12px 0
+    }
+
+    .game-result-count {
+      display: block;
+      font-size: 32px;
+      color: #5f6298
+    }
+
+    .game-result-meter {
+      max-width: 240px;
+      height: 10px;
+      background: #dedfed;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 18px auto
+    }
+
+    .game-result-meter span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #8b8fcf, #e9bf5c);
+      border-radius: inherit
+    }
+
+    .game-victory p {
+      font-size: 13px;
+      color: #77718a;
+      text-align: center !important
+    }
+
+    @keyframes game-award-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(.97)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes game-star-in {
+      from {
+        transform: scale(.3) rotate(-20deg)
+      }
+
+      to {
+        transform: scale(1) rotate(0)
+      }
+    }
+
+    @media(max-width:600px) {
+      body #modal .game-victory {
+        padding: 20px 12px
+      }
+
+      .game-result-count {
+        font-size: 27px
+      }
+
+      .game-stars {
+        font-size: 32px
+      }
+
+      .game-trophy {
+        width: 76px
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+
+      body #modal .game-victory,
+      .game-stars .earned {
+        animation: none
+      }
+    }
+
+    body .course-room-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex: 1
+    }
+
+    body .course-members-panel {
+      padding: 0 !important;
+      overflow: hidden;
+      background: #fffaf4 !important
+    }
+
+    body .course-members-panel>h2 {
+      margin: 0 !important;
+      padding: 16px 20px;
+      background: #f4e4d1;
+      border-bottom: 1px solid #e7d4bf
+    }
+
+    body .course-members-panel table,
+    body #modal .members-manager table,
+    body #modal .student-table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    body .course-members-panel thead,
+    body #modal .student-table thead {
+      background: #f4e4d1 !important
+    }
+
+    body .course-members-panel tbody tr:nth-child(odd),
+    body #modal .student-table tbody tr:nth-child(odd) {
+      background: #fffdf9 !important
+    }
+
+    body .course-members-panel tbody tr:nth-child(even),
+    body #modal .student-table tbody tr:nth-child(even) {
+      background: #f9eee2 !important
+    }
+
+    body #modal .student-table th,
+    body #modal .student-table td {
+      padding: 11px 13px;
+      text-align: center;
+      border-bottom: 1px solid #eee0d2;
+      white-space: nowrap
+    }
+
+    body #modal .student-table input[type=checkbox] {
+      width: 17px;
+      height: 17px;
+      margin: 0;
+      vertical-align: middle
+    }
+
+    body #modal:has(.members-manager),
+    body #modal:has([data-form=enroll]) {
+      width: min(960px, 94vw) !important;
+      max-width: 960px !important
+    }
+
+    body #modal .members-manager .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 10px;
+      margin-bottom: 16px
+    }
+
+    body #modal .members-manager .toolbar label {
+      flex: 1;
+      min-width: 180px
+    }
+
+    body .review-filter-panel {
+      background: linear-gradient(120deg, #fffaf3, #fffdf9);
+      border: 1px solid #e8d6c1;
+      border-radius: 18px;
+      padding: 20px;
+      margin: 18px 0
+    }
+
+    body .review-filter-panel h2 {
+      font-size: 18px;
+      margin: 0 0 14px
+    }
+
+    body .review-filter-panel>.toolbar,
+    body .review-filter-panel #reviewSearchForm {
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 12px 0 !important;
+      display: flex;
+      gap: 12px;
+      align-items: end;
+      flex-wrap: wrap
+    }
+
+    body .review-filter-panel label {
+      flex: 1;
+      min-width: 160px
+    }
+
+    @media(max-width:600px) {
+      body .review-filter-panel {
+        padding: 14px
+      }
+
+      body .review-filter-panel label {
+        min-width: 120px
+      }
+
+      body #modal .student-table th,
+      body #modal .student-table td {
+        padding: 9px 7px;
+        font-size: 11px
+      }
+    }
+
+    /* Align student names and selection boxes to one shared starting edge. */
+    body .main #content .student-table table :is(th, td):first-child {
+      text-align: left !important
+    }
+
+    body .main #content .student-table .student-name-cell {
+      display: flex !important;
+      justify-content: flex-start !important;
+      align-items: center !important;
+      gap: 10px !important;
+      text-align: left !important;
+      width: 100%
+    }
+
+    body .main #content .student-table .student-name-cell input[type=checkbox] {
+      flex: 0 0 17px !important;
+      width: 17px !important;
+      height: 17px !important;
+      margin: 0 !important
+    }
+
+    body .main #content .student-table .student-name-cell strong {
+      text-align: left !important;
+      min-width: 0;
+      flex: 1
+    }
+
+    /* Short interface text stays on one line; long explanations retain readable wrapping. */
+    body .student-table :is(th, td),
+    body .student-name-cell strong,
+    body .student-course-tag,
+    body .access-badge,
+    body .resource-format,
+    body .resource-state .badge,
+    body .more-menu summary {
+      white-space: nowrap !important
+    }
+
+    body .student-table :is(th, td) {
+      font-size: clamp(10px, 1.05vw, 14px)
+    }
+
+    body .student-name-cell strong {
+      white-space: nowrap !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: clamp(11px, 1.15vw, 14px)
+    }
+
+    body .student-course-tag,
+    body .access-badge {
+      font-size: clamp(10px, 1vw, 12px)
+    }
+
+    body .actions .btn,
+    body .system-confirm-actions button {
+      white-space: nowrap !important;
+      max-width: 100%;
+      font-size: clamp(10px, 1.05vw, 14px)
+    }
+
+    body .course-room-buttons .btn,
+    body .workspace-summary>div>span:not(.stat-symbol),
+    body .workspace-summary>div>p {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    body .student-table .student-name-cell {
+      min-width: 0
+    }
+
+    @media(max-width:600px) {
+      body .student-table td:before {
+        white-space: nowrap !important
+      }
+
+      body .student-table .student-name-cell strong {
+        max-width: 100%;
+        font-size: 11px
+      }
+
+      body .student-course-tag,
+      body .access-badge {
+        font-size: 10px
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -17113,10 +19409,10 @@
       modal(
         "บัญชีของฉัน",
         `<form class="form account-form" data-form="my-profile">
-          <div class="account-intro"><span class="account-kicker">บัญชีของฉัน</span><p>จัดการรูปโปรไฟล์และข้อมูลที่แสดงในชั้นเรียน</p></div>
+          <div class="account-intro"><span class="account-kicker">จัดการรูปโปรไฟล์และข้อมูลที่แสดงในชั้นเรียน</span></div>
           <section class="account-photo-section">
             <div id="avatarPreview" class="profile-edit-avatar">${avatarHTML(myProfile.imgUrl)}</div>
-            <div class="account-photo-copy"><strong>รูปโปรไฟล์</strong><p>เลือกภาพที่ต้องการใช้</p><div class="actions"><label class="btn avatar-picker" for="avatarFile">เลือกรูปภาพ<input type="file" id="avatarFile" accept="image/jpeg,image/png,image/webp"></label>${button("ลบรูปภาพ", "remove-avatar")}</div><small>JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB</small><p id="avatarStatus" class="subtle" role="status" aria-live="polite"></p></div>
+            <div class="account-photo-copy"><strong>รูปโปรไฟล์</strong><p>เลือกภาพที่ต้องการใช้</p><div class="actions"><label class="btn avatar-picker" for="avatarFile">เลือกรูปภาพ<input type="file" id="avatarFile" accept="image/jpeg,image/png,image/webp"></label>${button("ลบรูปภาพ", "remove-avatar")}</div><small>JPG, PNG หรือ WebP </small><p id="avatarStatus" class="subtle" role="status" aria-live="polite"></p></div>
           </section>
           <section class="account-fields"><h3>ข้อมูลส่วนตัว</h3>${input("ชื่อที่แสดง", "fullName", myProfile.fullName)}<div class="row">${input("อีเมล", "email", myProfile.email, "email", false)}${input("เบอร์โทร", "phone", myProfile.phone, "tel", false)}</div></section>
           <section class="account-login"><div><span>ชื่อผู้ใช้</span><strong>${esc(session.loginUsername || session.username || myProfile.username || "teacher")}</strong></div>${button("เปลี่ยนรหัสผ่าน", "password-form")}</section>
@@ -17128,10 +19424,9 @@
     async function prepareAvatar(file) {
       if (!file) return;
       if (
-        !["image/jpeg", "image/png", "image/webp"].includes(file.type) ||
-        file.size > 5 * 1024 * 1024
+        !["image/jpeg", "image/png", "image/webp"].includes(file.type)
       )
-        throw Error("ใช้ JPG / PNG / WebP ขนาดไม่เกิน 5 MB");
+        throw Error("ใช้ JPG / PNG / WebP ");
       avatarLoading = true;
       try {
         const url = URL.createObjectURL(file),
@@ -17265,6 +19560,7 @@
       deleteImpact: "ตรวจผลกระทบก่อนลบ",
       deleteEntity: "ลบและเก็บไว้กู้คืน",
       returnWork: "ส่งกลับให้แก้ไข",
+      reopenAttempt: "อนุญาตให้ทำใหม่",
       studentsBatchPreview: "ตรวจนักเรียนที่เลือก",
       studentsBatch: "จัดการนักเรียนที่เลือก",
       replaceRosterPreview: "ตรวจรายชื่อและผลกระทบ",
@@ -17331,6 +19627,7 @@
     }
 
     const RETRY_READS = new Set([
+      "chapterImpact",
       "adminHistoryDetails",
       "adminManagePreview",
       "studentPresence",
@@ -17589,8 +19886,14 @@
         `<div>${errorNotice(error)}${cached ? "<p>กำลังแสดงข้อมูลที่โหลดสำเร็จครั้งก่อน</p>" : ""}<div class="actions">${button("ลองโหลดอีกครั้ง", "refresh", "", true)}${error.authRequired ? button("เข้าสู่ระบบใหม่", "relogin") : ""}</div></div>`;
     }
 
+    function showOperation(title = "กำลังบันทึกข้อมูล", detail = "กรุณารอสักครู่") {
+      let d = $("operationLoading"); if (!d) { d = document.createElement("dialog"); d.id = "operationLoading"; d.setAttribute("aria-labelledby", "operationTitle"); d.setAttribute("aria-describedby", "operationDetail"); d.innerHTML = '<div class="operation-spinner" aria-hidden="true"></div><h2 id="operationTitle"></h2><p id="operationDetail" role="status" aria-live="polite"></p>'; d.addEventListener("cancel", e => e.preventDefault()); document.body.appendChild(d) }
+      $("operationTitle").textContent = title; $("operationDetail").textContent = detail; if (!d.open) d.showModal();
+    }
+    function hideOperation() { const d = $("operationLoading"); if (d?.open) d.close() }
+    function paintNoticeToast(target, message) { const success = !/ไม่สำเร็จ|ไม่สามารถ|ผิดพลาด/.test(message) && /สำเร็จ|เรียบร้อย|ส่งคำตอบแล้ว/.test(message); target.dataset.kind = success ? 'success' : 'notice'; target.replaceChildren(); if (success) { const icon = document.createElement('span'); icon.className = 'notice-success-icon'; icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 12 4 4 8-8"/></svg>'; const copy = document.createElement('span'); copy.className = 'notice-success-copy'; const title = document.createElement('strong'); title.textContent = 'เรียบร้อยแล้ว'; const text = document.createElement('span'); text.textContent = message; copy.append(title, text); target.append(icon, copy) } else target.textContent = message; }
     function toast(text) {
-      $("toast").textContent = text;
+      paintNoticeToast($("toast"), text);
       $("toast").hidden = false;
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => ($("toast").hidden = true), 6000);
@@ -17634,8 +19937,12 @@
     function empty(text) {
       return `<div class="empty">${esc(text)}</div>`;
     }
-    function input(label, name, value = "", type = "text", required = true) {
-      return `<label>${esc(label)}<input name="${name}" type="${type}" value="${esc(value)}" ${required ? "required" : ""}></label>`;
+    function worksheetAnswerHTML(value, submissionId = "") {
+      try { const a = JSON.parse(value), files = a?.kind === "worksheet-files" ? a.files : a?.kind === "worksheet-file" ? [a] : []; if (files.length) return files.map(f => `<button type="button" class="btn" data-action="download-work-file" data-id="${esc(submissionId + "|" + f.fileId)}">ดาวน์โหลด: ${esc(f.name)}</button>`).join('') } catch { } return esc(value || "");
+    }
+    function input(label, name, value = "", type = "text", required = true, placeholder = "") {
+      const hint = name === "qpoints" ? "คะแนนสูงสุดที่นักเรียนจะได้รับจากคำถามข้อนี้" : name === "points" ? "คะแนนรวมทั้งใบงานแนบไฟล์ ไม่ใช่คะแนนรายข้อ ครูตรวจและให้คะแนนรวมหลังนักเรียนส่ง" : "";
+      return `<label ${hint ? `title="${esc(hint)}"` : ""}>${esc(label)}<input ${hint ? `title="${esc(hint)}"` : ""} name="${name}" type="${type}" value="${esc(value)}" ${required ? "required" : ""} ${placeholder ? `placeholder="${esc(placeholder)}"` : ""}></label>`;
     }
     function select(label, name, items, value = "", required = true) {
       return `<label>${esc(label)}<select name="${name}" ${required ? "required" : ""}>${items.map((x) => `<option value="${esc(x.id)}" ${String(x.id) === String(value) ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></label>`;
@@ -17675,6 +19982,7 @@
       });
     }
     async function discardModalChanges() {
+      if (attachmentSaving) { toast("กำลังอัปโหลดหรือบันทึกไฟล์ กรุณารอสักครู่"); return false }
       if (busy) {
         toast("กำลังบันทึก กรุณารอสักครู่");
         return false;
@@ -17682,13 +19990,21 @@
       if (
         modalDirty &&
         !(await confirmPopup(
-          "มีข้อมูลที่ยังไม่ได้บันทึก ต้องการออกโดยไม่บันทึกหรือไม่?",
+          "ออกโดยไม่บันทึกการเปลี่ยนแปลงหรือไม่?",
         ))
       )
         return false;
       modalDirty = false;
       return true;
     }
+    function dismissOptionHints() { document.querySelectorAll('.activity-option-card').forEach(card => { card.classList.remove('hint-visible'); const detail = card.querySelector('.option-help'); if (detail) detail.open = false }) }
+    document.addEventListener('pointerover', e => { const card = e.target.closest?.('.activity-option-card'); if (e.pointerType === 'mouse' && card && !card.contains(e.relatedTarget)) { dismissOptionHints(); card.classList.add('hint-visible'); card.querySelector('.option-help').open = true } });
+    document.addEventListener('pointerout', e => { const card = e.target.closest?.('.activity-option-card'); if (e.pointerType === 'mouse' && card && !card.contains(e.relatedTarget)) { card.classList.remove('hint-visible'); card.querySelector('.option-help').open = false } });
+    document.addEventListener('click', e => { if (!e.target.closest?.('.option-help')) dismissOptionHints() });
+    document.addEventListener('scroll', dismissOptionHints, true); window.addEventListener('resize', dismissOptionHints);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') dismissOptionHints() });
+    document.addEventListener('change', e => { if (e.target.name === 'countScore') updateScoreSummary() });
+    document.addEventListener('input', e => { if (e.target.matches('#questionEditor [name=qpoints],form [name=points]')) updateScoreSummary() });
     document.addEventListener("input", (event) => {
       if (event.target.closest("#modal")) modalDirty = true;
     });
@@ -17714,7 +20030,7 @@
     function form(title, action, html, id = "") {
       modal(
         title,
-        `<form class="form" data-form="${action}"><input type="hidden" name="id" value="${esc(id)}">${html}<div class="actions"><button class="btn primary" type="submit">${{ "delete-group": "ยืนยันลบ", "delete-entity": "ยืนยันลบ", "return-work": "ส่งกลับให้แก้ไข", "admin-undo": "ยืนยันคืนค่า", "admin-restore": "ยืนยันกู้คืน", "admin-purge": "ยืนยันนำออก", "batch-students-preview": "ตรวจสอบก่อนยืนยัน", "batch-students": "ยืนยัน", bulk: "ยืนยันดำเนินการ", "admin-maintenance": "ยืนยันเปลี่ยนสถานะ" }[action] || "บันทึก"}</button>${button("ยกเลิก", "close")}</div><div id="formError" role="alert"></div></form>`,
+        `<form class="form" data-form="${action}"><input type="hidden" name="id" value="${esc(id)}">${html}<div class="actions"><button class="btn primary" type="submit">${{ "delete-group": "ยืนยันลบ", "delete-chapter": "ยืนยันลบหน่วย", "delete-entity": "ยืนยันลบ", "return-work": "ส่งกลับให้แก้ไข", "admin-undo": "ยืนยันคืนค่า", "admin-restore": "ยืนยันกู้คืน", "admin-purge": "ยืนยันนำออก", "batch-students-preview": "ตรวจสอบก่อนยืนยัน", "batch-students": "ยืนยัน", bulk: "ยืนยันดำเนินการ", "admin-maintenance": "ยืนยันเปลี่ยนสถานะ" }[action] || "บันทึก"}</button>${button("ยกเลิก", "close")}</div><div id="formError" role="alert"></div></form>`,
       );
     }
     let batchStudentPayload = null;
@@ -17737,14 +20053,16 @@
     function updateRoomPreview(f) {
       if (!f || f.dataset.form !== "group") return;
       const preview = f.querySelector("[data-room-preview]");
-      if (preview)
+      if (preview) {
+        preview.hidden = !!f.elements.id?.value && roomName(f.elements.level.value, f.elements.grade.value, f.elements.room.value) === preview.dataset.originalName;
         preview.textContent =
-          "ชื่อชั้นเรียน: " +
+          (f.elements.id?.value ? "ชื่อห้องใหม่: " : "ชื่อห้อง: ") +
           roomName(
             f.elements.level.value,
             f.elements.grade.value,
             f.elements.room.value,
           );
+      }
     }
     function roomFields(g) {
       const match = (g.name || "").match(
@@ -17753,7 +20071,7 @@
       const level = match?.[1] || "ม.",
         grade = match?.[2] || "1",
         room = match?.[3] || "";
-      return `${g.id ? `<p class="notice">ชื่อเดิม: ${esc(g.name)} · แก้ไขบนห้องเดิม เก็บนักเรียน งาน และคะแนนที่ผูกไว้</p>` : ""}${select(
+      return `${g.id ? `<p class="notice">ชื่อห้องเดิม: ${esc(g.name)}</p>` : ""}${select(
         "ระดับการศึกษา",
         "level",
         [
@@ -17762,7 +20080,7 @@
           { id: "ปวช.", name: "ประกาศนียบัตรวิชาชีพ" },
         ],
         level,
-      )}${select("ชั้นปี", "grade", gradeOptions(level), grade)}<label>เลขห้อง (เว้นว่างได้ หากไม่แบ่งห้อง)<input type="number" name="room" min="1" max="99" step="1" value="${esc(room)}" placeholder="เว้นว่าง หรือใส่ 1–99"></label><p class="notice" data-room-preview aria-live="polite">ชื่อห้อง: ${esc(roomName(level, grade, room))}</p><p class="subtle">ไม่แบ่งห้อง เช่น ม.4, ม.5, ปวช.1 · แบ่งห้อง เช่น ม.1/1, ม.1/2</p>`;
+      )}${select("ชั้นปี", "grade", gradeOptions(level), grade)}<label>เลขห้อง (เว้นว่างได้ หากไม่แบ่งห้อง)<input type="number" name="room" min="1" max="99" step="1" value="${esc(room)}" placeholder="เว้นว่าง หรือใส่ 1–99"></label><p class="notice" data-room-preview data-original-name="${esc(roomName(level, grade, room))}" ${g.id ? "hidden" : ""} aria-live="polite">${g.id ? "ชื่อห้องใหม่" : "ชื่อห้อง"}: ${esc(roomName(level, grade, room))}</p>`;
     }
     function updateStudentSelection() {
       const boxes = [
@@ -18171,11 +20489,11 @@
       const key = pageCacheKey();
       const previousPage = pageCache.get(key);
       if (
-        !(samePage && refreshData && previousPage) &&
+        refreshData || !(samePage && refreshData && previousPage) &&
         !(!previousPage && pageDataReady(page) && !refreshData)
       ) {
         $("content").innerHTML =
-          previousPage ||
+          (refreshData ? loadingView(page) : previousPage) ||
           (startupLoadingBase || !baseReady
             ? loadingView(page)
             : openingView(page));
@@ -18319,6 +20637,10 @@
         ? `อัปเดตล่าสุด ${esc(new Date(s.updatedAt).toLocaleString("th-TH", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" }))}`
         : "";
     }
+    function courseLearningIllustration() {
+      return `<svg class="course-learning-decoration decoration-0" viewBox="-12 -16 105 132" aria-hidden="true" focusable="false"><defs><linearGradient id="coursePaper" x2="1" y2="1"><stop stop-color="#fffdf5" /><stop offset="1" stop-color="#ffe9ca" /></linearGradient></defs><g fill="none" stroke="#bc8047" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g><rect width="78" height="98" rx="12" fill="url(#coursePaper)" /><path d="M17 23h43M17 37h43M17 51h28M17 74h43" /><path d="m20 65 7-9 7 9" /></g></g></svg><svg class="course-learning-decoration decoration-1" viewBox="-14 -18 120 148" aria-hidden="true" focusable="false"><defs><linearGradient id="coursePaper" x2="1" y2="1"><stop stop-color="#fffdf5" /><stop offset="1" stop-color="#ffe9ca" /></linearGradient></defs><g fill="none" stroke="#bc8047" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g><rect width="86" height="112" rx="12" fill="#fff8ec" /><path d="M23 0v-5h40v5M18 26h50" /><rect x="18" y="43" width="10" height="10" rx="2" /><path d="m20 47 3 3 7-8M38 48h28" /><rect x="18" y="67" width="10" height="10" rx="2" /><path d="M38 72h28M18 93h48" /></g></g></svg><svg class="course-learning-decoration decoration-2" viewBox="-12 -18 148 100" aria-hidden="true" focusable="false"><defs><linearGradient id="coursePaper" x2="1" y2="1"><stop stop-color="#fffdf5" /><stop offset="1" stop-color="#ffe9ca" /></linearGradient></defs><g fill="none" stroke="#bc8047" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g><path d="M0 5q30-13 60 0v57q-30-13-60 0zM60 5q30-13 60 0v57q-30-13-60 0z" fill="#fff5e5" /><path d="M12 19q16-5 34 0M12 32q16-5 34 0M74 19q16-5 34 0M74 32q16-5 34 0M60 5v57" /></g></g></svg><svg class="course-learning-decoration decoration-3" viewBox="-20 -18 174 114" aria-hidden="true" focusable="false"><defs><linearGradient id="coursePaper" x2="1" y2="1"><stop stop-color="#fffdf5" /><stop offset="1" stop-color="#ffe9ca" /></linearGradient></defs><g fill="none" stroke="#bc8047" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><g><path d="M27 0h75q18 0 24 22l9 26q4 17-9 20-8 2-18-10l-12-13H36L24 58Q14 70 6 68q-13-3-9-20l9-26Q12 0 27 0z" fill="#ffe8c9" /><path d="M22 17v22M11 28h22" /><circle cx="104" cy="21" r="4" fill="#e9b778" /><circle cx="115" cy="33" r="4" fill="#e9b778" /></g></g></svg>`;
+    }
+
     function welcomeIllustration() {
       const paper = `<svg viewBox="0 0 40 48" fill="none"><path d="M8 3h17l9 9v32H8z" fill="#fffaf0" stroke="#c47a39" stroke-width="2"/><path d="M25 3v10h9M14 21h14M14 28h14M14 35h8" stroke="#c47a39" stroke-width="2" stroke-linecap="round"/></svg>`;
       return `<span class="welcome-orbit orbit-left" aria-hidden="true"></span><span class="welcome-orbit orbit-right" aria-hidden="true"></span><span class="welcome-spark spark-one" aria-hidden="true">✦</span><span class="welcome-spark spark-two" aria-hidden="true">✦</span><span class="welcome-spark spark-three" aria-hidden="true">✧</span><svg class="welcome-tech-decoration" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="#c88a4a" stroke-width="1.5" opacity=".23"><path d="M0 35h86l20 20h83M0 55h62l25 25h62M1000 32h-88l-22 22h-78M1000 54h-64l-28 28h-55M0 222h60l18-18h53M1000 224h-60l-18-18h-53"/><circle cx="193" cy="55" r="4"/><circle cx="153" cy="80" r="4"/><circle cx="808" cy="54" r="4"/><circle cx="849" cy="82" r="4"/><circle cx="135" cy="204" r="3"/><circle cx="865" cy="206" r="3"/></g><g fill="#c88a4a" opacity=".2"><rect x="230" y="28" width="5" height="5" rx="1"/><rect x="242" y="40" width="5" height="5" rx="1"/><rect x="760" y="29" width="5" height="5" rx="1"/><rect x="748" y="41" width="5" height="5" rx="1"/><rect x="295" y="223" width="5" height="5" rx="1"/><rect x="710" y="221" width="5" height="5" rx="1"/></g></svg><span class="welcome-code-mark code-mark-left" aria-hidden="true">{ }</span><span class="welcome-code-mark code-mark-right" aria-hidden="true">&lt;/&gt;</span><div class="welcome-computer-scene" aria-hidden="true"><svg class="welcome-computer" viewBox="0 0 220 180" fill="none"><ellipse cx="109" cy="163" rx="92" ry="10" fill="#e9ba86" opacity=".3"/><rect x="24" y="24" width="170" height="112" rx="14" fill="#fffaf2" stroke="#b96d30" stroke-width="4"/><rect x="35" y="36" width="148" height="83" rx="7" fill="#f6dbb8"/><path d="m82 65-14 12 14 12m55-24 14 12-14 12m-22-28-12 32" stroke="#b96d30" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="109" cy="128" r="3" fill="#b96d30"/><path d="M97 138v15h24v-15m-41 21h58" stroke="#b96d30" stroke-width="4" stroke-linecap="round"/><rect x="153" y="133" width="46" height="25" rx="6" fill="#fffaf2" stroke="#c47a39" stroke-width="2"/><path d="M162 141h27m-27 8h20" stroke="#c47a39" stroke-width="2" stroke-linecap="round"/></svg></div><div class="welcome-learning-scene" aria-hidden="true"><svg viewBox="0 0 220 180" fill="none"><ellipse cx="110" cy="164" rx="86" ry="10" fill="#e9ba86" opacity=".3"/><rect x="87" y="17" width="93" height="111" rx="10" transform="rotate(9 87 17)" fill="#f6dbb8" stroke="#c47a39" stroke-width="3"/><rect x="74" y="14" width="88" height="116" rx="10" fill="#fffaf0" stroke="#b96d30" stroke-width="3"/><rect x="91" y="33" width="25" height="25" rx="6" fill="#f6dbb8"/><path d="m96 46 5 5 9-11M91 73h53M91 85h53M91 97h36" stroke="#b96d30" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 113q39-17 77 4v43q-38-21-77-4zM104 117q38-21 77-4v43q-39-17-77 4z" fill="#fff5e6" stroke="#b96d30" stroke-width="3" stroke-linejoin="round"/><path d="M39 126q25-9 53 3m-53 10q25-9 53 3m24-13q26-12 53-3m-53 16q26-12 53-3" stroke="#d3975f" stroke-width="2" stroke-linecap="round"/><path d="m185 58 9 5-33 59-11 7 1-13z" fill="#e5a34c" stroke="#b96d30" stroke-width="2"/></svg></div><div class="welcome-paper-shower" aria-hidden="true">${Array.from({ length: 6 }, (_, i) => `<span class="welcome-paper paper-${i}">${paper}</span>`).join("")}</div>`;
@@ -18506,7 +20828,7 @@
                   ? "metric-sent"
                   : /งาน/.test(title)
                     ? "metric-tasks"
-                    : /นักเรียน|เข้ารายวิชา/.test(title)
+                    : /นักเรียน|เข้ารายวิชา|ยังไม่มีรายวิชาที่เข้าใช้งานได้/.test(title)
                       ? "go-students"
                       : /ชั้นเรียน/.test(title)
                         ? "go-groups"
@@ -18516,7 +20838,7 @@
     function summaryStrip(items) {
       return `<div class="workspace-summary${items.length === 4 ? " summary-four" : ""}">${items
         .map(([title, value, hint]) => {
-          const unit = /นักเรียน|เข้ารายวิชา/.test(title)
+          const unit = /นักเรียน|เข้ารายวิชา|ยังไม่มีรายวิชาที่เข้าใช้งานได้/.test(title)
             ? "คน"
             : /ชั้นเรียน/.test(title)
               ? "ชั้นเรียน"
@@ -18613,7 +20935,7 @@
             '<span class="course-class-separator" aria-hidden="true">·</span>',
           );
       const classrooms = names.length
-        ? `<div class="course-classes"><span class="course-classes-label">ชั้นเรียนที่เรียน</span><div class="course-classes-list">${classList(names.slice(0, 3))}</div>${names.length > 3 ? `<details class="course-classes-more"><summary>ดูทั้งหมด (${names.length} ชั้นเรียน)</summary><div class="course-classes-list">${classList(names.slice(3))}</div></details>` : ""}</div>`
+        ? `<div class="course-classes"><span class="course-classes-label">ชั้นเรียนที่นำเข้า</span><div class="course-classes-list">${classList(names.slice(0, 3))}</div>${names.length > 3 ? `<details class="course-classes-more"><summary>ดูทั้งหมด (${names.length} ชั้นเรียน)</summary><div class="course-classes-list">${classList(names.slice(3))}</div></details>` : ""}</div>`
         : '<div class="course-classes course-classes-empty">ยังไม่ได้เพิ่มนักเรียนเข้ารายวิชา</div>';
       return `<article class="card course-card" data-course-status="${esc(c.status)}" data-search-kind="course" data-search-text="${esc(c.code + " " + c.name)}"><div class="toolbar course-card-header"><span class="course-code">${esc(c.code)}</span>${badge(c.status)}</div><div class="course-emblem">${shortcutIcon("go-courses")}</div><h3>${esc(c.name)}</h3>${classrooms}<div class="actions">${button("เข้าสู่รายวิชา", "open-course", c.id, true)}<details class="more-menu"><summary>จัดการรายวิชา ▾</summary><div>${button("แก้ไขรายวิชา", "edit-course", c.id)}${button("ลบรายวิชา", "delete-entity", "course|" + c.id)}</div></details></div></article>`;
     }
@@ -18631,7 +20953,7 @@
         : rows.slice();
     }
     function orderButton(page) {
-      if (page === "groups") return `<span class="order-description">เรียงตามระดับชั้น: ประถม → มัธยม → ปวช. · ชั้นปีและเลขห้องจากน้อยไปมาก</span>`;
+      if (page === "groups") return "";
       const newest = listOrder[page] === "newest";
       return `<span class="order-description">เรียงตามลำดับเพิ่มข้อมูล</span><button type="button" class="btn order-toggle" data-action="toggle-order" data-id="${page}" title="${newest ? "กดเพื่อเรียงรายการเก่าสุดก่อน" : "กดเพื่อเรียงรายการล่าสุดก่อน"}" aria-label="${newest ? "เรียงล่าสุดก่อน กดเพื่อเรียงเก่าสุดก่อน" : "เรียงเก่าสุดก่อน กดเพื่อเรียงล่าสุดก่อน"}"><span aria-hidden="true">${newest ? "↓" : "↑"}</span> ${newest ? "ล่าสุดก่อน" : "เก่าสุดก่อน"}</button>`;
     }
@@ -18689,7 +21011,7 @@
             const courses = db.Courses.filter(
               (c) => courseIds.has(c.id) && c.status === "active",
             );
-            return `<article class="card room-card" data-search-kind="room" data-search-text="${esc(g.name)}"><div class="dash-section-head"><h3>${esc(g.name)}</h3>${badge(g.status === "inactive" ? "inactive" : "active")}</div><div class="room-count"><strong>${db.Students.filter((s) => s.groupId === g.id).length}</strong> คน</div><p class="subtle">รายวิชาที่ใช้: ${courses.length ? courses.map((c) => esc(c.name)).join(" · ") : "ยังไม่ได้เพิ่มเข้ารายวิชา"}</p><div class="actions">${button("ดูรายชื่อนักเรียน", "group-students", g.id, true)}<details class="more-menu"><summary>จัดการชั้นเรียน ▾</summary><div>${button("แก้ไขชั้นเรียน", "edit-group", g.id)}${g.status !== "inactive" ? button("เปลี่ยนรายชื่อนักเรียนทั้งหมดในชั้น", "replace-roster", g.id) : ""}${button(g.status === "inactive" ? "เปิดใช้งานชั้นเรียนนี้" : "ปิดใช้งานชั้นเรียนนี้", "toggle-group", g.id)}${button("ลบชั้นเรียนออก", "delete-group", g.id)}</div></details></div></article>`;
+            return `<article class="card room-card" data-search-kind="room" data-search-text="${esc(g.name)}"><div class="dash-section-head"><h3>${esc(g.name)}</h3>${badge(g.status === "inactive" ? "inactive" : "active")}</div><div class="room-count"><strong>${db.Students.filter((s) => s.groupId === g.id).length}</strong> คน</div><p class="subtle">รายวิชาที่ใช้: ${courses.length ? courses.map((c) => esc(c.name)).join(" · ") : "ยังไม่ได้เพิ่มเข้ารายวิชา"}</p><div class="actions">${button("ดูรายชื่อนักเรียน", "group-students", g.id, true)}<details class="more-menu"><summary>จัดการชั้นเรียน ▾</summary><div>${button("แก้ไขชั้นเรียน", "edit-group", g.id)}${g.status !== "inactive" ? button("อัพเดทรายชื่อนักเรียนใหม่", "replace-roster", g.id) : ""}${button(g.status === "inactive" ? "เปิดใช้งานชั้นเรียนนี้" : "ปิดใช้งานชั้นเรียนนี้", "toggle-group", g.id)}${button("ลบชั้นเรียนออก", "delete-group", g.id)}</div></details></div></article>`;
           })
           .join("");
       return (
@@ -18768,6 +21090,7 @@
           studentCourses.set(e.studentId, new Set());
         studentCourses.get(e.studentId).add(activeCourses.get(courseId));
       });
+      const registeredStudents = new Set(db.Enrollments.filter(e => e.status === 'active' && db.Offerings.some(o => o.id === e.offeringId && db.Courses.some(c => c.id === o.courseId))).map(e => e.studentId));
       const enrolled = (s) =>
         db.Enrollments.some(
           (e) =>
@@ -18792,7 +21115,7 @@
           [
             selectedGroup ? "นักเรียนในชั้นเรียนนี้" : "จำนวนนักเรียนทั้งหมด",
             rows.length,
-            selectedGroup ? groupName(selectedGroup) : "ทุกชั้นเรียน",
+            selectedGroup ? "จาก" + groupName(selectedGroup) : "จากทุกชั้นเรียน",
           ],
           [
             "เพิ่มเข้ารายวิชาแล้ว",
@@ -18800,12 +21123,12 @@
             "รายวิชาที่ใช้งานอยู่",
           ],
           [
-            "ยังไม่ได้เพิ่มเข้ารายวิชา",
+            "ยังไม่มีรายวิชาที่เข้าใช้งานได้",
             rows.filter((s) => !enrolled(s)).length,
-            "",
+            "ยังไม่ลงทะเบียน หรือรายวิชายังไม่เปิด",
           ],
         ]) +
-        `<div class="toolbar student-filters"><label>แสดงรายชื่อนักเรียน<select id="studentGroup"><option value="">ทุกชั้นเรียน</option>${sortedGroups().map((g) => `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}${g.status === "inactive" ? " (ปิดใช้งาน)" : ""}</option>`).join("")}</select></label><label>ค้นหานักเรียน<input id="studentSearch" value="${esc(studentSearch)}" placeholder="ชื่อ–นามสกุล"></label></div><div class="list-order-bar"><span class="student-order-note">นักเรียนทั้งหมด ${rows.length} คน</span>${orderButton("students")}</div><div class="toolbar selection-toolbar"><label><input type="checkbox" id="selectVisibleStudents"> เลือกทั้งหมดที่แสดง</label><details class="more-menu" id="batchStudentMenu" hidden><summary>จัดการนักเรียนที่เลือก ▾</summary><div>${button("เปิดการเข้าใช้งาน", "batch-students", "active")}${button("ปิดการเข้าใช้งาน", "batch-students", "inactive")}${button("ลบนักเรียนที่เลือก", "delete-selected-students")}</div></details></div><div class="panel table-wrap student-table"><table><thead><tr><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>รายวิชา</th><th>สิทธิ์เข้าใช้งาน</th><th>สถานะการใช้งาน</th><th>จัดการ</th></tr></thead><tbody>${rows.map((s) => `<tr data-student-row="${esc(s.fullName)}"><td><div class="student-name-cell"><input type="checkbox" name="selectedStudent" value="${esc(s.id)}" aria-label="เลือก ${esc(s.fullName)}"><strong title="${esc(s.fullName)}" tabindex="0" data-full-student-name="${esc(s.fullName)}">${esc(s.fullName)}</strong></div></td><td>${esc(groupName(s.groupId))}</td><td>${[...(studentCourses.get(s.id) || [])].map((name) => `<span class="student-course-tag">${esc(name)}</span>`).join(" ") || "ยังไม่ได้เพิ่มเข้ารายวิชา"}</td><td><span class="access-badge ${studentAccess(s) === "เข้าใช้งานได้" ? "available" : "restricted"}">${esc(studentAccess(s))}</span></td><td><span data-presence-id="${esc(s.id)}">${presenceBadge(s.id)}</span></td><td><div class="actions">${button("แก้ไขข้อมูลนักเรียน", "edit-student", s.id)}<details class="more-menu"><summary>จัดการ ▾</summary><div>${button("รีเซ็ตรหัสผ่านเป็นค่าเริ่มต้น", "reset-password", s.id)}${button(s.status === "active" ? "ปิดการเข้าใช้งาน" : "เปิดการเข้าใช้งาน", "toggle-student", s.id)}${button("ลบนักเรียน", "delete-entity", "student|" + s.id)}</div></details></div></td></tr>`).join("")}</tbody></table>${rows.length ? "" : empty("ยังไม่มีนักเรียน")}</div>`
+        `<div class="toolbar student-filters"><label>แสดงรายชื่อนักเรียน<select id="studentGroup"><option value="">ทุกชั้นเรียน</option>${sortedGroups().map((g) => `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}${g.status === "inactive" ? " (ปิดใช้งาน)" : ""}</option>`).join("")}</select></label><label>ค้นหานักเรียน<input id="studentSearch" value="${esc(studentSearch)}" placeholder="ชื่อ–นามสกุล"></label></div><div class="list-order-bar"><span class="student-order-note">นักเรียนทั้งหมด ${rows.length} คน</span>${orderButton("students")}</div><div class="toolbar selection-toolbar"><label><input type="checkbox" id="selectVisibleStudents"> เลือกทั้งหมดที่แสดง</label><details class="more-menu" id="batchStudentMenu" hidden><summary>จัดการนักเรียนที่เลือก ▾</summary><div>${button("เปิดการเข้าใช้งาน", "batch-students", "active")}${button("ปิดการเข้าใช้งาน", "batch-students", "inactive")}${button("ลบนักเรียนที่เลือก", "delete-selected-students")}</div></details></div><div class="panel table-wrap student-table"><table><thead><tr><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>รายวิชา</th><th>สิทธิ์เข้าใช้งาน</th><th>สถานะการใช้งาน</th><th>จัดการ</th></tr></thead><tbody>${rows.map((s) => `<tr data-student-row="${esc(s.fullName)}"><td><div class="student-name-cell"><input type="checkbox" name="selectedStudent" value="${esc(s.id)}" aria-label="เลือก ${esc(s.fullName)}"><strong title="${esc(s.fullName)}" tabindex="0" data-full-student-name="${esc(s.fullName)}">${esc(s.fullName)}</strong></div></td><td>${esc(groupName(s.groupId))}</td><td>${[...(studentCourses.get(s.id) || [])].map((name) => `<span class="student-course-tag">${esc(name)}</span>`).join(" ") || (registeredStudents.has(s.id) ? "รายวิชาที่ลงทะเบียนยังไม่เปิดใช้งาน" : "ยังไม่ได้เพิ่มเข้ารายวิชา")}</td><td><span class="access-badge ${studentAccess(s) === "เข้าใช้งานได้" ? "available" : "restricted"}">${esc(studentAccess(s))}</span></td><td><span data-presence-id="${esc(s.id)}">${presenceBadge(s.id)}</span></td><td><div class="actions">${button("แก้ไขข้อมูลนักเรียน", "edit-student", s.id)}<details class="more-menu"><summary>จัดการ ▾</summary><div>${button("รีเซ็ตรหัสผ่านเป็นค่าเริ่มต้น", "reset-password", s.id)}${button(s.status === "active" ? "ปิดการเข้าใช้งาน" : "เปิดการเข้าใช้งาน", "toggle-student", s.id)}${button("ลบนักเรียน", "delete-entity", "student|" + s.id)}</div></details></div></td></tr>`).join("")}</tbody></table>${rows.length ? "" : empty("ยังไม่มีนักเรียน")}</div>`
       );
     }
 
@@ -18868,7 +21191,7 @@
       const members = db.Enrollments.filter(
         (e) => e.offeringId === selectedOffering && e.status === "active",
       );
-      return `<div class="course-back-row"><button type="button" class="btn course-back-button" data-action="go-courses">← กลับไปหน้ารายวิชา</button></div><section class="hero-v2 course-detail-hero" aria-label="ข้อมูลรายวิชา"><div class="course-hero-corner">${badge(c.status)}</div><div class="course-hero-copy"><h2>${esc(c.name)}</h2><span class="course-code">รหัสวิชา ${esc(c.code)}</span><div class="actions">${button("✎ แก้ไขรายวิชา", "edit-course", c.id)}</div></div></section>
+      return `<div class="course-back-row"><button type="button" class="btn course-back-button" data-action="go-courses">← กลับไปหน้ารายวิชา</button></div><section class="dash-welcome welcome-hero course-detail-hero" data-course-status="${esc(c.status)}" aria-label="ข้อมูลรายวิชา">${courseLearningIllustration()}<div class="course-hero-corner">${badge(c.status)}</div><div class="course-hero-copy"><h2>${esc(c.name)}</h2><span class="course-code">รหัสวิชา ${esc(c.code)}</span><div class="actions">${button("✎ แก้ไขรายวิชา", "edit-course", c.id)}</div></div></section>
   <nav class="course-tabs" aria-label="จัดการรายวิชา">${[
           ["lessons", "บทเรียน"],
           ["members", "ผู้เรียน"],
@@ -18880,16 +21203,16 @@
           )
           .join(
             "",
-          )}</nav>${courseDetailTab === "members" ? `<section class="panel">${courseDetailTab === "members" ? "<h2>ผู้เรียนในรายวิชา</h2>" : ""}<div class="toolbar"><label class="course-room-select">ชั้นเรียนในรายวิชา<select id="courseOffering" aria-label="เลือกชั้นเรียนในรายวิชา">${offers.map((o) => `<option value="${esc(o.id)}" ${o.id === selectedOffering ? "selected" : ""}>${esc(offeringName(o))} · ${esc(statusLabel[o.status])}</option>`).join("")}</select></label>${selectedOffering && courseDetailTab === "members" ? button("ตั้งสิทธิ์รายวิชา", "edit-offering", selectedOffering) + button("＋ เพิ่มผู้เรียน", "enroll", "", true) + button("รายชื่อ / นำออก", "members") + button("นำห้องออกจากรายวิชา", "remove-room") : ""}</div>${courseDetailTab === "members" ? `<p class="muted">${members.length} คนที่ลงทะเบียนในรายวิชานี้ · การย้ายชั้นเรียนไม่ลงทะเบียนวิชาใหม่ให้อัตโนมัติ</p>` : ""}</section>` : ""}
+          )}</nav>${courseDetailTab === "members" ? `<section class="panel">${courseDetailTab === "members" ? "<h2>ผู้เรียนในรายวิชา</h2>" : ""}<div class="toolbar"><div class="course-room-buttons" aria-label="ชั้นเรียนในรายวิชา">${offers.map(o => `<button type="button" class="btn ${o.id === selectedOffering ? 'primary' : ''}" data-action="select-course-room" data-id="${esc(o.id)}" aria-pressed="${o.id === selectedOffering}">${esc(offeringName(o))}</button>`).join('')}</div>${selectedOffering && courseDetailTab === "members" ? button("ตั้งสิทธิ์รายวิชา", "edit-offering", selectedOffering) + button("จัดการผู้เรียน", "members", "", true) : ""}</div>${courseDetailTab === "members" ? `<p class="muted">${members.length} คนที่ลงทะเบียนในรายวิชานี้ · การย้ายชั้นเรียนไม่ลงทะเบียนวิชาใหม่ให้อัตโนมัติ</p>` : ""}</section>` : ""}
   ${courseDetailTab === "members"
-          ? `<section class="panel table-wrap"><h2>ผู้เรียนในรายวิชานี้ (${members.length} คน)</h2><table><thead><tr><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>งาน</th></tr></thead><tbody>${members.map((e) => `<tr><td>${esc(db.Students.find((s) => s.id === e.studentId)?.fullName || "ไม่พบข้อมูลนักเรียน")}</td><td>${esc(groupName(db.Students.find((s) => s.id === e.studentId)?.groupId || e.groupId))}</td><td>${button("ดูงานรายคน", "student-work", e.studentId)}</td></tr>`).join("")}</tbody></table>${members.length ? "" : empty("ยังไม่มีผู้เรียน ลงทะเบียนด้วยปุ่มเพิ่มผู้เรียน")}</section>`
+          ? `<section class="panel table-wrap course-members-panel"><h2>ผู้เรียนในรายวิชานี้ (${members.length} คน)</h2><table><thead><tr><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>งาน</th></tr></thead><tbody>${members.map((e) => `<tr><td>${esc(db.Students.find((s) => s.id === e.studentId)?.fullName || "ไม่พบข้อมูลนักเรียน")}</td><td>${esc(groupName(db.Students.find((s) => s.id === e.studentId)?.groupId || e.groupId))}</td><td>${button("ดูงานรายคน", "student-work", e.studentId)}</td></tr>`).join("")}</tbody></table>${members.length ? "" : empty("ยังไม่มีผู้เรียน ลงทะเบียนด้วยปุ่มเพิ่มผู้เรียน")}</section>`
           : courseDetailTab === "scores"
             ? `<section class="panel"><h2>คะแนนและการติดตาม</h2><p>ดูงานที่ส่ง ความครบของกิจกรรม และคะแนนที่ตรวจแล้วของรายวิชาที่เลือก</p><div class="actions">${button("ดูความก้าวหน้า", "go-progress", "", true)}${button("เปิดตรวจงาน", "home-review")}${button("ส่งออกคะแนน CSV", "export-scores")}</div></section>`
-            : `<div class="section-intro"><div><h2>จัดการหน่วยการเรียนรู้</h2></div>${button("＋ เพิ่มบทเรียน", "new-chapter", "", true)}</div>
+            : `<div class="section-intro"><div><h2>จัดการหน่วยการเรียนรู้</h2></div>${button("＋ เพิ่มหน่วยการเรียนรู้", "new-chapter", "", true)}</div>
   ${courseData.Chapters.sort((a, b) => a.order - b.order)
               .map(
                 (ch) =>
-                  `<details class="chapter learning-unit" data-unit-status="${esc(ch.status || "active")}" open><summary class="unit-heading"><span class="unit-number" aria-hidden="true">${esc(ch.order)}</span><div class="chapter-summary-text"><span class="subtle">หน่วยการเรียนรู้ที่ ${esc(ch.order)}</span><h3>${esc(ch.title)}</h3></div><div class="unit-heading-status">${badge(ch.status)}<span class="unit-chevron" aria-hidden="true">⌄</span></div></summary><div class="chapter-body"><div class="unit-tools">${button("✎ แก้ไขหน่วย", "edit-chapter", ch.id)}</div>${unitResources(ch)}<div class="actions unit-add-actions">${[["knowledge", "＋ ใบความรู้"], ["worksheet", "＋ ใบงาน"], ["quiz", "＋ แบบทดสอบ"], ["game", "＋ เกม"]].map(([kind, label]) => button(label, "choose-content", ch.id + "|" + kind)).join("")}</div></div></details>`,
+                  `<details class="chapter learning-unit" data-unit-status="${esc(ch.status || "active")}" open><summary class="unit-heading"><span class="unit-number" aria-hidden="true">${esc(ch.order)}</span><div class="chapter-summary-text"><span class="subtle">หน่วยการเรียนรู้ที่ ${esc(ch.order)}</span><h3 title="${esc(ch.title)}">${esc(ch.title)}</h3></div><div class="unit-heading-status">${badge(ch.status)}${button("✎ แก้ไขหน่วย", "edit-chapter", ch.id)}${button("ลบหน่วย", "delete-chapter", ch.id)}<span class="unit-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></div></summary><div class="chapter-body">${unitResources(ch)}<div class="actions unit-add-actions">${[["knowledge", "ใบความรู้"], ["worksheet", "ใบงาน"], ["quiz", "แบบทดสอบ"], ["game", "เกม"]].map(([kind, label]) => `<button type="button" class="btn add-resource-${kind}" data-action="choose-content" data-id="${esc(ch.id + "|" + kind)}"><span class="add-resource-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">${({ knowledge: '<path d="M12 5v15M3 4h4a6 6 0 0 1 5 2 6 6 0 0 1 5-2h4v15h-4a6 6 0 0 0-5 2 6 6 0 0 0-5-2H3z"/>', worksheet: '<path d="M13 3H5v18h14v-8M8 7h3M8 11h2M12 16l1-4 7-7 3 3-7 7zM18 7l3 3"/>', quiz: '<rect x="5" y="4" width="14" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/><path d="m8 12 2 2 5-5M8 18h8"/>', game: '<path d="M7 7h10c3 0 5 10 3 12-1 1-3-2-4-3H8c-1 1-3 4-4 3C2 17 4 7 7 7zM7 10v4M5 12h4"/><circle cx="16" cy="11" r=".7"/><circle cx="18" cy="14" r=".7"/>' })[kind]}</svg></span><span>เพิ่ม${label}</span></button>`).join("")}</div></div></details>`,
               )
               .join("") || empty("ยังไม่มีบทเรียน กดเพิ่มบทเรียนเพื่อเริ่มจัดเนื้อหา")
             }`
@@ -18950,8 +21273,8 @@
               `<button class="review-metric ${reviewStatus === status ? "selected" : ""}" aria-pressed="${reviewStatus === status}" data-action="review-status" data-id="${status}"><span class="stat-symbol" aria-hidden="true">${metricIcon(title)}</span><span>${title}</span><strong>${n}<small> งาน</small></strong></button>`,
           )
           .join("")}</div>` +
-        filters +
-        `<form id="reviewSearchForm" class="toolbar" data-form="review-search"><label>ค้นหานักเรียน<input name="search" value="${esc(reviewSearch)}" placeholder="ค้นหาทุกรายการ"></label><label>กิจกรรม<select name="activityId"><option value="">ทุกกิจกรรม</option>${list.activities.map((a) => `<option value="${esc(a.id)}" ${reviewActivity === a.id ? "selected" : ""}>${esc(a.title)}</option>`).join("")}</select></label><button class="btn" type="submit">ค้นหา</button>${reviewStudent ? button("ดูงานทุกคน", "clear-review-student") : ""}</form><div class="list-order-bar">${orderButton("review")}</div><p class="subtle">พบ ${list.total} งาน · หน้า ${Math.floor(reviewOffset / 50) + 1}</p><div class="list">${list.items.map((s) => `<div class="item review-entry"><div><strong>${esc(s.studentName)}</strong><p>${esc(s.activityTitle)}${s.late ? " · ส่งหลังกำหนด" : ""}</p><p class="subtle">${esc(new Date(s.updatedAt).toLocaleString("th-TH"))} · ${s.status === "graded" ? s.scores.reduce((n, x) => n + Number(x || 0), 0) + " / " + s.maxScore + " คะแนน" : statusLabel[s.status] || ""}</p></div><div class="actions">${badge(s.status)}${button("เปิดงาน", "grade", s.id, true)}</div></div>`).join("") || empty(reviewSearch || reviewActivity || reviewStudent ? "ไม่พบงานตามตัวเลือกนี้" : !counts.total ? "ยังไม่มีนักเรียนส่งงาน" : reviewStatus === "pending" ? "ไม่มีงานรอการตรวจในขณะนี้" : reviewStatus === "graded" ? "ยังไม่มีงานที่ตรวจแล้ว" : reviewStatus === "returned" ? "ไม่มีงานที่ส่งกลับให้แก้ไข" : "ไม่พบงานตามตัวเลือกนี้")}</div><div class="actions">${reviewOffset ? button("← ก่อนหน้า", "review-prev") : ""}${reviewOffset + 50 < list.total ? button("ถัดไป →", "review-next") : ""}</div>`
+        `<section class="review-filter-panel"><h2>ค้นหาและเลือกงานตรวจ</h2>${filters}` +
+        `<form id="reviewSearchForm" class="toolbar" data-form="review-search"><label>ค้นหานักเรียน<input name="search" value="${esc(reviewSearch)}" placeholder="ค้นหาทุกรายการ"></label><label>กิจกรรม<select name="activityId"><option value="">ทุกกิจกรรม</option>${list.activities.map((a) => `<option value="${esc(a.id)}" ${reviewActivity === a.id ? "selected" : ""}>${esc(a.title)}</option>`).join("")}</select></label><button class="btn" type="submit">ค้นหา</button>${reviewStudent ? button("ดูงานทุกคน", "clear-review-student") : ""}</form></section><div class="list-order-bar">${orderButton("review")}</div><p class="subtle">พบ ${list.total} งาน · หน้า ${Math.floor(reviewOffset / 50) + 1}</p><div class="list">${list.items.map((s) => `<div class="item review-entry"><div><strong>${esc(s.studentName)}</strong><p>${esc(s.activityTitle)}${s.late ? " · ส่งหลังกำหนด" : ""}</p><p class="subtle">${esc(new Date(s.updatedAt).toLocaleString("th-TH"))} · ${s.practiceGame ? "ตอบถูก " + s.correctCount + "/" + s.questionCount : s.status === "graded" ? (s.bestScore !== "" && s.bestScore != null ? s.bestScore : s.scores.reduce((n, x) => n + Number(x || 0), 0)) + " / " + s.maxScore + " คะแนน" : statusLabel[s.status] || ""}</p></div><div class="actions">${badge(s.status)}${button("เปิดงาน", "grade", s.id, true)}</div></div>`).join("") || empty(reviewSearch || reviewActivity || reviewStudent ? "ไม่พบงานตามตัวเลือกนี้" : !counts.total ? "ยังไม่มีนักเรียนส่งงาน" : reviewStatus === "pending" ? "ไม่มีงานรอการตรวจในขณะนี้" : reviewStatus === "graded" ? "ยังไม่มีงานที่ตรวจแล้ว" : reviewStatus === "returned" ? "ไม่มีงานที่ส่งกลับให้แก้ไข" : "ไม่พบงานตามตัวเลือกนี้")}</div><div class="actions">${reviewOffset ? button("← ก่อนหน้า", "review-prev") : ""}${reviewOffset + 50 < list.total ? button("ถัดไป →", "review-next") : ""}</div>`
       );
     }
 
@@ -19085,7 +21408,7 @@
     function adminEventTitle(r) {
       const names = {
         saveGroup: "เพิ่มหรือแก้ไขชั้นเรียน", saveStudent: "เพิ่มหรือแก้ไขนักเรียน",
-        saveCourse: "เพิ่มหรือแก้ไขรายวิชา", saveChapter: "เพิ่มหรือแก้ไขบทเรียน",
+        saveCourse: "เพิ่มหรือแก้ไขรายวิชา", saveChapter: "เพิ่มหรือแก้ไขบทเรียน", deleteChapter: "ลบหน่วยการเรียนรู้",
         saveMaterial: "เพิ่มหรือแก้ไขสื่อ", saveActivity: "เพิ่มหรือแก้ไขกิจกรรม",
         importStudents: "นำเข้ารายชื่อนักเรียน", deleteGroup: "ลบชั้นเรียน",
         deleteEntity: "ลบข้อมูล", grade: "บันทึกคะแนน", returnWork: "ส่งงานกลับให้แก้ไข",
@@ -19341,7 +21664,7 @@
     function chapterForm(id = "") {
       const ch = courseData.Chapters.find((c) => c.id === id) || {};
       form(
-        id ? "แก้ไขบทเรียน" : "เพิ่มบทเรียน",
+        id ? "แก้ไขหน่วยการเรียนรู้" : "เพิ่มบทเรียน",
         "chapter",
         input(
           "ลำดับหน่วย",
@@ -19367,7 +21690,7 @@
       form(
         "ตั้งค่าสิทธิ์รายวิชา",
         "offering",
-        `${select("สถานะ", "status", statuses(), o.status || "active")}`,
+        `${select("สถานะ", "status", [{ id: "active", name: "เปิดใช้งาน" }, { id: "closed", name: "ซ่อนและปิดใช้งาน" }], o.status === "active" || !o.status ? "active" : "closed")}`,
         id,
       );
     }
@@ -19382,7 +21705,7 @@
           "",
           false,
         ) +
-        `<div class="actions">${button("เลือกทุกคนที่แสดง", "select-enroll")}</div><div class="check-list">${db.Students.filter(
+        `<div class="actions">${button("เลือกทุกคนที่แสดง", "select-enroll")}</div><div class="table-wrap"><table class="student-table"><thead><tr><th>เลือก</th><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>สถานะ</th></tr></thead><tbody>${db.Students.filter(
           (s) => s.status === "active",
         )
           .map((s) => {
@@ -19392,49 +21715,85 @@
                 e.offeringId === selectedOffering &&
                 e.status === "active",
             );
-            return `<label data-enroll-group="${esc(s.groupId)}"><input type="checkbox" name="studentIds" value="${esc(s.id)}" ${exists ? "disabled checked" : ""}>${esc(s.fullName)} — ${esc(groupName(s.groupId))} ${exists ? "(ลงทะเบียนแล้ว)" : ""}</label>`;
+            return `<tr data-enroll-group="${esc(s.groupId)}"><td><input type="checkbox" name="studentIds" value="${esc(s.id)}" aria-label="เลือก ${esc(s.fullName)}" ${exists ? "disabled checked" : ""}></td><td>${esc(s.fullName)}</td><td>${esc(groupName(s.groupId))}</td><td>${exists ? "ลงทะเบียนแล้ว" : "ยังไม่ลงทะเบียน"}</td></tr>`;
           })
-          .join("")}</div>`,
+          .join("")}</tbody></table></div>`,
       );
     }
     function membersModal() {
-      modal(
-        "ผู้เรียนในรายวิชานี้",
-        `<div class="list">${db.Enrollments.filter(
-          (e) => e.offeringId === selectedOffering && e.status === "active",
-        )
-          .map(
-            (e) =>
-              `<div class="item"><strong>${esc(db.Students.find((s) => s.id === e.studentId)?.fullName || e.studentId)}</strong><p>${esc(groupName(e.groupId))}</p>${button("นำออกจากวิชานี้", "remove-member", e.id)}</div>`,
-          )
-          .join("") || empty("ยังไม่มีผู้เรียน")
-        }</div><p class="subtle">การนำออกไม่ลบงานหรือคะแนน และไม่ลบนักเรียน</p>`,
-      );
+      const rows = db.Enrollments.filter(e => e.offeringId === selectedOffering && e.status === 'active');
+      modal("จัดการผู้เรียน", `<section class="members-manager"><div class="toolbar"><label>ค้นหาผู้เรียน<input id="memberSearch" placeholder="ชื่อ–นามสกุล หรือชั้นเรียน"></label>${button("เพิ่มผู้เรียน", "enroll", "", true)}${rows.length ? button("นำผู้เรียนทั้งห้องออก", "remove-room") : ''}</div><div class="table-wrap"><table class="student-table"><thead><tr><th>ลำดับ</th><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>จัดการ</th></tr></thead><tbody>${rows.map((e, i) => { const student = db.Students.find(s => s.id === e.studentId); const name = student?.fullName || 'ไม่พบข้อมูลนักเรียน', group = groupName(student?.groupId || e.groupId); return `<tr data-member-search="${esc(name + ' ' + group)}"><td>${i + 1}</td><td>${esc(name)}</td><td>${esc(group)}</td><td><div class="actions">${student ? button("แก้ไขข้อมูล", "edit-student", student.id) : ''}${button("ดูงาน", "student-work", e.studentId)}${button("นำออก", "remove-member", e.id)}</div></td></tr>` }).join('')}</tbody></table></div><p id="memberSearchEmpty" class="empty" hidden>ไม่พบผู้เรียนตามคำค้น</p>${rows.length ? '' : empty('ยังไม่มีผู้เรียน กดเพิ่มผู้เรียนเพื่อเริ่มต้น')}<p class="subtle">นำออกจากรายวิชา: เก็บบัญชี งาน และคะแนนไว้ · แก้ไขข้อมูล: มีผลกับข้อมูลนักเรียนทุกวิชา</p><div class="actions">${button("ปิด", "close")}</div></section>`);
     }
     function chooseContent(chapterId, kind) {
       if (kind === "quiz" || kind === "game") return activityForm("", chapterId, kind);
-      const ways = kind === "knowledge" ? [["pdf", "เอกสาร PDF"], ["image", "รูปภาพ"]] : [["web", "ทำใบงานในเว็บ"], ["pdf", "ไฟล์ PDF สำหรับเปิดดู"], ["image", "รูปภาพสำหรับเปิดดู"]];
+      const ways = kind === "knowledge" ? [["file", "ไฟล์ PDF หรือรูปภาพ"], ["url", "ลิงก์ URL"]] : [["web", "สร้างใบงาน"], ["file", "แนบไฟล์ใบงาน"]];
       modal(kind === "knowledge" ? "เพิ่มใบความรู้" : "เพิ่มใบงาน", `<p>เลือกวิธีสร้าง</p><div class="content-choice-grid">${ways.map(([way, label]) => button(label, "content-way", chapterId + "|" + kind + "|" + way)).join("")}</div>`);
     }
-    function materialForm(chapterId, kind = "knowledge", way = "pdf", id = "") {
+    let attachmentSaving = false;
+    const attachmentUploads = new WeakMap();
+    function fileList(row, activity = false) { let files; try { files = typeof (activity ? row.resourceFiles : row.files) === "string" ? JSON.parse(activity ? row.resourceFiles : row.files) : (activity ? row.resourceFiles : row.files) } catch { } if (files?.length) return files; const fileId = activity ? row.resourceFileId : row.fileId; return fileId ? [{ fileId, name: row.title || "ไฟล์เดิม", url: activity ? row.resourceUrl : row.url, mime: activity ? row.resourceMime : row.mime }] : [] }
+    function attachmentFields(name, files = []) { return `<div class="attachment-fields"><label>ไฟล์ PDF หรือรูปภาพ<input type="file" name="${name}" multiple accept="application/pdf,image/jpeg,image/png,image/webp" ${files.length ? '' : 'required'}></label><small>รองรับ PDF และรูปภาพ JPG, JPEG, PNG, WebP<br>ขนาดไม่เกิน 10 MB ต่อไฟล์ · แนบได้สูงสุด 10 ไฟล์ต่อรายการ</small>${files.map(f => `<label class="option-check"><input type="checkbox" name="keepFileIds" value="${esc(f.fileId)}" checked><span>${esc(f.name)} <a href="${esc(f.url)}" target="_blank" rel="noopener">เปิดดู</a></span></label>`).join('')}${files.length ? '<p class="subtle">เอาเครื่องหมายถูกออกเพื่อนำไฟล์เดิมออกจากรายการ</p>' : ''}<div data-selected-files></div><p id="attachmentStatus" role="status"></p></div>` }
+    async function uploadFiles(files, purpose, chapterId, kept) {
+      if (files.length + kept.length > 10) throw Error("รวมไฟล์เดิมและไฟล์ใหม่ได้ไม่เกิน 10 ไฟล์");
+      files.forEach(validateAttachment);
+      const ids = []; for (let i = 0; i < files.length; i++) { const file = files[i]; let contexts = attachmentUploads.get(file); if (!contexts) { contexts = new Map(); attachmentUploads.set(file, contexts) } const key = purpose + ":" + chapterId; let record = contexts.get(key); if (!record) { record = { requestId: crypto.randomUUID() }; contexts.set(key, record) } if (!record.fileId) { showOperation(`กำลังอัปโหลดไฟล์ ${i + 1} จาก ${files.length}`, file.name); if ($("attachmentStatus")) $("attachmentStatus").textContent = `กำลังอัปโหลด ${i + 1}/${files.length}: ${file.name}`; const saved = await api("uploadAttachment", { purpose, chapterId, file: await resourceFilePayload(file), requestId: record.requestId }); record.fileId = saved.fileId } ids.push(record.fileId) } return ids;
+    }
+    function materialForm(chapterId, kind = "knowledge", way = "file", id = "") {
       const m = courseData.Materials.find((row) => row.id === id) || {};
-      form(id ? "แก้ไขสื่อ" : kind === "knowledge" ? "เพิ่มใบความรู้" : "เพิ่มไฟล์ใบงาน", "material",
+      if (kind === "worksheet" && !id) return worksheetFileForm(chapterId);
+      const name = kind === "worksheet" ? "ใบงาน" : "ใบความรู้";
+      form((id ? "แก้ไข" : "เพิ่ม") + name, "material",
         `<input type="hidden" name="chapterId" value="${esc(chapterId)}"><input type="hidden" name="kind" value="${esc(kind)}">` +
-        input("ชื่อรายการ", "title", m.title || "") +
-        (id ? "" : `<label>${way === "pdf" ? "เอกสาร PDF" : "รูปภาพ JPG / PNG / WebP"} (ไม่เกิน 3 MB)<input name="file" type="file" required accept="${way === "pdf" ? "application/pdf" : "image/jpeg,image/png,image/webp"}"></label>`) +
+        input("ชื่อ" + name, "title", m.title || "", "text", true, "เช่น " + name + "ที่ 1") +
+        (way === "url" || (id && !m.fileId) ? input("ลิงก์ URL", "url", m.url || "", "url") : attachmentFields("file", fileList(m))) +
         select("สถานะ", "status", [{ id: "active", name: "เปิดใช้งาน" }, { id: "hidden", name: "ซ่อนและปิดใช้งาน" }], m.status || "active"), id);
     }
+    function validateAttachment(file) {
+      if (!file || !file.size) throw Error("ไฟล์ที่แนบไม่มีข้อมูล กรุณาเลือกไฟล์ใหม่");
+      if (file.size > 10 * 1024 * 1024) throw Error("ขนาดไฟล์ที่แนบต้องไม่เกิน 10 MB");
+      if (!["application/pdf", "image/jpeg", "image/png", "image/webp"].includes(file.type)) throw Error("ชนิดไฟล์ที่แนบไม่รองรับ กรุณาใช้ PDF หรือรูปภาพ JPG, JPEG, PNG, WebP");
+    }
+    async function resourceFilePayload(file) {
+      validateAttachment(file);
+      const data = await new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(String(r.result).split(",")[1]); r.onerror = () => reject(Error("อ่านไฟล์ไม่สำเร็จ กรุณาเลือกไฟล์ใหม่")); r.readAsDataURL(file); });
+      return { name: file.name, mime: file.type, data };
+    }
+    function dueFields(value = "") {
+      const date = value ? new Date(new Date(value).getTime() + 7 * 3600000).toISOString().slice(0, 16) : "";
+      return `<div class="schedule-fields">${select("กำหนดส่ง", "dueMode", [{ id: "none", name: "ไม่กำหนด" }, { id: "set", name: "กำหนดวันและเวลา" }], date ? "set" : "none")}<label data-due-field ${date ? "" : "hidden"}>วันและเวลาส่ง<input type="datetime-local" name="dueAt" value="${esc(date)}" ${date ? "required" : "disabled"}></label></div>`;
+    }
+    function timerFields(seconds = 0, mode = "quiz") {
+      const timed = Number(seconds) > 0, s = timed ? Number(seconds) : 60;
+      return `<div class="schedule-fields">${select(mode === "game" ? "เวลาในการเล่นเกมนี้" : "เวลาในการทำแบบทดสอบนี้", "timerMode", [{ id: "none", name: "ไม่กำหนด" }, { id: "set", name: "จับเวลา" }], timed ? "set" : "none")}<div data-timer-field ${timed ? "" : "hidden"}><div class="time-parts">${[["ชั่วโมง", "timeHours", Math.floor(s / 3600), 24], ["นาที", "timeMinutes", Math.floor(s % 3600 / 60), 59], ["วินาที", "timeSeconds", s % 60, 59]].map(([label, name, value, max]) => `<label>${label}<input name="${name}" type="number" min="0" max="${max}" step="1" value="${value}" ${timed ? "required" : "disabled"}></label>`).join('')}</div></div></div>`;
+    }
+    function optionCheck(label, name, checked) {
+      const help = { countScore: "นำคะแนนจากเกมนี้ไปรวมเป็นคะแนนรายวิชา หากไม่เลือก จะแสดงจำนวนข้อที่ตอบถูกแทนคะแนน", showAnswers: "นักเรียนจะสามารถดูคำตอบที่ถูกต้องได้", unlimitedAttempts: "นักเรียนจะสามารถทำได้ไม่จำกัดจำนวนครั้ง\nแต่ระบบจะยึดตามคะแนนที่สูงสุด", protectContent: "นักเรียนจะเข้าโหมดเต็มหน้าจอ\nและไม่สามารถคัดลอกเพื่อหาคำตอบได้" }[name] || label;
+      return `<div class="activity-option-card"><label class="option-check"><input type="checkbox" name="${name}" aria-describedby="hint-${name}" ${checked ? "checked" : ""}><span class="fit-line">${esc(label)}</span></label><details class="option-help"><summary aria-label="คำแนะนำ: ${esc(label)}" title="ดูคำแนะนำ">?</summary><p id="hint-${name}">${esc(help)}</p></details></div>`;
+    }
+    function worksheetFileForm(chapterId, id = "") {
+      const a = courseData.Activities.find(x => x.id === id) || {};
+      form(id ? "แก้ไขใบงาน" : "สร้างใบงาน", "worksheet-file", `<input type="hidden" name="chapterId" value="${esc(a.chapterId || chapterId)}">` +
+        input("ชื่อใบงาน", "title", a.title || "", "text", true, "เช่น ใบงานที่ 1") +
+        attachmentFields("resourceFile", fileList(a, true)) +
+        area("คำชี้แจง", "instructions", a.questions?.[0]?.text || "เปิดไฟล์โจทย์ ทำใบงาน แล้วแนบไฟล์ส่งให้ครูตรวจ") +
+        input("คะแนนเต็มรวมทั้งใบงาน", "points", a.questions?.[0]?.points || 10, "number") +
+        select("สถานะ", "status", [{ id: "draft", name: "ฉบับร่าง" }, { id: "active", name: "เปิดใช้งาน" }, { id: "hidden", name: "ซ่อนและปิดใช้งาน" }], a.status || "draft") +
+        dueFields(a.dueAt) + `<div id="activityScoreSummary" class="score-summary" data-score-name="ใบงาน"></div>`, id);
+      updateScoreSummary();
+    }
+    function activityIcon(kind) { const paths = { knowledge: '<path d="M12 5v15M3 4h4a6 6 0 0 1 5 2 6 6 0 0 1 5-2h4v15h-4a6 6 0 0 0-5 2 6 6 0 0 0-5-2H3z"/>', worksheet: '<path d="M14 3H5v18h14V8zM14 3v5h5M8 12h8M8 16h6"/>', quiz: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="m8 12 2 2 5-5M8 18h8"/>', game: '<path d="M7 7h10c3 0 5 10 3 12-1 1-3-2-4-3H8c-1 1-3 4-4 3C2 17 4 7 7 7zM7 10v4M5 12h4M16 11h1M18 14h1"/>' }; return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[kind] || paths.knowledge}</svg>` }
     function unitResources(ch) {
-      const items = [...courseData.Materials.filter((r) => r.chapterId === ch.id && r.status !== "deleted").map((r) => ({ entity: "Materials", row: r })), ...courseData.Activities.filter((r) => r.chapterId === ch.id && r.status !== "deleted").map((r) => ({ entity: "Activities", row: r }))]
-        .sort((a, b) => (Number(a.row.order) || 1000000) - (Number(b.row.order) || 1000000) || (a.entity === b.entity ? 0 : a.entity === "Materials" ? -1 : 1));
+      const items = [...courseData.Materials.filter(r => r.chapterId === ch.id && r.status !== "deleted").map(row => ({ entity: "Materials", row })), ...courseData.Activities.filter(r => r.chapterId === ch.id && r.status !== "deleted").map(row => ({ entity: "Activities", row }))].sort((a, b) => (Number(a.row.order) || 1000000) - (Number(b.row.order) || 1000000) || (a.entity === b.entity ? 0 : a.entity === "Materials" ? -1 : 1));
       return items.map(({ entity, row: r }, i) => {
-        const material = entity === "Materials";
-        const kind = material ? r.kind === "worksheet" ? "ใบงาน · เปิดดูไฟล์" : "ใบความรู้" : r.mode === "game" ? "เกม" : r.kind === "worksheet" ? "ใบงาน · ทำในเว็บ" : "แบบทดสอบ";
-        return `<article class="resource-row" data-resource-status="${esc(r.status)}"><div><span class="resource-kind">${esc(kind)}</span><strong>${esc(r.title)}</strong><div class="subtle">${material ? r.mime === "application/pdf" ? "PDF" : (r.mime || "สื่อเดิม") : (r.questions || []).length + " ข้อ · " + (r.questions || []).reduce((n, q) => n + q.points, 0) + " คะแนน"}</div></div><div class="actions">${badge(r.status)}${button("↑", "move-resource", entity + "|" + r.id + "|up")}${button("↓", "move-resource", entity + "|" + r.id + "|down")}${button(material ? "เปิดดู" : "ทดลองทำ", material ? "preview-material" : "try-activity", r.id)}${button("แก้ไข", material ? "edit-material" : "edit-activity", r.id)}${button(r.status === "active" ? "ซ่อนและปิดใช้งาน" : "เปิดใช้งาน", "resource-status", entity + "|" + r.id)}${button("ลบ", material ? "delete-material" : "delete-activity", r.id)}</div></article>`;
-      }).join("") || `<p class="subtle unit-empty">ยังไม่มีรายการ เลือกเพิ่มสื่อหรือกิจกรรมด้านล่าง</p>`;
+        const material = entity === "Materials", kind = material ? r.kind === "worksheet" ? "worksheet" : "knowledge" : r.mode === "game" ? "game" : r.kind === "worksheet" ? "worksheet" : "quiz";
+        const types = material ? [...new Set((fileList(r).length ? fileList(r) : [{ mime: r.mime }]).map(f => f.mime === "application/pdf" ? "PDF" : String(f.mime || "").startsWith("image/") ? "Image" : "URL"))].join(" / ") : kind === "worksheet" ? r.submissionMode === "file" ? "แนบไฟล์ส่ง" : "ใบงานออนไลน์" : (r.questions || []).length + " ข้อ";
+        const eye = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+        return `<article class="resource-row resource-compact" data-resource-status="${esc(r.status)}"><span class="resource-icon resource-icon-${kind}" title="${({ knowledge: "ใบความรู้", worksheet: "ใบงาน", quiz: "แบบทดสอบ", game: "เกม" })[kind]}">${activityIcon(kind)}</span><div class="resource-name-group"><strong class="resource-title" title="${esc(r.title)}">${esc(r.title)}</strong><span class="resource-format">${esc(types)}</span></div><div class="resource-state">${badge(r.status)}</div><button type="button" class="btn resource-preview" data-action="${material ? "preview-material" : "try-activity"}" data-id="${esc(r.id)}" aria-label="ดู ${esc(r.title)}" title="ดูกิจกรรม">${eye}</button><details class="more-menu resource-manage"><summary>จัดการ ▾</summary><div>${button("แก้ไข", material ? "edit-material" : "edit-activity", r.id)}${button(r.status === "active" ? "ซ่อนกิจกรรม" : "แสดงกิจกรรม", "resource-status", entity + "|" + r.id)}${i ? button("เลื่อนขึ้น", "move-resource", entity + "|" + r.id + "|up") : ""}${i < items.length - 1 ? button("เลื่อนลง", "move-resource", entity + "|" + r.id + "|down") : ""}${button("ลบ", material ? "delete-material" : "delete-activity", r.id)}</div></details></article>`;
+      }).join("") || '<p class="subtle unit-empty">ยังไม่มีรายการ เลือกเพิ่มสื่อหรือกิจกรรมด้านล่าง</p>';
     }
     function previewMaterial(id) {
       const m = courseData.Materials.find((m) => m.id === id);
+      const files = fileList(m); if (files.length > 1) return modal(m.title, files.map(f => `<section><h3>${esc(f.name)}</h3><iframe class="preview-frame" loading="lazy" src="https://drive.google.com/file/d/${esc(f.fileId)}/preview" title="${esc(f.name)}"></iframe><div class="actions material-open-actions"><a class="btn primary" href="${esc(f.url)}" target="_blank" rel="noopener">กดเพื่อเปิดดู</a></div></section>`).join(""));
       let preview = "";
       const safe = /^https:\/\//.test(m.url) || false;
       if (!safe) {
@@ -19451,76 +21810,32 @@
       else if (m.mime === "application/pdf")
         preview = `<iframe class="preview-frame" src="${esc(m.url)}" title="เอกสาร PDF"></iframe>`;
       else
-        preview = empty(
-          "ลิงก์ภายนอกบางเว็บไซต์ไม่อนุญาตให้ฝังในหน้าเว็บ กดเปิดต้นฉบับเพื่อดูสื่อ",
-        );
+        preview = `<div class="external-preview-note">${empty("ลิงก์ภายนอกบางเว็บไซต์จะแสดงตัวอย่างไม่ได้ กดเพื่อเปิดดูภายนอก")}</div>`;
       modal(
         m.title,
         preview +
-        `<div class="actions"><a class="btn primary" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer" title="เปิดสื่อต้นฉบับในแท็บใหม่">เปิดต้นฉบับ</a>${drive ? `<a class="btn" href="https://drive.google.com/uc?export=download&amp;id=${esc(drive)}" target="_blank" rel="noopener noreferrer">ดาวน์โหลดไฟล์</a>` : ""}</div>`,
+        `<div class="actions material-open-actions"><a class="btn primary" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer" title="เปิดในแท็บใหม่">กดเพื่อเปิดดู</a>${drive ? `<a class="btn" href="https://drive.google.com/uc?export=download&amp;id=${esc(drive)}" target="_blank" rel="noopener noreferrer">ดาวน์โหลดไฟล์</a>` : ""}</div>`,
       );
     }
     function activityForm(id = "", chapterId = "", preset = "worksheet") {
-      const a = courseData.Activities.find((a) => a.id === id) || { kind: preset === "worksheet" ? "worksheet" : "quiz", mode: preset === "game" ? "game" : "quiz", countScore: preset !== "game" };
+      const a = courseData.Activities.find(x => x.id === id) || { kind: preset === "worksheet" ? "worksheet" : "quiz", mode: preset === "game" ? "game" : "quiz", countScore: preset !== "game" };
+      if (a.kind === "worksheet" && a.submissionMode === "file") return worksheetFileForm(a.chapterId || chapterId, id);
+      const worksheet = a.kind === "worksheet", name = worksheet ? "ใบงาน" : a.mode === "game" ? "เกม" : "แบบทดสอบ";
       editingActivity = id;
-      questionDraft = JSON.parse(
-        JSON.stringify(
-          a.questions || [
-            {
-              id: uid("Q"),
-              text: "",
-              type: a.kind === "worksheet" && a.mode !== "game" ? "text" : "single",
-              points: 1,
-              options: [],
-              correct: 0,
-            },
-          ],
-        ),
-      );
-      form(
-        id ? "แก้ไขกิจกรรม" : "สร้างใบงาน / แบบทดสอบ",
-        "activity",
-        select(
-          "หน่วยการเรียนรู้",
-          "chapterId",
-          courseData.Chapters.map((c) => ({
-            id: c.id,
-            name: "หน่วย " + c.order + " · " + c.title,
-          })),
-          a.chapterId || chapterId,
-        ) +
-        input("ชื่อกิจกรรม", "title", a.title) +
-        `<div class="row">${select(
-          "ประเภท",
-          "kind",
-          [
-            { id: "worksheet", name: "ใบงาน" },
-            { id: "quiz", name: "แบบทดสอบ" },
-          ],
-          a.kind || "worksheet",
-        )}${select(
-          "รูปแบบแสดงผล",
-          "mode",
-          [
-            { id: "quiz", name: "แบบฟอร์มคำถาม" },
-            { id: "game", name: "เกมตอบคำถามทีละข้อ" },
-          ],
-          a.mode || "quiz",
-        )}</div><div class="row">${input("เวลารวมทั้งชุด (วินาที) — 0 = ไม่จับเวลา", "seconds", a.seconds || 0, "number")}${select(
-          "สถานะ",
-          "status",
-          [
-            { id: "draft", name: "ฉบับร่าง" },
-            { id: "active", name: "เปิดใช้งาน" },
-            { id: "hidden", name: "ซ่อนและปิดใช้งาน" },
-          ],
-          a.status || "draft",
-        )}</div>${input("กำหนดส่ง (เวลาไทย) — เว้นว่างได้", "dueAt", a.dueAt ? new Date(new Date(a.dueAt).getTime() + 7 * 3600000).toISOString().slice(0, 16) : "", "datetime-local", false)}<label><input type="checkbox" name="countScore" ${a.countScore === true || ((a.countScore === "" || a.countScore === undefined) && a.mode !== "game") ? "checked" : ""} style="width:auto"> นับเป็นคะแนนรายวิชา</label><label class="check-list"><span><input type="checkbox" name="showAnswers" ${a.showAnswers ? "checked" : ""} style="width:auto"> แสดงเฉลยหลังส่ง</span><span><input type="checkbox" name="allowEdit" ${a.allowEdit ? "checked" : ""} style="width:auto"> อนุญาตแก้ไขใบงานหลังส่ง (ควิซทำได้ครั้งเดียว)</span></label><div id="questionEditor"></div>${button("＋ เพิ่มคำถาม", "add-question")}<small>คำตอบเขียนให้ครูตรวจรายข้อ • จับคู่ได้คะแนนเมื่อถูกทั้งหมด • เลือกคำตอบที่ถูกต้องจากรายการ • เกมรองรับตัวเลือก ใช่/ไม่ใช่ และจับคู่</small>`,
-        id,
-      );
+      questionDraft = JSON.parse(JSON.stringify(a.questions || [{ id: uid("Q"), text: "", type: "single", points: 1, options: ["", ""], correct: null }]));
+      form((id ? "แก้ไข" : "สร้าง") + name, "activity",
+        select("หน่วยการเรียนรู้", "chapterId", courseData.Chapters.map(c => ({ id: c.id, name: "หน่วย " + c.order + " · " + c.title })), a.chapterId || chapterId) +
+        input("ชื่อ" + name, "title", a.title || "", "text", true, "เช่น " + name + "ที่ 1") +
+        `<input type="hidden" name="kind" value="${worksheet ? "worksheet" : "quiz"}"><input type="hidden" name="mode" value="${worksheet ? "quiz" : esc(a.mode || "quiz")}">` +
+        (worksheet ? '<input type="hidden" name="seconds" value="0">' : timerFields(a.seconds, a.mode)) +
+        select("สถานะ", "status", [{ id: "draft", name: "ฉบับร่าง" }, { id: "active", name: "เปิดใช้งาน" }, { id: "hidden", name: "ซ่อนและปิดใช้งาน" }], a.status || "draft") +
+        dueFields(a.dueAt) +
+        (worksheet ? "" : `<div class="activity-options">${a.mode === "game" ? optionCheck("เก็บคะแนนจากเกมนี้", "countScore", a.countScore === true) : '<input type="hidden" name="countScore" value="true">'}${optionCheck("แสดงคำตอบที่ถูกต้อง", "showAnswers", a.showAnswers)}${optionCheck("ไม่จำกัดจำนวนครั้ง", "unlimitedAttempts", a.unlimitedAttempts)}${optionCheck("โหมดโฟกัสการทำกิจกรรม", "protectContent", a.protectContent)}</div>`) +
+        `<div id="questionEditor"></div><button type="button" class="btn primary add-question-button" data-action="add-question">เพิ่มคำถามใหม่</button><div id="activityScoreSummary" class="score-summary" data-score-name="${name}"></div>`, id);
       renderQuestionEditor();
     }
     function collectQuestions() {
+      const manual = false;
       document.querySelectorAll("[data-question-index]").forEach((el) => {
         const i = Number(el.dataset.questionIndex),
           type = el.querySelector("[name=qtype]").value;
@@ -19534,43 +21849,60 @@
               ? []
               : type === "boolean"
                 ? ["ใช่", "ไม่ใช่"]
-                : el
-                  .querySelector("[name=qoptions]")
-                  .value.split("\n")
-                  .map((s) => s.trim())
-                  .filter(Boolean),
+                : type === "matching" ? (questionDraft[i].options || []) : [...el.querySelectorAll('[name=qoption]')].map(input => input.value.trim()),
           correct:
-            type === "text"
+            manual || type === "text"
               ? null
-              : Number(el.querySelector("[name=qcorrect]").value) - 1,
+              : el.querySelector("[name=qcorrect]")?.value ? Number(el.querySelector("[name=qcorrect]").value) - 1 : null,
         };
         if (type === "matching") {
-          const pairs = (el.querySelector("[name=qpairs]")?.value || "").split("\n").map((line) => line.split("|").map((v) => v.trim())).filter((v) => v.some(Boolean));
-          questionDraft[i].prompts = pairs.map((v) => v[0] || "");
-          questionDraft[i].options = pairs.map((v) => v.slice(1).join("|").trim());
-          questionDraft[i].correct = pairs.map((_, n) => n);
+          questionDraft[i].prompts = [...el.querySelectorAll('[name=qprompt]')].map(input => input.value.trim());
+          questionDraft[i].options = [...el.querySelectorAll('[name=qpairanswer]')].map(input => input.value.trim());
+          questionDraft[i].correct = manual ? null : questionDraft[i].prompts.map((_, n) => n);
         }
       });
     }
+    function pairEditor(q, i) {
+      const prompts = q.prompts || [];
+      return `<div class="question-options">${prompts.map((value, n) => `<div class="question-pair"><label>รายการที่ ${n + 1}<input name="qprompt" value="${esc(value)}" placeholder="ข้อความหรือคำถาม" maxlength="500" required></label><label>เฉลยคู่ที่ ${n + 1}<input name="qpairanswer" value="${esc(q.options[n] || '')}" placeholder="คำตอบที่คู่กัน" maxlength="500" required></label><button type="button" class="btn choice-remove" data-action="remove-pair" data-id="${i}" data-option="${n}" aria-label="ลบคู่ที่ ${n + 1}">×</button></div>`).join('')}<button type="button" class="btn add-pair-button" title="เพิ่มได้สูงสุด 10 คู่" data-action="add-pair" data-id="${i}" ${prompts.length >= 10 ? 'disabled' : ''}>${prompts.length >= 10 ? "ครบ 10 คู่แล้ว" : "เพิ่มคู่คำตอบ"}</button></div>`;
+    }
+    function optionEditor(q, i) {
+      const options = q.options;
+      return `<div class="question-options">${options.map((value, n) => `<div class="question-option"><label>ตัวเลือกที่ ${n + 1}<input name="qoption" value="${esc(value)}" placeholder="ตัวเลือกที่ ${n + 1}" maxlength="500" required></label><button type="button" class="btn choice-remove" data-action="remove-option" data-id="${i}" data-option="${n}" aria-label="ลบตัวเลือกที่ ${n + 1}">×</button></div>`).join('')}<button type="button" class="btn add-option-button" title="เพิ่มได้สูงสุด 10 ตัวเลือก" data-action="add-option" data-id="${i}" ${options.length >= 10 ? 'disabled' : ''}>${options.length >= 10 ? "ครบ 10 ตัวเลือกแล้ว" : "เพิ่มตัวเลือก"}</button></div>`;
+    }
+    function answerKeyEditor(q) { if (!["single", "boolean"].includes(q.type)) return ""; const options = q.type === "boolean" ? ["ใช่", "ไม่ใช่"] : q.options; return select("เฉลยคำตอบที่ถูกต้อง", "qcorrect", [{ id: "", name: "เลือกเฉลย" }, ...options.map((v, n) => ({ id: String(n + 1), name: q.type === "boolean" ? v : `ตัวเลือกที่ ${n + 1}: ${v}` }))], Number.isInteger(q.correct) ? String(q.correct + 1) : "") }
+    function updateScoreSummary() {
+      const box = $("activityScoreSummary"); if (!box) return;
+      const f = box.closest("form"), practice = f?.elements.mode?.value === "game" && !f.elements.countScore.checked;
+      box.hidden = practice; document.querySelectorAll("#questionEditor [name=qpoints]").forEach(el => el.closest("label").hidden = practice); if (practice) return;
+      const fields = [...document.querySelectorAll('#questionEditor [name=qpoints]')];
+      const fileField = box.closest('form')?.querySelector('[name=points]');
+      const inputs = fields.length ? fields : fileField ? [fileField] : [];
+      const valid = inputs.every(el => el.value.trim() !== "" && Number.isFinite(Number(el.value)) && Number(el.value) > 0);
+      const total = inputs.reduce((sum, el) => sum + (Number(el.value) || 0), 0);
+      box.innerHTML = `<div class="score-total"><strong>รวมคะแนนเต็มของ${esc(box.dataset.scoreName || "กิจกรรม")}</strong><div class="score-total-value">${valid ? `<b>${esc(total.toLocaleString('th-TH'))}</b><span>คะแนน</span>` : '<span class="score-invalid">กรุณาระบุคะแนนให้ครบ</span>'}</div></div>${fields.length ? `<div class="score-breakdown" aria-label="คะแนนเต็มรายข้อ">${fields.map((el, i) => `<div class="score-question"><span class="score-question-label">ข้อ ${i + 1}</span><strong>${esc(el.value || "—")}</strong><small>คะแนน</small></div>`).join("")}</div>` : '<p>ครูสามารถตรวจและให้คะแนนได้หลังจากที่นักเรียนส่งงาน</p>'}`;
+    }
     function renderQuestionEditor() {
+      const manual = false;
       $("questionEditor").innerHTML = questionDraft
         .map(
           (q, i) =>
-            `<div class="question-row" data-question-index="${i}"><div class="toolbar"><strong>ข้อ ${i + 1}</strong>${button("ลบข้อ", "remove-question", String(i))}</div>${area("โจทย์", "qtext", q.text)}<div class="row">${select(
+            `<div class="question-row" data-question-index="${i}"><div class="toolbar"><strong>คำถามข้อที่ ${i + 1}</strong><button type="button" class="btn question-delete" data-action="remove-question" data-id="${i}" aria-label="ลบคำถามข้อ ${i + 1}" title="ลบคำถาม"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></svg></button></div>${area("โจทย์", "qtext", q.text)}<div class="row">${select(
               "ชนิดคำตอบ",
               "qtype",
               [
-                { id: "text", name: "เขียนตอบ" },
+                { id: "text", name: "เขียนคำตอบ" },
                 { id: "single", name: "เลือกคำตอบเดียว" },
                 { id: "boolean", name: "ใช่ / ไม่ใช่" },
                 { id: "matching", name: "จับคู่" },
               ],
               q.type,
-            )}${input("คะแนนเต็ม", "qpoints", q.points, "number")}</div>${q.type === "matching" ? area("คู่คำตอบ (หนึ่งคู่ต่อบรรทัด ใช้ | คั่น)", "qpairs", (q.prompts || []).map((v, n) => v + " | " + q.options[n]).join("\n"), "CPU | ประมวลผล\nRAM | หน่วยความจำชั่วคราว") : ""}<div ${q.type === "text" || q.type === "matching" ? "hidden" : ""}>${area("ตัวเลือก (หนึ่งตัวเลือกต่อบรรทัด)", "qoptions", (q.type === "boolean" ? ["ใช่", "ไม่ใช่"] : q.options).join("\n"))}${select("คำตอบที่ถูกต้อง", "qcorrect", (q.type === "boolean" ? ["ใช่", "ไม่ใช่"] : q.type === "text" || q.type === "matching" ? ["—"] : q.options.length ? q.options : ["กรอกตัวเลือกก่อน"]).map((v, n) => ({ id: String(n + 1), name: v || "ตัวเลือก " + (n + 1) })), String(q.type === "matching" || !Number.isInteger(q.correct) ? 1 : q.correct + 1))}</div></div>`,
+            )}${input("คะแนนเต็มของข้อนี้", "qpoints", q.points, "number")}</div>${q.type === "matching" ? pairEditor(q, i) : ""}<div ${q.type === "text" || q.type === "matching" ? "hidden" : ""}>${q.type === "single" ? optionEditor(q, i) : ""}${answerKeyEditor(q)}</div></div>`,
         )
         .join("");
+      updateScoreSummary();
     }
-    function validateQuestions(questions, mode) {
+    function validateQuestions(questions, mode, manual = false) {
       if (!questions.length) throw Error("เพิ่มคำถามอย่างน้อยหนึ่งข้อ");
       questions.forEach((q, i) => {
         if (
@@ -19583,10 +21915,8 @@
         if (
           q.type !== "text" && q.type !== "matching" &&
           (q.options.length < 2 ||
-            q.options.length > 10 ||
-            !Number.isInteger(q.correct) ||
-            q.correct < 0 ||
-            q.correct >= q.options.length)
+            q.options.length > 10 || q.options.some(v => !v.trim()) ||
+            (!manual && (!Number.isInteger(q.correct) || q.correct < 0 || q.correct >= q.options.length)))
         )
           throw Error("ตรวจตัวเลือกและเฉลยข้อ " + (i + 1));
         if (q.type === "matching" && (q.options.length < 2 || q.options.length > 10 || q.options.some((v) => !v) || q.prompts.some((v) => !v))) throw Error("กรอกคู่คำตอบให้ครบ 2–10 คู่ในข้อ " + (i + 1));
@@ -19622,7 +21952,7 @@
       }
       modal(
         groupId
-          ? "เปลี่ยนรายชื่อนักเรียนทั้งหมดในชั้น — ลบข้อมูลเดิม"
+          ? "อัพเดทรายชื่อนักเรียนใหม่ — ลบข้อมูลเดิม"
           : "นำเข้ารายชื่อด้วยการวางข้อความ",
         `<div class="form">${groupId ? `<input type="hidden" name="importGroup" value="${esc(groupId)}"><p class="notice">ห้อง ${esc(groupName(groupId))}: ลบนักเรียนเดิมพร้อมบัญชี การลงทะเบียน งาน คะแนน ประวัติส่งงาน ความก้าวหน้า รอบทำกิจกรรม โปรไฟล์ และเซสชันในทุกวิชา แล้วเพิ่มรายชื่อใหม่ ห้ามใช้รายชื่อซ้ำกับคนที่มีในระบบ หากเป็นเด็กเดิมให้ใช้ย้ายห้อง</p>` : select("เพิ่มนักเรียนเข้าชั้นเรียน", "importGroup", groupOptions(), selectedGroup)}${area("วางชื่อนักเรียน หนึ่งคนต่อหนึ่งบรรทัด", "rawNames", "", "นายภัทรพล รัตนสุนทร\nนางสาวพิมพ์ชนก ศรีวรินทร์\nเด็กชายณภัทร วัฒนกุล\nเด็กหญิงลลิตา พิชญานนท์")}${button("ตรวจสอบรายชื่อ", "parse-import", "", true)}<div id="importRows"></div></div>`,
       );
@@ -19665,20 +21995,24 @@
     }
     async function gradeModal(id) {
       const s = await api("submission", { id });
+      if (s.practiceGame) return modal("ผลการเล่นเกม — " + s.studentName, `<p><strong>${esc(s.activityTitle)}</strong></p>${gameResultCard(s.correctCount, s.questions.length)}<div class="actions">${button("อนุญาตให้ทำใหม่", "reopen-attempt", id)}</div>`);
       modal(
         "ตรวจงาน — " + s.studentName,
-        `<p><strong>${esc(s.activityTitle)}</strong></p>${s.history?.length ? button("ประวัติคำตอบ / คะแนน", "submission-history", id) : ""}<form class="form" data-form="grade"><input type="hidden" name="id" value="${esc(id)}"><input type="hidden" name="revision" value="${s.revision}">${s.questions.map((q, i) => `<div class="question-row"><strong>ข้อ ${i + 1} · ${esc(q.text)}</strong><div class="answer-text">${esc(q.type === "text" ? s.answers[i] : q.type === "matching" ? q.prompts.map((v, n) => v + " → " + (q.options[s.answers[i]?.[n]] || "—")).join(" · ") : q.options[s.answers[i]])}</div>${q.type !== "text" ? `<p class="subtle">เฉลย: ${esc(q.type === "matching" ? q.prompts.map((v, n) => v + " → " + q.options[q.correct[n]]).join(" · ") : q.options[q.correct])}</p>` : ""}<label>คะแนน / ${q.points}<input name="score" type="number" min="0" max="${q.points}" step="0.5" required value="${s.scores[i] ?? ""}"></label></div>`).join("")}${area("ข้อเสนอแนะถึงนักเรียน", "feedback", s.feedback)}<div class="actions"><button class="btn primary" type="submit" name="next" value="no">บันทึกคะแนน</button><button class="btn" type="submit" name="next" value="yes">บันทึกและตรวจคนถัดไป</button>${courseData.Activities?.find((a) => a.id === s.activityId)?.kind === "worksheet" || s.kind === "worksheet" ? button("ส่งกลับให้แก้ไข", "return-work", id) : ""}${button("พิมพ์ / บันทึก PDF", "print")}</div><div id="formError" role="alert"></div></form>`,
+        `<p><strong>${esc(s.activityTitle)}</strong></p>${s.history?.length ? button("ประวัติคำตอบ / คะแนน", "submission-history", id) : ""}<form class="form" data-form="grade"><input type="hidden" name="id" value="${esc(id)}"><input type="hidden" name="revision" value="${s.revision}">${s.questions.map((q, i) => `<div class="question-row"><strong>ข้อ ${i + 1} · ${esc(q.text)}</strong><div class="answer-text">${q.type === "text" ? worksheetAnswerHTML(s.answers[i], s.id) : esc(q.type === "matching" ? q.prompts.map((v, n) => v + " → " + (q.options[s.answers[i]?.[n]] || "—")).join(" · ") : q.options[s.answers[i]])}</div>${q.type !== "text" && q.correct != null ? `<p class="subtle">ระบบตรวจช่วย: ${esc(s.scores[i] ?? "—")} / ${q.points} คะแนน · เฉลย: ${esc(q.type === "matching" ? q.prompts.map((v, n) => v + " → " + q.options[q.correct[n]]).join(" · ") : q.options[q.correct])}</p>` : ""}<label>คะแนน / ${q.points}<input name="score" type="number" min="0" max="${q.points}" step="0.5" required value="${s.scores[i] ?? ""}"></label></div>`).join("")}${area("ข้อเสนอแนะถึงนักเรียน", "feedback", s.feedback)}<div class="actions"><button class="btn primary" type="submit" name="next" value="no">บันทึกคะแนน</button><button class="btn" type="submit" name="next" value="yes">บันทึกและตรวจคนถัดไป</button>${courseData.Activities?.find((a) => a.id === s.activityId)?.kind === "worksheet" || s.kind === "worksheet" ? button("ส่งกลับให้แก้ไข", "return-work", id) : button("อนุญาตให้ทำใหม่", "reopen-attempt", id)}${button("พิมพ์ / บันทึก PDF", "print")}</div><div id="formError" role="alert"></div></form>`,
       );
     }
     let playState = null,
       playTimer;
     function tryActivity(id) {
       const a = courseData.Activities.find((a) => a.id === id);
+      if (a.kind === "worksheet" && a.submissionMode === "file") {
+        return modal(a.title, `<p class="notice preview-note">ใบงานรูปแบบไฟล์ นักเรียนสามารถดาวน์โหลดและทำเพื่อแนบส่งครู</p><div class="worksheet-file-actions">${fileList(a, true).map(f => `<a class="btn" href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.name)}</a>`).join("")}</div><p class="preview-note">คะแนนเต็ม ${esc(a.questions[0]?.points || 0)}</p>`);
+      }
       playState = {
         a,
         index: 0,
         answers: new Array(a.questions.length).fill(null),
-        end: Number(a.seconds) ? Date.now() + Number(a.seconds) * 1000 : 0,
+        end: a.kind !== "worksheet" && Number(a.seconds) ? Date.now() + Number(a.seconds) * 1000 : 0,
       };
       drawPlay();
       clearInterval(playTimer);
@@ -19700,12 +22034,15 @@
           }
         }, 500);
     }
+    function gameResultCard(correct, total) { total = Math.max(0, Number(total) || 0); correct = Math.min(total, Math.max(0, Number(correct) || 0)); const ratio = total ? correct / total : 0, stars = ratio === 1 && total ? 3 : ratio >= .7 ? 2 : ratio > 0 ? 1 : 0; return `<section class="game-victory"><div class="game-trophy"><svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M20 10h24v16c0 11-6 17-12 17s-12-6-12-17V10Z" fill="#f4c65e" stroke="#c59430" stroke-width="3"/><path d="M20 15H9v8c0 8 6 12 14 12M44 15h11v8c0 8-6 12-14 12M32 43v10M21 56h22" stroke="#c59430" stroke-width="4" stroke-linecap="round"/><path d="m32 17 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="#fff7d4"/></svg></div><div class="game-stars" aria-label="รางวัล ${stars} จาก 3 ดาว">${[1, 2, 3].map(n => `<span class="${n <= stars ? 'earned' : ''}">★</span>`).join('')}</div><h3>${ratio === 1 && total ? 'พิชิตครบทุกด่าน!' : ratio >= .7 ? 'ภารกิจสำเร็จ!' : 'จบภารกิจแล้ว'}</h3><strong class="game-result-count">ตอบถูก ${correct}/${total}</strong><div class="game-result-meter"><span style="width:${Math.round(ratio * 100)}%"></span></div><p>${ratio === 1 && total ? 'ยอดเยี่ยม! เก็บดาวครบทั้งสามดวง' : ratio > 0 ? 'สะสมประสบการณ์ แล้วมาพิชิตดาวให้ครบ' : 'ทุกการฝึกคือจุดเริ่มต้นของความเก่ง'}</p></section>` }
+    function miniGameHeader(index, total, answers, questions) { const done = questions.reduce((n, q, i) => { const a = answers?.[i]; const answered = q.type === 'matching' ? Array.isArray(a) && a.length === q.prompts.length && a.every(Number.isInteger) : Number.isInteger(a); return n + (answered ? 1 : 0) }, 0); const progress = Math.round(done / Math.max(1, total) * 100); return `<header class="minigame-header"><div class="game-emblem" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m13 2-8 12h6l-1 8 9-13h-7z"/></svg></div><div><span class="game-eyebrow">MINI CHALLENGE</span><h3>ภารกิจพิชิตคำตอบ</h3><p>ตอบคำถามให้ครบทุกด่าน</p></div><span class="game-level">ด่าน ${index + 1}<small>/ ${total}</small></span></header><div class="game-route" aria-label="ตอบแล้ว ${done} จาก ${total} ข้อ"><div class="game-route-fill" style="width:${progress}%"></div>${[0, 25, 50, 75, 100].map(v => `<span class="game-route-stop ${progress >= v ? 'reached' : ''}" style="left:${v}%">${v === 100 ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V3h14l-3 5 3 5H5"/></svg>' : ''}</span>`).join('')}</div><div class="game-progress-copy"><span>ตอบแล้ว ${done} / ${total} ข้อ</span><span>ภารกิจ ${progress}%</span></div>` }
+    function updateMiniGameProgress(index, total, answers, questions) { const arena = document.querySelector('#modal .minigame-arena'); if (!arena) return; const html = miniGameHeader(index, total, answers, questions); if (arena.dataset.progressMarkup === html) return; arena.dataset.progressMarkup = html; const temp = document.createElement('div'); temp.innerHTML = html; for (const selector of ['.minigame-header', '.game-route', '.game-progress-copy']) { const old = arena.querySelector(selector), next = temp.querySelector(selector); if (old && next) old.replaceWith(next) } }
     function drawPlay() {
       const p = playState,
         q = p.a.questions[p.index];
       modal(
         "ทดลองทำ — " + p.a.title,
-        `<p class="notice">พรีวิวมุมมองผู้เรียน ไม่บันทึกคะแนนจริง</p><div class="toolbar"><span class="badge">ข้อ ${p.index + 1} / ${p.a.questions.length}</span><strong id="playTime">${p.end ? "จับเวลารวมทั้งชุด" : "ไม่จับเวลา"}</strong></div><progress style="width:100%" value="${p.index}" max="${p.a.questions.length}"></progress><div class="question-row"><h3>${esc(q.text)}</h3><p>${q.points} คะแนน</p>${q.type === "matching" ? `<div class="match-grid">${(q.prompts || []).map((v, n) => `<label>${esc(v)}<select data-play-match="${n}"><option value="">เลือกคู่</option>${q.options.map((o, j) => ({ o, j })).reverse().map(({ o, j }) => `<option value="${j}" ${p.answers[p.index]?.[n] === j ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></label>`).join("")}</div>` : q.type === "text" ? `<label>คำตอบ<textarea id="playAnswer" style="width:100%;min-height:130px">${esc(p.answers[p.index] || "")}</textarea></label>` : `<div class="check-list">${q.options.map((o, i) => `<label class="item"><input type="radio" name="playAnswer" value="${i}" ${p.answers[p.index] === i ? "checked" : ""}> ${esc(o)}</label>`).join("")}</div>`}</div><div class="actions">${p.index ? button("← ก่อนหน้า", "play-prev") : ""}${button(p.index === p.a.questions.length - 1 ? "ส่งคำตอบ" : "ข้อต่อไป →", "play-next", "", true)}</div>`,
+        `<p class="notice preview-note">พรีวิวมุมมอง${p.a.kind === "worksheet" ? "ใบงาน" : ""}ผู้เรียน ไม่บันทึกคะแนนจริง</p><div class="toolbar"><span class="badge">ข้อ ${p.index + 1} / ${p.a.questions.length}</span><strong id="playTime">${p.end ? "จับเวลารวมทั้งชุด" : "เวลาไม่จำกัด"}</strong></div>${p.a.mode === "game" ? `<section class="minigame-arena">${miniGameHeader(p.index, p.a.questions.length, p.answers, p.a.questions)}` : `<progress style="width:100%" value="${p.index}" max="${p.a.questions.length}"></progress>`}<div class="question-row"><h3>${esc(q.text)}</h3>${p.a.mode === "game" && !p.a.countScore ? "" : `<p>${q.points} คะแนน</p>`}${q.type === "matching" ? `<div class="match-grid">${(q.prompts || []).map((v, n) => `<label>${esc(v)}<select data-play-match="${n}"><option value="">เลือกคู่</option>${q.options.map((o, j) => ({ o, j })).reverse().map(({ o, j }) => `<option value="${j}" ${p.answers[p.index]?.[n] === j ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></label>`).join("")}</div>` : q.type === "text" ? `<label>คำตอบ<textarea id="playAnswer" style="width:100%;min-height:130px">${esc(p.answers[p.index] || "")}</textarea></label>` : `<div class="check-list">${q.options.map((o, i) => `<label class="item"><input type="radio" name="playAnswer" value="${i}" ${p.answers[p.index] === i ? "checked" : ""}> ${esc(o)}</label>`).join("")}</div>`}</div><div class="actions">${p.index ? button("← ก่อนหน้า", "play-prev") : ""}${button(p.index === p.a.questions.length - 1 ? (p.a.mode === "game" ? "จบภารกิจ" : "ส่งคำตอบ") : (p.a.mode === "game" ? "ด่านถัดไป →" : "ถัดไป →"), "play-next", "", true)}</div>${p.a.mode === "game" ? "</section>" : ""}`,
       );
     }
     function collectPlay() {
@@ -19719,6 +22056,7 @@
               document.querySelector("[name=playAnswer]:checked").value,
             )
             : null;
+      if (p.a.mode === "game") updateMiniGameProgress(p.index, p.a.questions.length, p.answers, p.a.questions);
     }
     function finishPlay(expired = false) {
       collectPlay();
@@ -19727,13 +22065,14 @@
       const score = p.a.questions.reduce(
         (n, q, i) =>
           n +
-          (q.type === "matching" ? (p.answers[i]?.every((v, n) => v === q.correct[n]) ? q.points : 0) : q.type !== "text" && p.answers[i] === q.correct ? q.points : 0),
+          (q.type === "matching" ? (q.correct && p.answers[i]?.every((v, n) => v === q.correct[n]) ? q.points : 0) : q.type !== "text" && p.answers[i] === q.correct ? q.points : 0),
         0,
       ),
         manual = p.a.questions.some((q) => q.type === "text");
+      const correctCount = p.a.questions.reduce((n, q, i) => { const correct = q.type === "matching" ? Array.isArray(p.answers[i]) && Array.isArray(q.correct) && p.answers[i].length === q.correct.length && p.answers[i].every((v, j) => v !== null && v === q.correct[j]) : q.type !== "text" && p.answers[i] != null && p.answers[i] === q.correct; return n + (correct ? 1 : 0) }, 0);
       modal(
         expired ? "หมดเวลา — ผลทดลอง" : "ผลการทดลอง",
-        `<h2>${manual ? "ส่งคำตอบแล้ว รอครูตรวจข้อเขียน" : score + " / " + p.a.questions.reduce((n, q) => n + q.points, 0) + " คะแนน"}</h2><p class="subtle">ไม่มีการส่งข้อมูลหรือคะแนนจริงจากการทดลองนี้</p>${p.a.showAnswers ? p.a.questions.map((q, i) => `<p>${i + 1}. ${esc(q.text)}<br><strong>${q.type === "text" ? "ครูตรวจคำตอบเขียน" : esc(q.type === "matching" ? q.prompts.map((v, n) => v + " → " + q.options[q.correct[n]]).join(" · ") : q.options[q.correct])}</strong></p>`).join("") : ""}${button("ปิด", "close")}`,
+        ` ${p.a.mode === "game" ? gameResultCard(correctCount, p.a.questions.length) : ""}<h2>${p.a.mode === "game" && !p.a.countScore ? "" : manual ? "ส่งคำตอบแล้ว รอครูตรวจข้อเขียน" : score + " / " + p.a.questions.reduce((n, q) => n + q.points, 0) + " คะแนน"}</h2><p class="subtle">ไม่มีการส่งข้อมูลหรือคะแนนจริงจากการทดลองนี้</p>${p.a.showAnswers ? p.a.questions.map((q, i) => `<p>${i + 1}. ${esc(q.text)}<br><strong>${q.type === "text" ? "ครูตรวจคำตอบเขียน" : esc(q.type === "matching" ? q.prompts.map((v, n) => v + " → " + q.options[q.correct[n]]).join(" · ") : q.options[q.correct])}</strong></p>`).join("") : ""}${button("ปิด", "close")}`,
       );
     }
 
@@ -19850,6 +22189,7 @@
           "saveActivity",
           "moveResource",
           "deleteActivity",
+          "deleteChapter",
         ].includes(action) ||
         (action === "setStatus" &&
           ["Chapters", "Activities", "Materials"].includes(fields.entity)) ||
@@ -19936,6 +22276,7 @@
         throw Error("กำลังแสดงข้อมูลเดิม กรุณารีเฟรชข้อมูลล่าสุดก่อนแก้ไข");
       if (busy) return;
       busy = true;
+      showOperation(action === "moveResource" ? "กำลังปรับลำดับรายการ" : action === "saveActivity" ? "กำลังบันทึก" + (fields.kind === "worksheet" ? "ใบงาน" : fields.mode === "game" ? "เกม" : "แบบทดสอบ") : action === "saveMaterial" ? "กำลังบันทึกใบความรู้" : action.startsWith("delete") ? "กำลังลบข้อมูล" : "กำลังบันทึกข้อมูล", fields.title || "กรุณารอสักครู่");
       ++navVersion;
       const lockedButtons = [
         ...document.querySelectorAll(
@@ -19983,7 +22324,7 @@
               ? "สำรองข้อมูลสำเร็จ"
               : action === "deleteGroup"
                 ? "ลบข้อมูลและเก็บข้อมูลกู้คืนแล้ว"
-                : "บันทึกข้อมูลสำเร็จ",
+                : action === "deleteChapter" ? "ลบหน่วยเรียบร้อย · ย้ายไฟล์ " + (result.filesTrashed || 0) + " ไฟล์ไปถังขยะ Drive" : action === "moveResource" ? "ปรับลำดับรายการเรียบร้อย" : fields.title ? "บันทึก “" + fields.title + "” สำเร็จ" : "บันทึกข้อมูลสำเร็จ",
         );
         try {
           if (!synchronized) {
@@ -20009,6 +22350,7 @@
         toast(e.message || "บันทึกไม่สำเร็จ");
         throw e;
       } finally {
+        hideOperation();
         busy = false;
         lockedButtons.forEach(([button, disabled]) => {
           if (button.isConnected) button.disabled = disabled;
@@ -20035,6 +22377,8 @@
     }
 
     async function handleAction(el) {
+      if (el.dataset.action === 'select-course-room') { selectedOffering = el.dataset.id; return navigate('course'); }
+
       if (el.dataset.action === "toggle-order") {
         const page = el.dataset.id;
         if (!(page in listOrder)) return;
@@ -20054,6 +22398,15 @@
         $("content").innerHTML = courseView();
         return;
       }
+      if (a === "download-work-file") {
+        const [submissionId, fileId] = id.split("|");
+        const r = await api("downloadWorksheetFile", { submissionId, fileId });
+        const bytes = Uint8Array.from(atob(r.data), c => c.charCodeAt(0));
+        const url = URL.createObjectURL(new Blob([bytes], { type: r.mime }));
+        const link = document.createElement("a"); link.href = url; link.download = r.name; link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return;
+      }
       if (a === "submission-history") {
         const rows = await api("submissionHistory", { id });
         modal(
@@ -20061,7 +22414,7 @@
           rows
             .map(
               (r) =>
-                `<section class="panel"><h3>รุ่น ${esc(r.revision)} · ${esc(r.updatedAt)}</h3><p>คะแนน ${esc(r.scores)} · ${esc(r.feedback)}</p><p class="answer-text">${esc(r.answers)}</p></section>`,
+                `<section class="panel"><h3>รุ่น ${esc(r.revision)} · ${esc(r.updatedAt)}</h3><p>คะแนน ${esc(r.scores)} · ${esc(r.feedback)}</p><p class="answer-text">${(() => { try { return JSON.parse(r.answers).map(v => worksheetAnswerHTML(v, id)).join("<br>"); } catch { return esc(r.answers); } })()}</p></section>`,
             )
             .join(""),
         );
@@ -20481,6 +22834,7 @@
           entityId,
         );
       }
+      if (a === "reopen-attempt") { const s = await api("submission", { id }); if (!(await confirmPopup("อนุญาตให้นักเรียนเริ่มทำรอบใหม่หรือไม่?"))) return; await runMutation("reopenAttempt", { id, revision: s.revision }); return navigate(currentPage, true) }
       if (a === "return-work") {
         const f = el.closest("form");
         return form(
@@ -20685,14 +23039,18 @@
           "Enrollments",
           "inactive",
         );
+      if (a === "delete-chapter") {
+        const impact = await api("chapterImpact", { id });
+        return form("ลบหน่วยการเรียนรู้", "delete-chapter", `<input type="hidden" name="fingerprint" value="${esc(impact.fingerprint)}"><p><strong>${esc(impact.name)}</strong></p><p>ใบความรู้ ${impact.materials} รายการ · กิจกรรม ${impact.activities} รายการ · งานนักเรียน ${impact.submissions} รายการ · ไฟล์ ${impact.files} ไฟล์</p><p class="notice">ลบหน่วยนี้พร้อมเนื้อหา งานที่ส่ง คะแนน และประวัติที่เกี่ยวข้องของทุกชั้นเรียนในรายวิชา ข้อมูลหน่วยอื่นยังอยู่ ไฟล์ใบความรู้ ไฟล์โจทย์ และไฟล์งานนักเรียนจะถูกย้ายไปถังขยะ Drive ยกเว้นไฟล์ที่ยังใช้ในหน่วยอื่น เก็บข้อมูลไว้กู้คืนในประวัติระบบ</p><input type="hidden" name="confirmText" value="ยืนยัน">`, id);
+      }
       if (a === "new-chapter" || a === "edit-chapter") return chapterForm(id);
       if (a === "new-material") return materialForm(id);
       if (a === "preview-material") return previewMaterial(id);
       if (a === "choose-content") { const [chapterId, kind] = id.split("|"); return chooseContent(chapterId, kind); }
       if (a === "content-way") { const [chapterId, kind, way] = id.split("|"); return way === "web" ? activityForm("", chapterId, "worksheet") : materialForm(chapterId, kind, way); }
       if (a === "edit-material") { const m = courseData.Materials.find((r) => r.id === id); return materialForm(m.chapterId, m.kind, m.mime === "application/pdf" ? "pdf" : "image", id); }
-      if (a === "move-resource") { const [entity, rowId, direction] = id.split("|"); await runMutation("moveResource", { entity, id: rowId, direction }); return navigate(currentPage, true); }
-      if (a === "resource-status") { const [entity, rowId] = id.split("|"); const r = courseData[entity].find((r) => r.id === rowId); return confirmAction("เปลี่ยนสถานะรายการ", r.status === "active" ? "ซ่อนรายการนี้จากนักเรียน โดยเก็บเนื้อหาและไฟล์ไว้" : "เปิดรายการนี้ให้นักเรียนใช้งาน", "setStatus", rowId, entity, r.status === "active" ? "hidden" : "active"); }
+      if (a === "move-resource") { const [entity, rowId, direction] = id.split("|"); await runMutation("moveResource", { entity, id: rowId, direction }); return navigate(currentPage, true, true); }
+      if (a === "resource-status") { const [entity, rowId] = id.split("|"); const r = courseData[entity].find((r) => r.id === rowId); return confirmAction("เปลี่ยนสถานะรายการ", r.status === "active" ? "ซ่อนรายการนี้จากนักเรียน" : "เปิดรายการนี้ให้นักเรียนใช้งาน", "setStatus", rowId, entity, r.status === "active" ? "hidden" : "active"); }
       if (a === "delete-material") {
         const m = courseData.Materials.find((r) => r.id === id);
         if (!(await confirmPopup("ลบ “" + m.title + "” หรือไม่?\n" + (m.fileId ? "ไฟล์ใน Drive จะถูกย้ายไปถังขยะ และรายการจะหายจากบทเรียน" : "รายการจะหายจากบทเรียน")))) return;
@@ -20716,16 +23074,28 @@
           s.status === "active" ? "hidden" : "active",
         );
       }
+      if (a === "add-pair" || a === "remove-pair") {
+        modalDirty = true; collectQuestions(); const q = questionDraft[Number(id)];
+        if (a === "add-pair" && q.prompts.length < 10) { q.prompts.push(""); q.options.push("") }
+        if (a === "remove-pair" && q.prompts.length > 0) { const n = Number(el.dataset.option); q.prompts.splice(n, 1); q.options.splice(n, 1) }
+        renderQuestionEditor(); return;
+      }
+      if (a === "add-option" || a === "remove-option") {
+        modalDirty = true; collectQuestions(); const q = questionDraft[Number(id)];
+        if (a === "add-option" && q.options.length < 10) q.options.push("");
+        if (a === "remove-option" && q.options.length > 0) { const n = Number(el.dataset.option); q.options.splice(n, 1); if (Number.isInteger(q.correct)) { if (q.correct === n) q.correct = null; else if (q.correct > n) q.correct-- } }
+        renderQuestionEditor(); return;
+      }
       if (a === "add-question") {
         modalDirty = true;
         collectQuestions();
         questionDraft.push({
           id: uid("Q"),
           text: "",
-          type: "text",
+          type: "single",
           points: 1,
-          options: [],
-          correct: 0,
+          options: ["", ""],
+          correct: null,
         });
         renderQuestionEditor();
         return;
@@ -20874,6 +23244,7 @@
     }
 
     document.addEventListener("click", async (event) => {
+      if (attachmentSaving && event.target.closest("[data-page],[data-action]") && !event.target.closest('[data-action="mobile-logout"]')) { toast("กำลังอัปโหลดหรือบันทึกไฟล์ กรุณารอสักครู่"); return }
       const menu = event.target.closest("[data-page]");
       if (menu) {
         navigate(menu.dataset.page);
@@ -20886,6 +23257,7 @@
       }
       const el = event.target.closest("[data-action]");
       if (!el || busy) return;
+      if (el.closest("summary.unit-heading")) event.preventDefault();
       try {
         await handleAction(el);
       } catch (e) {
@@ -20976,8 +23348,15 @@
             (row.hidden =
               !!el.value && row.dataset.enrollGroup !== el.value),
           );
-      if (el.name === "qtype" || el.name === "qoptions") {
+      if (el.type === "file" && el.closest('.attachment-fields')) { if ($('formError')) { $('formError').textContent = ''; $('formError').className = '' } if ($('attachmentStatus')) $('attachmentStatus').textContent = ''; $('toast').hidden = true; const box = el.closest('.attachment-fields').querySelector('[data-selected-files]'); box.innerHTML = [...el.files].map(f => `<p>${esc(f.name)} · ${(f.size / 1024 / 1024).toFixed(2)} MB</p>`).join('') }
+      if (el.name === "dueMode" || el.name === "timerMode") {
+        const container = el.closest(".schedule-fields"), field = container.querySelector(el.name === "dueMode" ? "[data-due-field]" : "[data-timer-field]"), input = field.querySelector("input"), set = el.value === "set";
+        field.hidden = !set; field.querySelectorAll("input").forEach(input => { input.disabled = !set; input.required = set });
+      }
+      if (el.name === "qtype" || el.name === "qoption") {
+        const i = Number(el.closest('[data-question-index]').dataset.questionIndex), previousType = questionDraft[i].type;
         collectQuestions();
+        if (el.name === "qtype" && previousType !== el.value) { const q = questionDraft[i]; if (q.type === "single") { q.options = ["", ""]; q.correct = null } if (q.type === "matching") { q.prompts = ["", ""]; q.options = ["", ""]; q.correct = [0, 1] } }
         renderQuestionEditor();
       }
     });
@@ -21041,7 +23420,11 @@
       if (!f.dataset.form) return;
       event.preventDefault();
       if (busy) return;
+      if (attachmentSaving) return;
       const data = Object.fromEntries(new FormData(f).entries());
+      const fileForm = ["material", "worksheet-file"].includes(f.dataset.form), controls = fileForm ? [...f.querySelectorAll("input,select,textarea,button")].map(el => [el, el.disabled]) : [];
+      if (fileForm) { attachmentSaving = true; controls.forEach(([el]) => el.disabled = true) }
+      const savingActivity = ["activity", "material", "worksheet-file"].includes(f.dataset.form); if (savingActivity) showOperation("กำลังเตรียมบันทึกกิจกรรม");
       try {
         if (
           f.dataset.form === "my-profile" ||
@@ -21222,45 +23605,41 @@
         if (f.dataset.form === "material") {
           action = "saveMaterial";
           delete payload.file;
-          const file = f.querySelector("[name=file]")?.files[0];
-          if (file) {
-            if (
-              ![
-                "application/pdf",
-                "image/jpeg",
-                "image/png",
-                "image/webp",
-              ].includes(file.type) ||
-              file.size > 3145728
-            )
-              throw Error("ใช้ PDF / JPG / PNG / WebP ไม่เกิน 3 MB");
-            const base64 = await new Promise((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () =>
-                resolve(String(reader.result).split(",")[1]);
-              reader.onerror = reject;
-              reader.readAsDataURL(file);
-            });
-            payload.file = { name: file.name, mime: file.type, data: base64 };
-          } else if (!data.id) throw Error("กรุณาเลือกไฟล์ก่อนบันทึก");
+          const files = [...f.querySelector("[name=file]")?.files || []];
+          if (f.querySelector('[name=file]')) { payload.keepFileIds = [...f.querySelectorAll('[name=keepFileIds]:checked')].map(el => el.value); payload.uploadFileIds = await uploadFiles(files, "material", data.chapterId, payload.keepFileIds); if (!payload.keepFileIds.length && !payload.uploadFileIds.length) throw Error("เลือกไฟล์อย่างน้อย 1 ไฟล์") }
+          else if (!data.url) throw Error("ใส่ลิงก์ก่อนบันทึก");
         }
+        if (f.dataset.form === "delete-chapter") { action = "deleteChapter"; payload = { id: data.id, fingerprint: data.fingerprint, confirmText: "ยืนยัน" }; }
         if (f.dataset.form === "activity") {
-          collectQuestions();
-          validateQuestions(questionDraft, data.mode);
-          if (Number(data.seconds) < 0 || Number(data.seconds) > 7200)
-            throw Error("เวลา 0–7200 วินาที");
           action = "saveActivity";
+          collectQuestions();
+          if (data.mode === "game" && !f.elements.countScore.checked) questionDraft.forEach(q => q.points = 1);
+          validateQuestions(questionDraft, data.mode);
+          const seconds = data.timerMode === "set" ? Number(data.timeHours) * 3600 + Number(data.timeMinutes) * 60 + Number(data.timeSeconds) : 0;
+          if (data.timerMode === "set" && (!Number.isInteger(seconds) || seconds < 1 || seconds > 86400)) throw Error("กำหนดเวลาตั้งแต่ 1 วินาทีถึง 24 ชั่วโมง");
           payload = {
             ...data,
             questions: questionDraft,
-            seconds: Number(data.seconds),
-            countScore: f.countScore.checked,
-            dueAt: data.dueAt
+            seconds: data.kind === "worksheet" || data.timerMode !== "set" ? 0 : seconds,
+            countScore: data.kind === "worksheet" || data.mode !== "game" ? true : f.elements.countScore.checked,
+            dueAt: data.dueMode === "set" && data.dueAt
               ? new Date(data.dueAt + ":00+07:00").toISOString()
               : "",
-            showAnswers: f.showAnswers.checked,
-            allowEdit: data.kind === "worksheet" && f.allowEdit.checked,
+            showAnswers: data.kind === "worksheet" ? false : f.elements.showAnswers.checked,
+            allowEdit: data.kind === "worksheet",
+            submissionMode: "internal",
+            unlimitedAttempts: data.kind !== "worksheet" && f.elements.unlimitedAttempts.checked,
+            protectContent: data.kind !== "worksheet" && f.elements.protectContent.checked,
           };
+        }
+        if (f.dataset.form === "worksheet-file") {
+          action = "saveActivity";
+          const files = [...f.elements.resourceFile.files];
+          payload = { id: data.id, chapterId: data.chapterId, title: data.title, kind: "worksheet", mode: "quiz", submissionMode: "file", seconds: 0, showAnswers: false, allowEdit: true, countScore: true, status: data.status, dueAt: data.dueMode === "set" && data.dueAt ? new Date(data.dueAt + ":00+07:00").toISOString() : "", questions: [{ id: courseData.Activities.find(x => x.id === data.id)?.questions?.[0]?.id || uid("Q"), text: data.instructions || "แนบไฟล์ใบงานส่งให้ครูตรวจ", type: "text", points: Number(data.points), options: [], correct: null }] };
+          validateQuestions(payload.questions, "quiz");
+          payload.keepFileIds = [...f.querySelectorAll("[name=keepFileIds]:checked")].map(el => el.value);
+          payload.uploadFileIds = await uploadFiles(files, "resource", data.chapterId, payload.keepFileIds);
+          if (!payload.keepFileIds.length && !payload.uploadFileIds.length) throw Error("เลือกไฟล์โจทย์อย่างน้อย 1 ไฟล์");
         }
         if (f.dataset.form === "grade") {
           action = "grade";
@@ -21273,11 +23652,11 @@
             ),
           };
         }
-        if (!action) throw Error("ไม่พบการบันทึกนี้");
+        if (!action) { const error = Error("เกิดข้อผิดพลาด ไม่สามารถบันทึกข้อมูลในหน้าต่างนี้ได้ กรุณารีเฟรชหน้าเว็บและลองอีกครั้ง"); error.code = "FORM_ACTION_MISSING"; error.action = f.dataset.form; error.stage = "เตรียมคำสั่งบันทึก"; error.advice = "ปัญหาเกิดก่อนส่งข้อมูลไป GAS กรุณาตรวจไฟล์หน้าครูให้เป็นเวอร์ชันล่าสุด"; throw error; }
         const next = event.submitter?.value === "yes";
         payload.requestId = mutationRequestId(action, payload).id;
         const saved = await runMutation(action, payload);
-        await navigate(currentPage, true);
+        await navigate(currentPage, true, true);
         if (saved?.backupUrl)
           modal(
             "ดำเนินการแล้ว พร้อมไฟล์สำรอง",
@@ -21302,7 +23681,7 @@
           $("formError").className = "error-text";
         }
         toast(e.message);
-      }
+      } finally { if (savingActivity) hideOperation(); if (fileForm) { attachmentSaving = false; controls.forEach(([el, disabled]) => el.disabled = disabled) } }
     });
     $("closeModal").onclick = async () => {
       if (await discardModalChanges()) {
@@ -21315,8 +23694,6 @@
       if (await discardModalChanges()) { $("modal").close(); clearInterval(playTimer); }
     });
     $("logout").onclick = async () => {
-      if (!(await confirmPopup("ต้องการออกจากระบบหรือไม่?"))) return;
-      if (!(await discardModalChanges())) return;
       $("logout").disabled = true;
       if (window.kruvandaSession)
         return window.kruvandaSession.expire(
@@ -22078,6 +24455,12 @@
     })();
   </script>
 
+  <script>
+    (() => { let pending = false; const selector = '.fit-line,#modalTitle,.system-confirm-dialog h2,.system-confirm-dialog p,.system-confirm-actions button,.actions button,.resource-row strong,.course-card h3,.chapter-summary-text h3,.student-name-cell strong,.student-table th,.student-table td:not(:has(*)),.access-badge,.student-course-tag,.workspace-summary>div>span:not(.stat-symbol),.workspace-summary>div>p'; function fit() { pending = false; const nodes = [...document.querySelectorAll(selector)].filter(el => !(el.matches('.system-confirm-dialog p') && el.textContent.length > 120)); nodes.forEach(el => { el.style.fontSize = ''; el.style.whiteSpace = 'nowrap'; if (!el.hasAttribute('title') && el.textContent.trim()) el.title = el.textContent.trim() }); const sizes = nodes.map(el => { const width = el.clientWidth; if (!width) return null; const base = parseFloat(getComputedStyle(el).fontSize), scroll = el.scrollWidth; return scroll > width ? Math.max(el.closest('.activity-option-card') ? 10 : el.matches('.system-confirm-dialog p') ? 9 : 11, base * width / scroll - .3) : null }); nodes.forEach((el, i) => { if (sizes[i] !== null) el.style.fontSize = sizes[i] + 'px' }) } function queue() { if (!pending) { pending = true; requestAnimationFrame(fit) } } new MutationObserver(queue).observe(document.body, { childList: true, subtree: true, characterData: true }); window.addEventListener('resize', queue); document.fonts?.ready.then(queue); queue() })();
+  </script>
+  <script>
+    document.addEventListener('input', event => { if (event.target.id !== 'memberSearch') return; const query = event.target.value.trim().toLocaleLowerCase('th'); const rows = [...document.querySelectorAll('#modal [data-member-search]')]; rows.forEach(row => row.hidden = !row.dataset.memberSearch.toLocaleLowerCase('th').includes(query)); const empty = document.getElementById('memberSearchEmpty'); if (empty) empty.hidden = rows.some(row => !row.hidden) || !query });
+  </script>
 </body>
 
 </html>

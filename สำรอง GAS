@@ -36,6 +36,7 @@ const SCHEMA = {
     "mime",
     "status",
     "order",
+    "files",
   ],
   Activities: [
     "id",
@@ -51,6 +52,13 @@ const SCHEMA = {
     "countScore",
     "dueAt",
     "order",
+    "submissionMode",
+    "resourceUrl",
+    "resourceFileId",
+    "resourceMime",
+    "resourceFiles",
+    "unlimitedAttempts",
+    "protectContent",
   ],
   Submissions: [
     "id",
@@ -65,6 +73,8 @@ const SCHEMA = {
     "updatedAt",
     "questionSnapshot",
     "submittedAt",
+    "bestScore",
+    "attemptKey",
   ],
   Progress: ["id", "materialId", "offeringId", "studentId", "updatedAt"],
   Runs: [
@@ -76,6 +86,8 @@ const SCHEMA = {
     "expiresAt",
     "status",
     "questionSnapshot",
+    "attemptKey",
+    "draftAnswers",
   ],
   Sessions: ["id", "userId", "version", "expiresAt", "lastSeenAt"],
   History: ["id", "submissionId", "revision", "snapshot", "updatedAt"],
@@ -116,6 +128,17 @@ function diagnosticOriginal_book_() {
   }
   if (!BOOK) throw Error("เปิด Apps Script จากชีทและเรียก updatesheet ก่อน");
   return BOOK;
+}
+
+function migrateWorksheetMaterials_() {
+  rows_("Materials").filter(m => m.kind === "worksheet" && ["active", "hidden"].includes(m.status)).forEach(m => {
+    const activityId = "WS_" + m.id;
+    if (!rows_("Activities").some(a => a.id === activityId)) write_("Activities", {
+      id: activityId, chapterId: m.chapterId, title: m.title, kind: "worksheet", mode: "quiz", seconds: 0, showAnswers: false, status: m.status, allowEdit: true, countScore: true, dueAt: "", order: m.order || nextResourceOrder_(m.chapterId), submissionMode: "file", resourceUrl: m.url, resourceFileId: m.fileId || "", resourceMime: m.mime || "", resourceFiles: m.files || "", questions: JSON.stringify([{ id: activityId + "_Q", text: "ดาวน์โหลดไฟล์ ทำใบงาน แล้วแนบไฟล์ส่งให้ครูตรวจ", type: "text", points: 10, options: [], correct: null, prompts: [] }])
+    });
+    write_("Materials", { id: m.id, status: "deleted" });
+  });
+  rows_("Activities").filter(a => a.kind === "worksheet").forEach(a => write_("Activities", { id: a.id, mode: "quiz", seconds: 0, showAnswers: false, allowEdit: true, countScore: true, submissionMode: a.submissionMode || "internal" }));
 }
 
 function updatesheet() {
@@ -197,6 +220,8 @@ function updatesheet() {
         version: 1,
       });
     }
+    migrateWorksheetMaterials_();
+    props.setProperty("KV_DATA_REVISION", Utilities.getUuid());
     installLmsCleanup();
     rows_("Courses")
       .filter((c) => c.status === "hidden")
@@ -877,21 +902,23 @@ function dashboardRows_(key, columns) {
 function courseData_(q) {
   teacher_(q);
   get_("Courses", q.courseId);
-  const Chapters = rows_("Chapters")
-    .filter((r) => r.courseId === q.courseId)
-    .map(clean_);
-  const ids = new Set(Chapters.map((c) => c.id));
-  return {
-    Chapters,
-    Materials: rows_("Materials")
-      .filter((r) => ids.has(r.chapterId) && r.status !== "deleted")
-      .map(clean_),
-    Activities: rows_("Activities")
-      .filter((r) => ids.has(r.chapterId) && r.status !== "deleted")
-      .map((r) =>
-        Object.assign(clean_(r), { questions: json_(r.questions, []) }),
-      ),
-  };
+  return summaryCache_("courseData", q, () => {
+    const Chapters = rows_("Chapters")
+      .filter((r) => r.courseId === q.courseId)
+      .map(clean_);
+    const ids = new Set(Chapters.map((c) => c.id));
+    return {
+      Chapters,
+      Materials: rows_("Materials")
+        .filter((r) => ids.has(r.chapterId) && r.status !== "deleted")
+        .map(clean_),
+      Activities: rows_("Activities")
+        .filter((r) => ids.has(r.chapterId) && r.status !== "deleted")
+        .map((r) =>
+          Object.assign(clean_(r), { questions: json_(r.questions, []) }),
+        ),
+    };
+  });
 }
 
 function saveGroup_(q) {
@@ -1361,6 +1388,34 @@ function moveResource_(q) {
   catch (error) { original.forEach((x) => write_(x.entity, x.row)); throw error; }
   return { moved: true };
 }
+function attachedFileIds_(values) { const ids = new Set(); function scan(value, depth) { if (depth > 12 || value == null) return; if (typeof value === "string") { if (/^[\s]*[\[{]/.test(value)) { try { scan(JSON.parse(value), depth + 1) } catch (e) { } } return } if (Array.isArray(value)) { value.forEach(x => scan(x, depth + 1)); return } if (typeof value === "object") Object.keys(value).forEach(key => { if (["fileId", "resourceFileId"].includes(key) && value[key]) ids.add(String(value[key])); else if (["files", "resourceFiles", "answers", "snapshot", "questionSnapshot", "draftAnswers"].includes(key)) scan(value[key], depth + 1) }) } scan(values, 0); return [...ids] }
+function changeAttachmentTrash_(ids, trashed) { const changed = []; try { ids.forEach(id => { const file = DriveApp.getFileById(id), previous = file.isTrashed(); if (previous !== trashed) { file.setTrashed(trashed); changed.push({ file, previous }) } }); return changed } catch (e) { changed.forEach(x => { try { x.file.setTrashed(x.previous) } catch (ignore) { } }); throw Error((trashed ? "ย้ายไฟล์ไปถังขยะ Drive ไม่สำเร็จ" : "กู้คืนไฟล์จากถังขยะ Drive ไม่สำเร็จ") + " กรุณาตรวจสิทธิ์และไฟล์ก่อนลองอีกครั้ง") } }
+function rollbackAttachmentTrash_(changed) { changed.forEach(x => { try { x.file.setTrashed(x.previous) } catch (e) { console.warn("คืนสถานะไฟล์ไม่สำเร็จ: " + e.message) } }) }
+function chapterImpact_(q) {
+  teacher_(q); const chapter = get_("Chapters", q.id);
+  const materials = rows_("Materials").filter(r => r.chapterId === q.id), activities = rows_("Activities").filter(r => r.chapterId === q.id);
+  const aids = new Set(activities.map(r => r.id)), mids = new Set(materials.map(r => r.id));
+  const submissions = rows_("Submissions").filter(r => aids.has(r.activityId)), sids = new Set(submissions.map(r => r.id));
+  const state = { chapter, materials, activities, submissions, history: rows_("History").filter(r => sids.has(r.submissionId)), runs: rows_("Runs").filter(r => aids.has(r.activityId)), progress: rows_("Progress").filter(r => mids.has(r.materialId)) };
+  return { name: chapter.title, materials: materials.filter(r => r.status !== "deleted").length, activities: activities.filter(r => r.status !== "deleted").length, submissions: submissions.length, files: attachedFileIds_([materials, activities, submissions, state.history, state.runs]).length, fingerprint: digest_(JSON.stringify(state)) };
+}
+function deleteChapter_(q) {
+  teacher_(q); const impact = chapterImpact_(q);
+  if (q.confirmText !== "ยืนยัน") throw Error("กรุณายืนยันก่อนลบหน่วยการเรียนรู้");
+  if (q.fingerprint !== impact.fingerprint) throw Error("ข้อมูลในหน่วยเปลี่ยนแล้ว กรุณาเปิดหน้าสรุปก่อนลบใหม่");
+  const aids = new Set(rows_("Activities").filter(r => r.chapterId === q.id).map(r => r.id)), mids = new Set(rows_("Materials").filter(r => r.chapterId === q.id).map(r => r.id)), sids = new Set(rows_("Submissions").filter(r => aids.has(r.activityId)).map(r => r.id));
+  const candidates = attachedFileIds_([rows_("Materials").filter(r => mids.has(r.id)), rows_("Activities").filter(r => aids.has(r.id)), rows_("Submissions").filter(r => sids.has(r.id)), rows_("History").filter(r => sids.has(r.submissionId)), rows_("Runs").filter(r => aids.has(r.activityId))]);
+  const surviving = new Set(attachedFileIds_([rows_("Materials").filter(r => !mids.has(r.id) && r.status !== "deleted"), rows_("Activities").filter(r => !aids.has(r.id) && r.status !== "deleted"), rows_("Submissions").filter(r => !sids.has(r.id)), rows_("History").filter(r => !sids.has(r.submissionId)), rows_("Runs").filter(r => !aids.has(r.activityId))]));
+  const trashIds = candidates.filter(id => !surviving.has(id)); const changed = changeAttachmentTrash_(trashIds, true);
+  try {
+    rewriteRows_("History", rows_("History").filter(r => !sids.has(r.submissionId)));
+    ["Submissions", "Runs"].forEach(key => rewriteRows_(key, rows_(key).filter(r => !aids.has(r.activityId))));
+    rewriteRows_("Progress", rows_("Progress").filter(r => !mids.has(r.materialId)));
+    ["Materials", "Activities"].forEach(key => rewriteRows_(key, rows_(key).filter(r => r.chapterId !== q.id)));
+    rewriteRows_("Chapters", rows_("Chapters").filter(r => r.id !== q.id));
+    return { deleted: true, filesTrashed: trashIds.length, sharedFilesKept: candidates.length - trashIds.length };
+  } catch (e) { rollbackAttachmentTrash_(changed); throw e }
+}
 function deleteActivity_(q) {
   teacher_(q);
   const a = get_("Activities", q.id);
@@ -1374,93 +1429,33 @@ function deleteActivity_(q) {
 }
 
 function saveMaterial_(q) {
-  teacher_(q);
-  const chapter = get_("Chapters", q.chapterId);
-  const old = q.id ? get_("Materials", q.id) : null;
-
-  let fileId = old ? old.fileId : "",
-    mime = old ? old.mime : "",
-    url = q.url ? uRL_(q.url) : old ? old.url : "";
-  const title = need_(q.title, "ชื่อสื่อ", 150),
-    kind = enum_(q.kind, ["knowledge", "worksheet", "extra"]);
-  if (q.file) {
-    if (old && old.fileId) throw Error("ลบสื่อเดิมก่อนอัปโหลดไฟล์ใหม่");
-    mime = enum_(q.file.mime, [
-      "application/pdf",
-      "image/png",
-      "image/jpeg",
-      "image/webp",
-    ]);
-    if (typeof q.file.data !== "string" || q.file.data.length > 4200000)
-      throw Error("ไฟล์ต้องไม่เกิน 3 MB");
-    const bytes = Utilities.base64Decode(q.file.data);
-    if (bytes.length > 3145728) throw Error("ไฟล์ต้องไม่เกิน 3 MB");
-    const root = DriveApp.getFolderById(
-      PropertiesService.getScriptProperties().getProperty("KV_DRIVE_FOLDER_ID"),
-    );
-    const children = root.getFoldersByName(chapter.courseId);
-    const courseFolder = children.hasNext()
-      ? children.next()
-      : root.createFolder(chapter.courseId);
-    const folders = courseFolder.getFoldersByName(chapter.id);
-    const folder = folders.hasNext()
-      ? folders.next()
-      : courseFolder.createFolder(chapter.id);
-    const file = folder.createFile(
-      Utilities.newBlob(bytes, mime, need_(q.file.name, "ชื่อไฟล์", 150)),
-    );
-    try {
-      file.setSharing(
-        DriveApp.Access.ANYONE_WITH_LINK,
-        DriveApp.Permission.VIEW,
-      );
-      fileId = file.getId();
-      url = "https://drive.google.com/file/d/" + fileId + "/view";
-    } catch (err) {
-      file.setTrashed(true);
-      throw Error(
-        "แชร์สื่อไม่ได้: นโยบาย Google Workspace อาจจำกัดการแชร์ ให้ใช้ลิงก์ที่นักเรียนเปิดได้",
-      );
-    }
-  }
-  if (!url) throw Error("ใส่ลิงก์หรือเลือกไฟล์");
-  try {
-    return clean_(
-      write_("Materials", {
-        id: q.id || id_("MAT"),
-        chapterId: q.chapterId,
-        title,
-        kind,
-        url,
-        fileId,
-        mime,
-        status: enum_(q.status || (old ? old.status : "active"), ["active", "hidden"]),
-        order: old && Number(old.order) > 0 ? Number(old.order) : nextResourceOrder_(q.chapterId),
-      }),
-    );
-  } catch (err) {
-    if (q.file && fileId) DriveApp.getFileById(fileId).setTrashed(true);
-    throw err;
-  }
+  const u = teacher_(q), chapter = get_("Chapters", q.chapterId), old = q.id ? get_("Materials", q.id) : null;
+  if (old && old.chapterId !== chapter.id) throw Error("เปลี่ยนหน่วยของสื่อเดิมไม่ได้");
+  const existing = resourceFiles_(old || {}, false), files = resolveFiles_(q, "material:" + chapter.id, existing, q.file);
+  const url = files.length ? files[0].url : q.url ? uRL_(q.url) : old ? old.url : "";
+  if (!url || (q.keepFileIds && !files.length && !q.url)) throw Error("เลือกไฟล์หรือใส่ลิงก์");
+  const saved = clean_(write_("Materials", { id: q.id || id_("MAT"), chapterId: chapter.id, title: need_(q.title, "ชื่อใบความรู้", 150), kind: enum_(q.kind, ["knowledge", "worksheet", "extra"]), url, fileId: files[0]?.fileId || "", mime: files[0]?.mime || "", files: JSON.stringify(files), status: enum_(q.status || (old ? old.status : "active"), ["active", "hidden"]), order: old && Number(old.order) > 0 ? Number(old.order) : nextResourceOrder_(chapter.id) }));
+  commitFiles_(files); return saved;
 }
 
 function deleteMaterial_(q) {
   teacher_(q);
   const m = get_("Materials", q.id);
   if (q.confirmText !== "ยืนยัน") throw Error("พิมพ์ ยืนยัน ก่อนดำเนินการ");
-  if (m.fileId) {
-    if (!m.fileId) throw Error("ลบได้เฉพาะไฟล์ที่อัปโหลดผ่านระบบ ลิงก์ภายนอกนำออกจากบทเรียนได้เท่านั้น");
-    if (rows_("Materials").some((r) => r.id !== m.id && r.status !== "deleted" && r.fileId === m.fileId))
-      throw Error("ไฟล์นี้ยังใช้ในบทเรียนอื่น กรุณานำออกจากบทเรียนอื่นก่อน");
-    DriveApp.getFileById(m.fileId).setTrashed(true);
-    write_("Materials", { id: m.id, status: "deleted", url: "", fileId: "", mime: "" });
-    return { deleted: true, fileTrashed: true };
+  const files = resourceFiles_(m, false);
+  if (files.length) {
+    const others = rows_("Materials").filter(r => r.id !== m.id && r.status !== "deleted").flatMap(r => resourceFiles_(r, false)).concat(rows_("Activities").filter(r => r.status !== "deleted").flatMap(r => resourceFiles_(r, true)));
+    if (files.some(f => others.some(o => o.fileId === f.fileId))) throw Error("ไฟล์ยังใช้ในรายการอื่น");
+    // Remove the resource first; a failed Drive cleanup cannot leave an active broken resource.
+    write_("Materials", { id: m.id, status: "deleted", url: "", fileId: "", mime: "", files: "[]" });
+    let fileTrashed = true; files.forEach(f => { try { DriveApp.getFileById(f.fileId).setTrashed(true) } catch (e) { fileTrashed = false } });
+    return { deleted: true, fileTrashed };
   }
   if (m.status !== "deleted") write_("Materials", { id: m.id, status: "deleted" });
   return { deleted: true, fileTrashed: false };
 }
 
-function questions_(questions) {
+function questions_(questions, manual = false) {
   if (!Array.isArray(questions) || !questions.length || questions.length > 100)
     throw Error("ต้องมีคำถาม 1–100 ข้อ");
   const out = questions.map((x, i) => {
@@ -1478,10 +1473,10 @@ function questions_(questions) {
       throw Error("ตัวเลือก 2–10 ตัวเลือก");
     const prompts = type === "matching" ? (x.prompts || []).map((v) => need_(v, "รายการจับคู่", 500)) : [];
     if (type === "matching" && (prompts.length < 2 || prompts.length !== options.length)) throw Error("จับคู่ต้องมีคู่ครบ 2–10 คู่");
-    const correct = type === "matching" ? prompts.map((_, i) => i) : type === "text" ? null : Number(x.correct);
+    const correct = manual || type === "text" ? null : type === "matching" ? prompts.map((_, i) => i) : Number(x.correct);
     if (
-      type !== "text" && type !== "matching" &&
-      (!Number.isInteger(correct) || correct < 0 || correct >= options.length)
+      !manual && type !== "text" && type !== "matching" &&
+      (x.correct == null || !Number.isInteger(correct) || correct < 0 || correct >= options.length)
     )
       throw Error("เลือกเฉลยให้ตรงตัวเลือก");
     return {
@@ -1501,6 +1496,93 @@ function questions_(questions) {
   return out;
 }
 
+function worksheetFile_(payload, folderName, publicView) {
+  if (!payload || typeof payload.data !== "string" || !payload.data) throw Error("ไม่พบข้อมูลไฟล์");
+  if (payload.data.length > Math.ceil(10 * 1024 * 1024 / 3) * 4) throw Error("ขนาดไฟล์ที่แนบต้องไม่เกิน 10 MB");
+  if (!["application/pdf", "image/png", "image/jpeg", "image/webp"].includes(payload.mime)) throw Error("ชนิดไฟล์ที่แนบไม่รองรับ กรุณาใช้ PDF หรือรูปภาพ JPG, JPEG, PNG, WebP");
+  const mime = payload.mime;
+  const bytes = Utilities.base64Decode(payload.data);
+  if (!bytes.length) throw Error("ไฟล์ไม่มีข้อมูล");
+  if (bytes.length > 10 * 1024 * 1024) throw Error("ขนาดไฟล์ที่แนบต้องไม่เกิน 10 MB");
+  const b = bytes.slice(0, 12).map(v => (v + 256) % 256);
+  const match = mime === "application/pdf" ? b.slice(0, 5).join(",") === "37,80,68,70,45" : mime === "image/png" ? b.slice(0, 8).join(",") === "137,80,78,71,13,10,26,10" : mime === "image/jpeg" ? b[0] === 255 && b[1] === 216 && b[2] === 255 : b.slice(0, 4).join(",") === "82,73,70,70" && b.slice(8, 12).join(",") === "87,69,66,80";
+  if (!match) throw Error("เนื้อหาไฟล์ไม่ตรงชนิด PDF หรือรูปภาพ");
+  const root = DriveApp.getFolderById(PropertiesService.getScriptProperties().getProperty("KV_DRIVE_FOLDER_ID"));
+  const folders = root.getFoldersByName(folderName), folder = folders.hasNext() ? folders.next() : root.createFolder(folderName);
+  const name = need_(payload.name, "ชื่อไฟล์", 150);
+  const file = folder.createFile(Utilities.newBlob(bytes, mime, name));
+  try {
+    file.setSharing(publicView ? DriveApp.Access.ANYONE_WITH_LINK : DriveApp.Access.PRIVATE, publicView ? DriveApp.Permission.VIEW : DriveApp.Permission.NONE);
+    return { fileId: file.getId(), name, mime, size: bytes.length, url: "https://drive.google.com/file/d/" + file.getId() + "/view" };
+  } catch (e) { file.setTrashed(true); throw Error(publicView ? "แชร์ไฟล์โจทย์ไม่ได้ กรุณาตรวจสิทธิ์ Drive" : "กำหนดสิทธิ์ไฟล์งานไม่ได้ กรุณาตรวจสิทธิ์ Drive"); }
+}
+const ATTACHMENT_LIMIT_BYTES = 10 * 1024 * 1024, ATTACHMENT_LIMIT_COUNT = 10;
+function resourceFiles_(row, activity) {
+  const stored = json_(activity ? row.resourceFiles : row.files, []);
+  if (Array.isArray(stored) && stored.length) return stored;
+  const fileId = activity ? row.resourceFileId : row.fileId;
+  return fileId ? [{ fileId, name: row.title || "ไฟล์เดิม", mime: activity ? row.resourceMime : row.mime, url: activity ? row.resourceUrl : row.url }] : [];
+}
+function worksheetAttachments_(answer) {
+  const a = json_(answer, null);
+  if (a && a.kind === "worksheet-file" && /^[\w-]+$/.test(a.fileId)) return [a];
+  return a && a.kind === "worksheet-files" && Array.isArray(a.files) ? a.files.filter(f => f && /^[\w-]+$/.test(f.fileId)) : [];
+}
+function worksheetAttachment_(answer) { return worksheetAttachments_(answer)[0] || null }
+function uploadAttachment_(q) {
+  const u = auth_(q); let context;
+  if (u.role === "teacher") {
+    teacher_(q); get_("Chapters", q.chapterId); context = enum_(q.purpose, ["material", "resource"]) + ":" + q.chapterId;
+  } else {
+    const a = activityAccess_(u.id, q);
+    if (a.kind !== "worksheet" || a.submissionMode !== "file") throw Error("กิจกรรมนี้ไม่รองรับไฟล์");
+    context = "submission:" + a.id + ":" + q.offeringId;
+  }
+  const f = worksheetFile_(q.file, "lms-pending-attachments", u.role === "teacher");
+  try { DriveApp.getFileById(f.fileId).setDescription(JSON.stringify({ kind: "kv-upload", owner: u.id, context, at: Date.now(), pending: true })); return f }
+  catch (e) { DriveApp.getFileById(f.fileId).setTrashed(true); throw e }
+}
+function resolveFiles_(q, context, existing, legacy) {
+  const u = auth_(q); let out;
+  if (q.keepFileIds !== undefined) {
+    if (!Array.isArray(q.keepFileIds)) throw Error("รายการไฟล์เดิมไม่ถูกต้อง");
+    out = q.keepFileIds.map(id => { const f = existing.find(f => f.fileId === id); if (!f) throw Error("ไฟล์เดิมไม่อยู่ในรายการนี้"); return f });
+  } else out = existing.slice();
+  if (q.uploadFileIds !== undefined) {
+    if (!Array.isArray(q.uploadFileIds) || q.uploadFileIds.length > ATTACHMENT_LIMIT_COUNT) throw Error("แนบได้ไม่เกิน 10 ไฟล์");
+    q.uploadFileIds.forEach(id => {
+      if (typeof id !== "string" || !/^[\w-]+$/.test(id)) throw Error("รหัสไฟล์ไม่ถูกต้อง");
+      const f = DriveApp.getFileById(id), meta = json_(f.getDescription(), {});
+      if (meta.kind !== "kv-upload" || meta.owner !== u.id || meta.context !== context || f.isTrashed() || (meta.pending && Date.now() - meta.at > 86400000)) throw Error("ไฟล์ไม่อยู่ในงานนี้หรือหมดอายุ กรุณาแนบใหม่");
+      if (f.getSize() > ATTACHMENT_LIMIT_BYTES) throw Error("ขนาดไฟล์ที่แนบต้องไม่เกิน 10 MB");
+      out.push({ fileId: id, name: f.getName(), mime: f.getMimeType(), size: f.getSize(), url: "https://drive.google.com/file/d/" + id + "/view" });
+    });
+  }
+  if (legacy) out.push(worksheetFile_(legacy, "lms-attachments", u.role === "teacher"));
+  if (out.length > ATTACHMENT_LIMIT_COUNT || new Set(out.map(f => f.fileId)).size !== out.length) throw Error("แนบได้ 1–10 ไฟล์และต้องไม่ซ้ำ");
+  return out;
+}
+function commitFiles_(files) {
+  if (!files.length) return;
+  let folder; try { const root = DriveApp.getFolderById(PropertiesService.getScriptProperties().getProperty("KV_DRIVE_FOLDER_ID")), folders = root.getFoldersByName("lms-attachments"); folder = folders.hasNext() ? folders.next() : root.createFolder("lms-attachments") } catch (e) { console.warn("บันทึกงานแล้ว แต่ย้ายไฟล์ไม่ได้"); return }
+  files.forEach(f => { try { const file = DriveApp.getFileById(f.fileId), meta = json_(file.getDescription(), {}); if (meta.kind === "kv-upload") { if (meta.pending) { meta.pending = false; file.setDescription(JSON.stringify(meta)) } file.moveTo(folder) } } catch (e) { console.warn("ไฟล์บันทึกแล้ว แต่ปรับสถานะอัปโหลดไม่ได้") } });
+}
+function cleanupPendingAttachments_() {
+  const props = PropertiesService.getScriptProperties(), root = DriveApp.getFolderById(props.getProperty("KV_DRIVE_FOLDER_ID")), folders = root.getFoldersByName("lms-pending-attachments"); if (!folders.hasNext()) return;
+  const folder = folders.next(); let files, refs = null, scanned = 0; const cursor = props.getProperty("KV_UPLOAD_CLEANUP_CURSOR");
+  try { files = cursor ? DriveApp.continueFileIterator(cursor) : folder.getFiles() } catch (e) { files = folder.getFiles() }
+  while (files.hasNext() && scanned++ < 200) {
+    const file = files.next(), m = json_(file.getDescription(), {}); if (m.kind !== "kv-upload" || Date.now() - m.at < 86400000) continue;
+    if (refs === null) refs = JSON.stringify([rows_("Materials"), rows_("Activities"), rows_("Submissions"), rows_("History")]);
+    if (!refs.includes(file.getId()) && m.pending) file.setTrashed(true);
+    else if (refs.includes(file.getId())) commitFiles_([{ fileId: file.getId() }]);
+  }
+  if (files.hasNext()) props.setProperty("KV_UPLOAD_CLEANUP_CURSOR", files.getContinuationToken()); else props.deleteProperty("KV_UPLOAD_CLEANUP_CURSOR");
+}
+
+function activityCountsScore_(a) { return a.kind === "worksheet" || a.mode !== "game" || a.countScore === true; }
+function activityAnswerCount_(questions, answers) { return questions.reduce((n, q, i) => { const correct = q.type === "matching" ? Array.isArray(answers[i]) && Array.isArray(q.correct) && answers[i].length === q.correct.length && answers[i].every((v, j) => v !== null && v === q.correct[j]) : q.type !== "text" && answers[i] != null && answers[i] === q.correct; return n + (correct ? 1 : 0) }, 0); }
+
 function saveActivity_(q) {
   teacher_(q);
   get_("Chapters", q.chapterId);
@@ -1513,30 +1595,52 @@ function saveActivity_(q) {
     rows_("Runs").some((r) => r.activityId === old.id && r.status === "started")
   )
     throw Error("มีนักเรียนกำลังทำกิจกรรมนี้ ให้สร้างกิจกรรมใหม่แทน");
+  const worksheet = q.kind === "worksheet";
+  const submissionMode = worksheet ? enum_(q.submissionMode || (old && old.submissionMode) || "internal", ["internal", "file"]) : "internal";
   const questions = questions_(q.questions),
-    seconds = Number(q.seconds || 0);
-  if (!Number.isInteger(seconds) || seconds < 0 || seconds > 7200)
-    throw Error("เวลารวมกิจกรรม 0–7200 วินาที");
-  const mode = enum_(q.mode || "quiz", ["quiz", "game"]);
+    seconds = worksheet ? 0 : Number(q.seconds || 0);
+  if (submissionMode === "file" && questions.length !== 1) throw Error("ใบงานแนบไฟล์ต้องมีเกณฑ์คะแนนหนึ่งรายการ");
+  if (!Number.isInteger(seconds) || seconds < 0 || seconds > 86400)
+    throw Error("เวลาในการทำกิจกรรมต้องไม่เกิน 24 ชั่วโมง");
+  const mode = worksheet ? "quiz" : enum_(q.mode || "quiz", ["quiz", "game"]);
   if (mode === "game" && questions.some((x) => x.type === "text"))
     throw Error("เกมรองรับตัวเลือก ใช่/ไม่ใช่ และจับคู่");
-  return clean_(
-    write_("Activities", {
-      id: q.id || id_("ACT"),
-      chapterId: q.chapterId,
-      title: need_(q.title, "ชื่อกิจกรรม", 150),
-      kind: enum_(q.kind, ["worksheet", "quiz"]),
-      mode,
-      seconds,
-      showAnswers: !!q.showAnswers,
-      status: enum_(q.status || "draft", ["draft", "active", "hidden"]),
-      questions: JSON.stringify(questions),
-      allowEdit: !!q.allowEdit,
-      countScore: q.countScore === true,
-      dueAt: q.dueAt ? new Date(q.dueAt).toISOString() : "",
-      order: old && Number(old.order) > 0 ? Number(old.order) : nextResourceOrder_(q.chapterId),
-    }),
-  );
+  if (mode === "game" && q.countScore !== true) questions.forEach(x => x.points = 1);
+  const title = need_(q.title, worksheet ? "ชื่อใบงาน" : "ชื่อกิจกรรม", 150);
+  const status = enum_(q.status || "draft", ["draft", "active", "hidden"]);
+  const dueAt = q.dueAt ? new Date(q.dueAt).toISOString() : "";
+  if (old && old.chapterId !== q.chapterId) throw Error("เปลี่ยนหน่วยของกิจกรรมเดิมไม่ได้");
+  if ((q.resourceFile || q.uploadFileIds?.length) && submissionMode !== "file") throw Error("ใช้ไฟล์ได้เฉพาะใบงานแนบไฟล์");
+  const files = submissionMode === "file" ? resolveFiles_(q, "resource:" + q.chapterId, resourceFiles_(old || {}, true), q.resourceFile) : [];
+  if (submissionMode === "file" && !files.length) throw Error("เลือกไฟล์โจทย์ใบงาน");
+  const resource = files[0] || { url: "", fileId: "", mime: "" };
+  try {
+    const saved = clean_(
+      write_("Activities", {
+        id: q.id || id_("ACT"),
+        chapterId: q.chapterId,
+        title,
+        kind: enum_(q.kind, ["worksheet", "quiz"]),
+        mode,
+        seconds,
+        showAnswers: worksheet ? false : !!q.showAnswers,
+        status,
+        questions: JSON.stringify(questions),
+        allowEdit: worksheet ? true : !!q.allowEdit,
+        countScore: worksheet || mode !== "game" ? true : q.countScore === true,
+        dueAt,
+        submissionMode,
+        resourceUrl: resource.url,
+        resourceFileId: resource.fileId,
+        resourceMime: resource.mime,
+        resourceFiles: JSON.stringify(files),
+        unlimitedAttempts: worksheet ? false : q.unlimitedAttempts === true,
+        protectContent: worksheet ? false : q.protectContent === true,
+        order: old && Number(old.order) > 0 ? Number(old.order) : nextResourceOrder_(q.chapterId),
+      }),
+    );
+    commitFiles_(files); return saved;
+  } catch (e) { throw e; }
 }
 
 function setStatus_(q) {
@@ -1565,7 +1669,7 @@ function setStatus_(q) {
   if (key === "Courses" && q.status === "hidden") q.status = "closed";
   enum_(q.status, allowed[key]);
   if (key === "Activities" && q.status === "active")
-    questions_(json_(row.questions, []));
+    questions_(json_(row.questions, []), row.kind === "worksheet");
   write_(key, { id: q.id, status: q.status });
   if (key === "Students") {
     const u = get_("Users", q.id);
@@ -1679,6 +1783,9 @@ function submissionsData_(q) {
       offeringId: s.offeringId,
       activityId: s.activityId,
       activityTitle: activityNames.get(s.activityId) || "กิจกรรม",
+      practiceGame: !activityCountsScore_(get_("Activities", s.activityId)),
+      correctCount: activityAnswerCount_(json_(s.questionSnapshot, []), json_(s.answers, [])),
+      questionCount: json_(s.questionSnapshot, []).length,
       late:
         !!s.submittedAt &&
         (dueDates.get(s.activityId) || []).some(
@@ -1690,6 +1797,7 @@ function submissionsData_(q) {
       revision: s.revision,
       updatedAt: s.updatedAt,
       scores: json_(s.scores, []),
+      bestScore: s.bestScore,
       maxScore: json_(s.questionSnapshot, []).reduce((n, x) => n + x.points, 0),
     })),
   };
@@ -1707,10 +1815,17 @@ function submission_(q) {
     questions: json_(s.questionSnapshot, []),
     studentName: get_("Students", s.studentId).fullName,
     activityTitle: get_("Activities", s.activityId).title,
+    practiceGame: !activityCountsScore_(get_("Activities", s.activityId)),
+    correctCount: activityAnswerCount_(json_(s.questionSnapshot, []), json_(s.answers, [])),
     kind: get_("Activities", s.activityId).kind,
   });
 }
 
+function gradedBestScore_(submission, scores) {
+  const rounds = new Map(); rows_("History").filter(h => h.submissionId === submission.id).forEach(h => { const s = json_(h.snapshot, {}), key = s.attemptKey || "legacy", old = rounds.get(key); if (!old || Number(s.revision) > Number(old.revision)) rounds.set(key, s) });
+  rounds.set(submission.attemptKey || "legacy", { ...submission, status: "graded", scores: JSON.stringify(scores) });
+  return Math.max(0, ...[...rounds.values()].filter(s => s.status === "graded").map(s => json_(s.scores, []).reduce((n, v) => n + (Number(v) || 0), 0)));
+}
 function grade_(q) {
   teacher_(q);
   const s = get_("Submissions", q.id);
@@ -1730,10 +1845,13 @@ function grade_(q) {
       throw Error("คะแนนข้อ " + (i + 1) + " ไม่อยู่ในเกณฑ์");
     return Number(x);
   });
+  const activity = get_("Activities", s.activityId), total = scores.reduce((n, v) => n + v, 0);
+  const bestScore = activity.unlimitedAttempts ? gradedBestScore_(s, scores) : "";
   saveHistory_(s);
   write_("Submissions", {
     id: s.id,
     scores: JSON.stringify(scores),
+    bestScore,
     feedback: text_(q.feedback).slice(0, 3000),
     status: "graded",
     revision: Number(s.revision) + 1,
@@ -1775,7 +1893,7 @@ function progressData_(q) {
   const scoredActivityIds = new Set(
     activities
       .filter((a) =>
-        a.countScore === "" ? a.mode !== "game" : a.countScore === true,
+        activityCountsScore_(a),
       )
       .map((a) => a.id),
   );
@@ -1805,7 +1923,7 @@ function progressData_(q) {
       const done =
         submittedIds.size + new Set(read.map((r) => r.materialId)).size;
       const graded = work.filter(
-        (s) => s.status === "graded" && scoredActivityIds.has(s.activityId),
+        (s) => (s.status === "graded" || (s.bestScore !== "" && s.bestScore != null)) && scoredActivityIds.has(s.activityId),
       );
       return {
         studentId: e.studentId,
@@ -1824,7 +1942,7 @@ function progressData_(q) {
         pending: work.filter((s) => s.status === "pending").length,
         score: graded.reduce(
           (n, s) =>
-            n + json_(s.scores, []).reduce((a, b) => a + Number(b || 0), 0),
+            n + (s.bestScore !== "" && s.bestScore != null ? Number(s.bestScore) : json_(s.scores, []).reduce((a, b) => a + Number(b || 0), 0)),
           0,
         ),
         maxScore: graded.reduce(
@@ -1879,14 +1997,22 @@ function studentCourse_(q) {
         order: a.order || "",
         chapterId: a.chapterId,
         title: a.title,
+        questionCount: json_(a.questions, []).length,
         dueAt: a.dueAt || "",
         countScore:
-          a.countScore === "" ? a.mode !== "game" : a.countScore === true,
+          activityCountsScore_(a),
         kind: a.kind,
-        mode: a.mode,
-        seconds: a.seconds,
+        mode: a.kind === "worksheet" ? "quiz" : a.mode,
+        seconds: a.kind === "worksheet" ? 0 : a.seconds,
+        submissionMode: a.submissionMode || "internal",
+        resourceUrl: a.resourceUrl || "",
+        resourceFileId: a.resourceFileId || "",
+        resourceMime: a.resourceMime || "",
+        resourceFiles: resourceFiles_(a, true),
+        unlimitedAttempts: a.unlimitedAttempts === true,
+        protectContent: a.protectContent === true,
         allowEdit:
-          a.allowEdit ||
+          a.kind === "worksheet" || a.allowEdit ||
           rows_("Submissions").some(
             (s) =>
               s.studentId === u.id &&
@@ -1917,49 +2043,42 @@ function readMaterial_(q) {
     studentId: u.id,
     updatedAt: new Date().toISOString(),
   });
-  return { read: true, title: m.title, url: m.url, fileId: m.fileId, mime: m.mime };
+  return { read: true, title: m.title, url: m.url, fileId: m.fileId, mime: m.mime, files: resourceFiles_(m, false) };
 }
 
 function startActivity_(q) {
-  const u = auth_(q, "student"),
-    a = activityAccess_(u.id, q);
-  const old = rows_("Submissions").find(
-    (s) =>
-      s.activityId === a.id &&
-      s.offeringId === q.offeringId &&
-      s.studentId === u.id,
-  );
-  if (old && old.status !== "returned" && (!a.allowEdit || a.kind === "quiz"))
-    throw Error("ส่งกิจกรรมนี้แล้ว");
-  const id = digest_(u.id + ":" + q.offeringId + ":" + a.id);
-  let run = rows_("Runs").find((r) => r.id === id);
-  if (!run) {
-    run = {
-      id,
-      activityId: a.id,
-      offeringId: q.offeringId,
-      studentId: u.id,
-      startedAt: Date.now(),
-      expiresAt: Number(a.seconds) ? Date.now() + Number(a.seconds) * 1000 : 0,
-      status: "started",
-      questionSnapshot: a.questions,
-    };
-    write_("Runs", run);
+  const u = auth_(q, "student"), a = activityAccess_(u.id, q), id = digest_(u.id + ":" + q.offeringId + ":" + a.id), old = rows_("Submissions").find(s => s.id === id);
+  if (a.kind !== "worksheet" && old && old.status !== "returned" && !a.unlimitedAttempts) throw Error("ส่งกิจกรรมนี้แล้ว");
+  if (a.unlimitedAttempts && old && old.status === "pending") throw Error("รอครูตรวจข้อเขียนรอบนี้ก่อนทำรอบใหม่");
+  let run = rows_("Runs").find(r => r.id === id);
+  if (!run || run.status !== "started") {
+    run = { id, activityId: a.id, offeringId: q.offeringId, studentId: u.id, startedAt: Date.now(), expiresAt: a.kind !== "worksheet" && Number(a.seconds) ? Date.now() + Number(a.seconds) * 1000 : 0, status: "started", questionSnapshot: a.questions, attemptKey: id_("TRY"), draftAnswers: "[]" }; write_("Runs", run);
   }
-  return {
-    runId: id,
-    expiresAt: run.expiresAt,
-    serverNow: Date.now(),
-    questions: json_(run.questionSnapshot || a.questions, []).map((x) => ({
-      id: x.id,
-      text: x.text,
-      type: x.type,
-      points: x.points,
-      options: x.options,
-      prompts: x.prompts || [],
-    })),
-    answers: old ? json_(old.answers, []) : [],
-  };
+  return { runId: run.attemptKey || id, attemptKey: run.attemptKey || "", expiresAt: a.kind === "worksheet" ? 0 : run.expiresAt, serverNow: Date.now(), questions: json_(run.questionSnapshot || a.questions, []).map(x => ({ id: x.id, text: x.text, type: x.type, points: x.points, options: x.options, prompts: x.prompts || [] })), answers: a.kind === "worksheet" && old ? json_(old.answers, []) : json_(run.draftAnswers, []) };
+}
+function normalizedAnswers_(questions, answers, partial) {
+  if (!Array.isArray(answers) || answers.length > questions.length) throw Error("คำตอบไม่ถูกต้อง");
+  return questions.map((x, i) => {
+    const v = answers[i];
+    if (x.type === "text") { if (partial && (v == null || v === "")) return ""; return need_(v, "คำตอบข้อ " + (i + 1), 5000) }
+    if (x.type === "matching") {
+      const list = Array.isArray(v) ? v : []; if (list.length > x.prompts.length) throw Error("คู่คำตอบไม่ถูกต้อง");
+      const out = x.prompts.map((_, n) => { const value = list[n]; if (partial && (value == null || value === "")) return null; if (!Number.isInteger(value) || value < 0 || value >= x.options.length) throw Error("กรุณาจับคู่ให้ครบ"); return value });
+      const filled = out.filter(v => v !== null); if (!partial && new Set(filled).size !== filled.length) throw Error("เลือกคู่คำตอบซ้ำ"); return out;
+    }
+    if (partial && (v == null || v === "")) return null; const n = Number(v); if (v == null || v === "" || !Number.isInteger(n) || n < 0 || n >= x.options.length) throw Error("คำตอบตัวเลือกไม่ถูกต้อง"); return n;
+  });
+}
+function saveAttemptDraft_(q) {
+  const u = auth_(q, "student"), a = activityAccess_(u.id, q), id = digest_(u.id + ":" + q.offeringId + ":" + a.id), run = get_("Runs", id);
+  if (a.kind === "worksheet" || run.status !== "started" || run.attemptKey !== q.attemptKey) throw Error("รอบทำกิจกรรมเปลี่ยนแล้ว");
+  if (Number(run.expiresAt) && Date.now() > Number(run.expiresAt)) return { expired: true };
+  const answers = normalizedAnswers_(json_(run.questionSnapshot, []), q.answers, true); if (JSON.stringify(answers).length > 45000) throw Error("คำตอบยาวเกินกำหนด");
+  write_("Runs", { id, draftAnswers: JSON.stringify(answers) }); return { saved: true };
+}
+function reopenAttempt_(q) {
+  teacher_(q); const s = get_("Submissions", q.id), a = get_("Activities", s.activityId); if (a.kind === "worksheet") throw Error("ใบงานแก้ไขได้อยู่แล้ว"); if (Number(q.revision) !== Number(s.revision)) throw Error("ข้อมูลเปลี่ยนแล้ว กรุณาเปิดใหม่");
+  saveHistory_(s); write_("Submissions", { id: s.id, status: "returned", revision: Number(s.revision) + 1, updatedAt: new Date().toISOString() }); rewriteRows_("Runs", rows_("Runs").filter(r => !(r.activityId === s.activityId && r.offeringId === s.offeringId && r.studentId === s.studentId))); return { reopened: true };
 }
 
 function submitActivity_(q) {
@@ -1967,62 +2086,81 @@ function submitActivity_(q) {
     a = activityAccess_(u.id, q),
     id = digest_(u.id + ":" + q.offeringId + ":" + a.id);
   const run = get_("Runs", id);
-  if (Number(run.expiresAt) && Date.now() > Number(run.expiresAt) + 5000)
-    throw Error("หมดเวลาทำกิจกรรมแล้ว");
-  const old = rows_("Submissions").find((s) => s.id === id);
-  if (old && old.status !== "returned" && (!a.allowEdit || a.kind === "quiz"))
-    throw Error("ส่งกิจกรรมนี้แล้ว");
+  const timedOut = a.kind !== "worksheet" && Number(run.expiresAt) && Date.now() >= Number(run.expiresAt);
+  if (a.kind !== "worksheet" && (run.status !== "started" || (run.attemptKey && run.attemptKey !== q.attemptKey))) throw Error("รอบนี้ส่งแล้วหรือเปลี่ยนรอบแล้ว กรุณาเปิดกิจกรรมใหม่");
+  if (q.autoSubmit && !timedOut) throw Error("ยังไม่หมดเวลา");
+  const old = rows_("Submissions").find(s => s.id === id);
+  if (old && a.kind !== "worksheet" && old.status !== "returned" && !a.unlimitedAttempts) throw Error("ส่งกิจกรรมนี้แล้ว");
   const questions = json_(run.questionSnapshot || a.questions, []);
-  if (!Array.isArray(q.answers) || q.answers.length !== questions.length)
-    throw Error("ตอบคำถามให้ครบ");
-  const answers = q.answers.map((v, i) => {
-    if (questions[i].type === "text")
-      return need_(v, "คำตอบข้อ " + (i + 1), 5000);
-    if (questions[i].type === "matching") {
-      if (!Array.isArray(v) || v.length !== questions[i].prompts.length || v.some((n) => !Number.isInteger(n) || n < 0 || n >= questions[i].options.length) || new Set(v).size !== v.length)
-        throw Error("กรุณาจับคู่ให้ครบและไม่เลือกคำตอบซ้ำ");
-      return v;
-    }
-    const n = Number(v);
-    if (
-      v === "" ||
-      v == null ||
-      !Number.isInteger(n) ||
-      n < 0 ||
-      n >= questions[i].options.length
-    )
-      throw Error("คำตอบตัวเลือกไม่ถูกต้อง");
-    return n;
-  });
+  if (!Array.isArray(q.answers)) throw Error("คำตอบไม่ถูกต้อง");
+  const fileWorksheet = a.kind === "worksheet" && a.submissionMode === "file";
+  if (q.file && !fileWorksheet) throw Error("กิจกรรมนี้ไม่รองรับแนบไฟล์");
+  if (fileWorksheet && questions.length !== 1) throw Error("โครงสร้างใบงานแนบไฟล์ไม่ถูกต้อง");
+  const workFiles = fileWorksheet ? resolveFiles_(q, "submission:" + a.id + ":" + q.offeringId, old ? worksheetAttachments_(json_(old.answers, [])[0]) : [], q.file) : [];
+  if (fileWorksheet && !workFiles.length) throw Error("แนบไฟล์งานอย่างน้อย 1 ไฟล์");
+  const submittedAnswers = timedOut && Date.now() > Number(run.expiresAt) + 5000 ? json_(run.draftAnswers, []) : q.answers;
+  const answers = fileWorksheet ? [JSON.stringify({ kind: "worksheet-files", files: workFiles })] : normalizedAnswers_(questions, submittedAnswers, !!timedOut);
   if (JSON.stringify(answers).length > 45000)
     throw Error("คำตอบรวมยาวเกิน 45,000 ตัวอักษร");
   const scores = questions.map((x, i) =>
-    x.type === "text" ? null : x.type === "matching" ? (answers[i].every((v, n) => v === x.correct[n]) ? x.points : 0) : answers[i] === x.correct ? x.points : 0,
+    x.type === "text" ? (timedOut && !answers[i] ? 0 : null) : x.correct == null ? null : x.type === "matching" ? (answers[i].every((v, n) => v !== null && v === x.correct[n]) ? x.points : 0) : answers[i] !== null && answers[i] === x.correct ? x.points : 0,
   );
-  const status = scores.some((x) => x === null) ? "pending" : "graded";
-  if (old) saveHistory_(old);
-  write_("Submissions", {
-    id,
-    activityId: a.id,
-    offeringId: q.offeringId,
-    studentId: u.id,
-    answers: JSON.stringify(answers),
-    scores: JSON.stringify(scores),
-    feedback: "",
-    status,
-    revision: old ? Number(old.revision) + 1 : 1,
-    updatedAt: new Date().toISOString(),
-    questionSnapshot: JSON.stringify(questions),
-    submittedAt: new Date().toISOString(),
-  });
-  write_("Runs", { id, status: "submitted" });
-  return {
-    id,
-    status,
-    score: scores.reduce((n, s) => n + (s || 0), 0),
-    maxScore: questions.reduce((n, x) => n + x.points, 0),
-    correctAnswers: a.showAnswers ? questions.map((x) => x.correct) : undefined,
-  };
+  const status = a.kind === "worksheet" || scores.some((x) => x === null) ? "pending" : "graded";
+  const total = scores.reduce((n, s) => n + (Number(s) || 0), 0), previousBest = old ? (old.bestScore !== "" && old.bestScore != null ? Number(old.bestScore) : old.status === "graded" ? json_(old.scores, []).reduce((n, s) => n + (Number(s) || 0), 0) : null) : null;
+  const bestScore = a.unlimitedAttempts ? status === "graded" ? Math.max(previousBest ?? 0, total) : previousBest ?? "" : "";
+  let committed = false;
+  try {
+    if (old) saveHistory_(old);
+    write_("Submissions", {
+      id,
+      activityId: a.id,
+      offeringId: q.offeringId,
+      studentId: u.id,
+      answers: JSON.stringify(answers),
+      scores: JSON.stringify(scores),
+      feedback: "",
+      status,
+      revision: old ? Number(old.revision) + 1 : 1,
+      updatedAt: new Date().toISOString(),
+      questionSnapshot: JSON.stringify(questions),
+      submittedAt: new Date().toISOString(),
+      bestScore,
+      attemptKey: run.attemptKey || "",
+    });
+    committed = true;
+    commitFiles_(workFiles);
+    write_("Runs", { id, status: "submitted" });
+    return {
+      id,
+      status,
+      score: a.kind === "worksheet" ? null : scores.reduce((n, s) => n + (s || 0), 0),
+      maxScore: questions.reduce((n, x) => n + x.points, 0),
+      bestScore,
+      timedOut: !!timedOut,
+      countScore: activityCountsScore_(a),
+      correctCount: activityAnswerCount_(questions, answers),
+      questionCount: questions.length,
+      correctAnswers: a.kind !== "worksheet" && a.showAnswers ? questions.map((x) => x.correct) : undefined,
+    };
+  } catch (e) { throw e; }
+}
+
+function downloadWorksheetFile_(q) {
+  const u = auth_(q);
+  let s;
+  if (u.role === "teacher") {
+    teacher_(q);
+    s = get_("Submissions", q.submissionId);
+  } else {
+    const a = activityAccess_(u.id, q);
+    s = rows_("Submissions").find(x => x.activityId === a.id && x.offeringId === q.offeringId && x.studentId === u.id);
+  }
+  const snapshots = s ? [s] : [];
+  if (u.role === "teacher" && s && q.fileId) rows_("History").filter(h => h.submissionId === s.id).forEach(h => snapshots.push(json_(h.snapshot, {})));
+  const attachment = snapshots.flatMap(x => worksheetAttachments_(json_(x.answers, [])[0])).find(x => x && (!q.fileId || x.fileId === q.fileId));
+  if (!attachment) throw Error("ยังไม่มีไฟล์งานส่ง หรือไฟล์ไม่อยู่ในประวัติงานนี้");
+  const blob = DriveApp.getFileById(attachment.fileId).getBlob();
+  return { name: attachment.name, mime: attachment.mime, data: Utilities.base64Encode(blob.getBytes()) };
 }
 
 function mySubmission_(q) {
@@ -2037,18 +2175,27 @@ function mySubmission_(q) {
   if (!s) return null;
   const questions = json_(s.questionSnapshot, []).map((x) => {
     const r = Object.assign({}, x);
-    if (!a.showAnswers) delete r.correct;
+    if (a.kind === "worksheet" || !a.showAnswers) delete r.correct;
     return r;
   });
   return {
     id: s.id,
+    title: a.title,
+    mode: a.mode,
+    countScore: activityCountsScore_(a),
+    correctCount: activityAnswerCount_(json_(s.questionSnapshot, []), json_(s.answers, [])),
+    questionCount: questions.length,
+    kind: a.kind,
+    submissionMode: a.submissionMode,
+    submittedAt: s.submittedAt,
+    bestScore: s.bestScore,
     answers: json_(s.answers, []),
-    scores: json_(s.scores, []),
+    scores: a.kind === "worksheet" && s.status !== "graded" ? questions.map(() => null) : json_(s.scores, []),
     feedback: s.feedback,
     status: s.status,
     questions,
     allowEdit:
-      a.kind === "worksheet" && (!!a.allowEdit || s.status === "returned"),
+      a.kind === "worksheet",
   };
 }
 
@@ -2512,6 +2659,7 @@ const ADMIN_ACTION_NAMES = {
   saveChapter: "เพิ่มหรือแก้ไขบทเรียน",
   moveResource: "เรียงลำดับสื่อและกิจกรรม",
   deleteActivity: "ลบกิจกรรมพร้อมงานและคะแนน",
+  deleteChapter: "ลบหน่วยการเรียนรู้พร้อมเนื้อหา งาน และคะแนน",
   saveMaterial: "เพิ่มหรือแก้ไขสื่อ",
   deleteMaterial: "ลบสื่อ",
   saveActivity: "เพิ่มหรือแก้ไขกิจกรรม",
@@ -2568,6 +2716,7 @@ function adminKeys_(q) {
       "Profiles",
     ],
     returnWork: ["Submissions", "History", "Runs"],
+    reopenAttempt: ["Submissions", "History", "Runs"],
     studentsBatch: ["Students", "Users"],
     replaceRoster: ["Students", "Users", "Enrollments", "Submissions", "Progress", "Runs", "History", "Profiles"],
     saveGroup: ["Groups"],
@@ -2579,6 +2728,7 @@ function adminKeys_(q) {
     ensureOffering: ["Offerings"],
     enroll: ["Enrollments"],
     saveChapter: ["Chapters"],
+    deleteChapter: ["Chapters", "Materials", "Activities", "Submissions", "History", "Progress", "Runs"],
     moveResource: ["Materials", "Activities"],
     deleteActivity: ["Activities", "Submissions", "Runs", "History"],
     saveMaterial: ["Materials"],
@@ -2681,7 +2831,7 @@ function adminAudited_(q, fn) {
   if (initial.length > 45000)
     file = historyFile_("LMS action " + id + ".json", initial);
   const deleted =
-    ["deleteGroup", "deleteMaterial", "deleteEntity"].includes(q.action) ||
+    ["deleteGroup", "deleteMaterial", "deleteEntity", "deleteChapter"].includes(q.action) ||
     (q.action === "bulkManage" && q.mode === "delete") ||
     (q.action === "adminManage" &&
       ["delete", "clearWork", "reset"].includes(q.mode));
@@ -3081,9 +3231,12 @@ function adminUndo_(q) {
   });
   const props = PropertiesService.getScriptProperties();
   props.setProperty("LMS_MAINTENANCE", "1");
+  let restoredFiles = [];
   try {
+    if (get_("AdminHistory", q.id).action === "deleteChapter") restoredFiles = changeAttachmentTrash_(attachedFileIds_(data.patches.map(p => p.before)), false);
     keys.forEach((key) => rewriteRows_(key, desired[key]));
   } catch (e) {
+    rollbackAttachmentTrash_(restoredFiles);
     let rollbackFailed = false;
     try {
       keys.forEach((key) => rewriteRows_(key, before[key]));
@@ -3721,6 +3874,7 @@ function cleanupLmsHistory() {
       );
     if (requests.length !== recent.length) rewriteRows_("Requests", recent);
     const expiredSessions = pruneExpiredSessions_(now);
+    try { cleanupPendingAttachments_() } catch (e) { console.warn("ล้างไฟล์อัปโหลดค้างไม่สำเร็จ: " + e.message) }
     const history = rows_("AdminHistory");
     let changed = false,
       snapshotsRemoved = 0;
@@ -3811,8 +3965,11 @@ const ACTIONS = {
   ensureOffering: ensureOffering_,
   enroll: enroll_,
   saveChapter: saveChapter_,
+  chapterImpact: chapterImpact_,
+  deleteChapter: deleteChapter_,
   moveResource: moveResource_,
   deleteActivity: deleteActivity_,
+  uploadAttachment: uploadAttachment_,
   saveMaterial: saveMaterial_,
   deleteMaterial: deleteMaterial_,
   saveActivity: saveActivity_,
@@ -3826,11 +3983,15 @@ const ACTIONS = {
   studentHome: studentHome_,
   studentCourse: studentCourse_,
   readMaterial: readMaterial_,
+  saveAttemptDraft: saveAttemptDraft_,
+  reopenAttempt: reopenAttempt_,
   startActivity: startActivity_,
   submitActivity: submitActivity_,
+  downloadWorksheetFile: downloadWorksheetFile_,
   mySubmission: mySubmission_,
 };
 const READS = [
+  "chapterImpact",
   "adminHistoryDetails",
   "adminManagePreview",
   "studentPresence",
@@ -3855,6 +4016,7 @@ const READS = [
   "mySubmission",
   "profile",
   "connectionCheck",
+  "downloadWorksheetFile",
 ];
 
 function requestPayload_(value) {
@@ -3886,11 +4048,13 @@ function mutationSync_(q, teacherMutation) {
     removeRoom: ["Enrollments"],
     deleteGroup: ["Groups", "Students", "Enrollments"],
     saveChapter: [],
+    deleteChapter: [],
     saveMaterial: [],
     deleteMaterial: [],
     saveActivity: [],
     grade: [],
     returnWork: [],
+    reopenAttempt: [],
     resetPassword: [],
     setMaintenance: [],
     backup: [],
@@ -4509,6 +4673,7 @@ function adminTarget_(q, patches) {
     saveStudent: "Students",
     saveCourse: "Courses",
     saveChapter: "Chapters",
+    deleteChapter: "Chapters",
     saveMaterial: "Materials",
     deleteMaterial: "Materials",
     saveActivity: "Activities",
@@ -4619,6 +4784,7 @@ function adminDescribe_(q, patches, result) {
     return q.enabled
       ? "ปิดให้นักเรียนเข้าใช้งาน ครูยังเข้าได้"
       : "เปิดให้นักเรียนเข้าใช้งาน";
+  if (q.action === "deleteChapter") return "ลบหน่วยการเรียนรู้พร้อมเนื้อหา งานและคะแนน ย้ายไฟล์ที่ไม่ได้ใช้ในหน่วยอื่นไปถังขยะ Drive";
   if (q.action === "deleteEntity")
     return q.kind === "course"
       ? "ลบรายวิชาพร้อมบทเรียน กิจกรรม งาน และคะแนนที่เกี่ยวข้อง"
