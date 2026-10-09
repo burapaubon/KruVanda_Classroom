@@ -35,6 +35,7 @@ const SCHEMA = {
     "fileId",
     "mime",
     "status",
+    "order",
   ],
   Activities: [
     "id",
@@ -49,6 +50,7 @@ const SCHEMA = {
     "allowEdit",
     "countScore",
     "dueAt",
+    "order",
   ],
   Submissions: [
     "id",
@@ -1295,19 +1297,35 @@ function enroll_(q) {
 function saveChapter_(q) {
   teacher_(q);
   get_("Courses", q.courseId);
-  if (q.id && get_("Chapters", q.id).courseId !== q.courseId)
-    throw Error("ย้ายบทข้ามรายวิชาไม่ได้");
+  const old = q.id ? get_("Chapters", q.id) : null;
+  if (old && old.courseId !== q.courseId) throw Error("ย้ายบทข้ามรายวิชาไม่ได้");
   const order = Number(q.order);
   if (!Number.isInteger(order) || order < 1) throw Error("ลำดับบทเริ่มที่ 1");
-  return clean_(
-    write_("Chapters", {
-      id: q.id || id_("CH"),
-      courseId: q.courseId,
-      title: need_(q.title, "ชื่อบท", 150),
-      order,
-      status: enum_(q.status || "active", ["active", "hidden"]),
-    }),
-  );
+  const title = need_(q.title, "ชื่อหน่วย", 150).trim();
+  const status = enum_(q.status || "active", ["active", "hidden"]);
+  const normalize = (v) => String(v || "").normalize("NFC").replace(/\s+/g, "").toLocaleLowerCase("th");
+  const others = rows_("Chapters").filter((c) => c.courseId === q.courseId && c.status !== "deleted" && c.id !== q.id);
+  if (others.some((c) => normalize(c.title) === normalize(title)))
+    throw Error("มีบทเรียนนี้อยู่แล้ว กรุณาใช้ชื่อหน่วยที่ไม่ซ้ำ");
+  const collisions = others.filter((c) => Number(c.order) === order);
+  if (collisions.length && !old) throw Error("มีบทเรียนนี้อยู่แล้ว กรุณาใช้เลขหน่วยที่ไม่ซ้ำ");
+  if (collisions.length > 1 || (collisions.length && others.some((c) => c.id !== collisions[0].id && Number(c.order) === Number(old.order))))
+    throw Error("เลขหน่วยเดิมซ้ำกัน กรุณาแก้ไขก่อนสลับลำดับ");
+  const value = { id: q.id || id_("CH"), courseId: q.courseId, title, order, status };
+  if (!collisions.length) return clean_(write_("Chapters", value));
+  // The request dispatcher holds the script lock. Persist both rows in one write.
+  const target = collisions[0];
+  const first = Math.min(old._row, target._row);
+  const last = Math.max(old._row, target._row);
+  const headers = SCHEMA.Chapters;
+  const range = book_().getSheetByName("Chapters").getRange(first, 1, last - first + 1, headers.length);
+  const values = range.getValues();
+  const updated = Object.assign({}, old, value);
+  values[old._row - first] = headers.map((key) => cell_(updated[key]));
+  values[target._row - first][headers.indexOf("order")] = Number(old.order);
+  range.setValues(values);
+  delete MEM.Chapters;
+  return clean_(updated);
 }
 
 function uRL_(url) {
@@ -1315,6 +1333,44 @@ function uRL_(url) {
   if (!/^https:\/\/[^\s<>"']+$/.test(url))
     throw Error("ใช้ลิงก์ https:// ที่ถูกต้อง");
   return url;
+}
+
+
+function resourceRows_(chapterId) {
+  return ["Materials", "Activities"].flatMap((entity) => rows_(entity).filter((r) => r.chapterId === chapterId && r.status !== "deleted").map((r) => ({ entity, row: r })))
+    .sort((a, b) => (Number(a.row.order) || 1000000) - (Number(b.row.order) || 1000000) || (a.entity === b.entity ? 0 : a.entity === "Materials" ? -1 : 1) || a.row._row - b.row._row);
+}
+function nextResourceOrder_(chapterId) {
+  const items = resourceRows_(chapterId);
+  // Fill legacy rows once so newly added items follow existing items.
+  if (items.some((x) => !Number(x.row.order))) items.forEach((x, i) => write_(x.entity, { id: x.row.id, order: i + 1 }));
+  return Math.max(0, ...resourceRows_(chapterId).map((x) => Number(x.row.order) || 0)) + 1;
+}
+function moveResource_(q) {
+  teacher_(q);
+  const entity = enum_(q.entity, ["Materials", "Activities"]);
+  const item = get_(entity, q.id);
+  get_("Chapters", item.chapterId);
+  const items = resourceRows_(item.chapterId);
+  const index = items.findIndex((x) => x.entity === entity && x.row.id === q.id);
+  const other = index + (enum_(q.direction, ["up", "down"]) === "up" ? -1 : 1);
+  if (index < 0 || other < 0 || other >= items.length) return { moved: false };
+  [items[index], items[other]] = [items[other], items[index]];
+  const original = items.map((x) => ({ entity: x.entity, row: { ...x.row } }));
+  try { items.forEach((x, i) => write_(x.entity, { id: x.row.id, order: i + 1 })); }
+  catch (error) { original.forEach((x) => write_(x.entity, x.row)); throw error; }
+  return { moved: true };
+}
+function deleteActivity_(q) {
+  teacher_(q);
+  const a = get_("Activities", q.id);
+  if (q.confirmText !== "ยืนยัน") throw Error("กรุณายืนยันก่อนลบกิจกรรม");
+  const submissionIds = new Set(rows_("Submissions").filter((s) => s.activityId === a.id).map((s) => s.id));
+  rewriteRows_("History", rows_("History").filter((s) => !submissionIds.has(s.submissionId)));
+  rewriteRows_("Submissions", rows_("Submissions").filter((s) => s.activityId !== a.id));
+  rewriteRows_("Runs", rows_("Runs").filter((s) => s.activityId !== a.id));
+  write_("Activities", { id: a.id, status: "deleted" });
+  return { deleted: true };
 }
 
 function saveMaterial_(q) {
@@ -1326,7 +1382,7 @@ function saveMaterial_(q) {
     mime = old ? old.mime : "",
     url = q.url ? uRL_(q.url) : old ? old.url : "";
   const title = need_(q.title, "ชื่อสื่อ", 150),
-    kind = enum_(q.kind, ["knowledge", "extra"]);
+    kind = enum_(q.kind, ["knowledge", "worksheet", "extra"]);
   if (q.file) {
     if (old && old.fileId) throw Error("ลบสื่อเดิมก่อนอัปโหลดไฟล์ใหม่");
     mime = enum_(q.file.mime, [
@@ -1378,7 +1434,8 @@ function saveMaterial_(q) {
         url,
         fileId,
         mime,
-        status: "active",
+        status: enum_(q.status || (old ? old.status : "active"), ["active", "hidden"]),
+        order: old && Number(old.order) > 0 ? Number(old.order) : nextResourceOrder_(q.chapterId),
       }),
     );
   } catch (err) {
@@ -1391,7 +1448,7 @@ function deleteMaterial_(q) {
   teacher_(q);
   const m = get_("Materials", q.id);
   if (q.confirmText !== "ยืนยัน") throw Error("พิมพ์ ยืนยัน ก่อนดำเนินการ");
-  if (q.deleteFile === "true" || q.deleteFile === true) {
+  if (m.fileId) {
     if (!m.fileId) throw Error("ลบได้เฉพาะไฟล์ที่อัปโหลดผ่านระบบ ลิงก์ภายนอกนำออกจากบทเรียนได้เท่านั้น");
     if (rows_("Materials").some((r) => r.id !== m.id && r.status !== "deleted" && r.fileId === m.fileId))
       throw Error("ไฟล์นี้ยังใช้ในบทเรียนอื่น กรุณานำออกจากบทเรียนอื่นก่อน");
@@ -1407,7 +1464,7 @@ function questions_(questions) {
   if (!Array.isArray(questions) || !questions.length || questions.length > 100)
     throw Error("ต้องมีคำถาม 1–100 ข้อ");
   const out = questions.map((x, i) => {
-    const type = enum_(x.type, ["text", "single", "boolean"]),
+    const type = enum_(x.type, ["text", "single", "boolean", "matching"]),
       points = Number(x.points);
     if (!Number.isFinite(points) || points <= 0 || points > 100)
       throw Error("คะแนนข้อ " + (i + 1) + " ต้องมากกว่า 0 และไม่เกิน 100");
@@ -1419,9 +1476,11 @@ function questions_(questions) {
           : (x.options || []).map((o) => need_(o, "ตัวเลือก", 500));
     if (type !== "text" && (options.length < 2 || options.length > 10))
       throw Error("ตัวเลือก 2–10 ตัวเลือก");
-    const correct = type === "text" ? null : Number(x.correct);
+    const prompts = type === "matching" ? (x.prompts || []).map((v) => need_(v, "รายการจับคู่", 500)) : [];
+    if (type === "matching" && (prompts.length < 2 || prompts.length !== options.length)) throw Error("จับคู่ต้องมีคู่ครบ 2–10 คู่");
+    const correct = type === "matching" ? prompts.map((_, i) => i) : type === "text" ? null : Number(x.correct);
     if (
-      type !== "text" &&
+      type !== "text" && type !== "matching" &&
       (!Number.isInteger(correct) || correct < 0 || correct >= options.length)
     )
       throw Error("เลือกเฉลยให้ตรงตัวเลือก");
@@ -1432,6 +1491,7 @@ function questions_(questions) {
       points,
       options,
       correct,
+      prompts,
     };
   });
   if (new Set(out.map((x) => x.id)).size !== out.length)
@@ -1459,7 +1519,7 @@ function saveActivity_(q) {
     throw Error("เวลารวมกิจกรรม 0–7200 วินาที");
   const mode = enum_(q.mode || "quiz", ["quiz", "game"]);
   if (mode === "game" && questions.some((x) => x.type === "text"))
-    throw Error("เกมตอบคำถามรองรับเฉพาะช้อยส์/ใช่–ไม่ใช่");
+    throw Error("เกมรองรับตัวเลือก ใช่/ไม่ใช่ และจับคู่");
   return clean_(
     write_("Activities", {
       id: q.id || id_("ACT"),
@@ -1474,6 +1534,7 @@ function saveActivity_(q) {
       allowEdit: !!q.allowEdit,
       countScore: q.countScore === true,
       dueAt: q.dueAt ? new Date(q.dueAt).toISOString() : "",
+      order: old && Number(old.order) > 0 ? Number(old.order) : nextResourceOrder_(q.chapterId),
     }),
   );
 }
@@ -1488,6 +1549,7 @@ function setStatus_(q) {
     "Enrollments",
     "Chapters",
     "Activities",
+    "Materials",
   ]);
   const row = get_(key, q.id);
   const allowed = {
@@ -1498,6 +1560,7 @@ function setStatus_(q) {
     Enrollments: ["active", "inactive"],
     Chapters: ["active", "hidden"],
     Activities: ["active", "hidden", "draft"],
+    Materials: ["active", "hidden"],
   };
   if (key === "Courses" && q.status === "hidden") q.status = "closed";
   enum_(q.status, allowed[key]);
@@ -1813,6 +1876,7 @@ function studentCourse_(q) {
       .filter((a) => ids.has(a.chapterId) && a.status === "active")
       .map((a) => ({
         id: a.id,
+        order: a.order || "",
         chapterId: a.chapterId,
         title: a.title,
         dueAt: a.dueAt || "",
@@ -1853,7 +1917,7 @@ function readMaterial_(q) {
     studentId: u.id,
     updatedAt: new Date().toISOString(),
   });
-  return { read: true };
+  return { read: true, title: m.title, url: m.url, fileId: m.fileId, mime: m.mime };
 }
 
 function startActivity_(q) {
@@ -1892,6 +1956,7 @@ function startActivity_(q) {
       type: x.type,
       points: x.points,
       options: x.options,
+      prompts: x.prompts || [],
     })),
     answers: old ? json_(old.answers, []) : [],
   };
@@ -1913,6 +1978,11 @@ function submitActivity_(q) {
   const answers = q.answers.map((v, i) => {
     if (questions[i].type === "text")
       return need_(v, "คำตอบข้อ " + (i + 1), 5000);
+    if (questions[i].type === "matching") {
+      if (!Array.isArray(v) || v.length !== questions[i].prompts.length || v.some((n) => !Number.isInteger(n) || n < 0 || n >= questions[i].options.length) || new Set(v).size !== v.length)
+        throw Error("กรุณาจับคู่ให้ครบและไม่เลือกคำตอบซ้ำ");
+      return v;
+    }
     const n = Number(v);
     if (
       v === "" ||
@@ -1927,7 +1997,7 @@ function submitActivity_(q) {
   if (JSON.stringify(answers).length > 45000)
     throw Error("คำตอบรวมยาวเกิน 45,000 ตัวอักษร");
   const scores = questions.map((x, i) =>
-    x.type === "text" ? null : answers[i] === x.correct ? x.points : 0,
+    x.type === "text" ? null : x.type === "matching" ? (answers[i].every((v, n) => v === x.correct[n]) ? x.points : 0) : answers[i] === x.correct ? x.points : 0,
   );
   const status = scores.some((x) => x === null) ? "pending" : "graded";
   if (old) saveHistory_(old);
@@ -2440,6 +2510,8 @@ const ADMIN_ACTION_NAMES = {
   ensureOffering: "เตรียมผู้เรียนในรายวิชา",
   enroll: "ลงทะเบียนผู้เรียน",
   saveChapter: "เพิ่มหรือแก้ไขบทเรียน",
+  moveResource: "เรียงลำดับสื่อและกิจกรรม",
+  deleteActivity: "ลบกิจกรรมพร้อมงานและคะแนน",
   saveMaterial: "เพิ่มหรือแก้ไขสื่อ",
   deleteMaterial: "ลบสื่อ",
   saveActivity: "เพิ่มหรือแก้ไขกิจกรรม",
@@ -2507,6 +2579,8 @@ function adminKeys_(q) {
     ensureOffering: ["Offerings"],
     enroll: ["Enrollments"],
     saveChapter: ["Chapters"],
+    moveResource: ["Materials", "Activities"],
+    deleteActivity: ["Activities", "Submissions", "Runs", "History"],
     saveMaterial: ["Materials"],
     deleteMaterial: ["Materials"],
     saveActivity: ["Activities"],
@@ -3737,6 +3811,8 @@ const ACTIONS = {
   ensureOffering: ensureOffering_,
   enroll: enroll_,
   saveChapter: saveChapter_,
+  moveResource: moveResource_,
+  deleteActivity: deleteActivity_,
   saveMaterial: saveMaterial_,
   deleteMaterial: deleteMaterial_,
   saveActivity: saveActivity_,

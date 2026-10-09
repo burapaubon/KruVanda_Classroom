@@ -16361,6 +16361,493 @@
       }
     }
   </style>
+
+  <style>
+    body .main #content .course-back-row {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      width: 100%;
+      margin: 0 0 10px;
+      text-align: left;
+    }
+
+    body .main #content .course-back-row>.course-back-button {
+      flex: 0 0 auto !important;
+      width: auto !important;
+      min-width: 0 !important;
+      min-height: 40px !important;
+      padding: 9px 14px !important;
+      margin: 0 !important;
+      font-size: 13px !important;
+      border-radius: 10px !important;
+      white-space: nowrap;
+    }
+  </style>
+
+  <style>
+    body .main #content .course-detail-hero {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px 32px;
+      margin-top: 12px;
+      min-height: 0;
+      border: 1px solid #edbb8e;
+      border-radius: 23px;
+      background: radial-gradient(ellipse at 50% 15%, #ffffffb0, transparent 72%), linear-gradient(115deg, #fff1e3, #ffe0c0);
+      box-shadow: 0 9px 26px #8a4b1510, inset 0 1px #fff;
+    }
+
+    body .main #content .course-detail-hero::before,
+    body .main #content .course-detail-hero::after {
+      content: "";
+      position: absolute;
+      width: 235px;
+      height: 235px;
+      border: 1px solid #d8783026;
+      border-radius: 50%;
+      box-shadow: 0 0 0 24px #eb963c09, 0 0 0 48px #eb963c06;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    body .main #content .course-detail-hero::before {
+      top: -115px;
+      left: -110px;
+    }
+
+    body .main #content .course-detail-hero::after {
+      bottom: -150px;
+      right: -85px;
+    }
+
+    body .main #content .course-hero-copy {
+      min-width: 0;
+      width: 100%;
+      max-width: 850px;
+      text-align: center;
+    }
+
+    body .main #content .course-detail-hero .course-code {
+      display: inline-block;
+      font-size: 13px;
+      padding: 5px 12px;
+      background: #ffffff90;
+      border: 1px solid #e6bd9660;
+      border-radius: 30px;
+      color: #8a5c3c;
+    }
+
+    body .main #content .course-detail-hero h2 {
+      font-size: clamp(22px, 2.5vw, 32px);
+      line-height: 1.45;
+      color: #482a18;
+      margin: 16px 0 20px;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    body .main #content .course-hero-meta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    body .main #content .course-detail-hero .actions>.btn.primary {
+      padding: 9px 20px;
+      border-radius: 12px;
+      box-shadow: 0 5px 12px #c76e2620;
+    }
+
+    body .main #content .course-detail-hero .actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 0;
+    }
+
+    body .main #content .course-detail-hero .actions>.btn {
+      flex: 0 0 auto;
+      width: auto;
+      min-width: 0;
+    }
+
+    @media (max-width: 600px) {
+      body .main #content .course-detail-hero {
+        padding: 24px 18px;
+      }
+
+      body .main #content .course-detail-hero h2 {
+        font-size: 22px;
+      }
+    }
+  </style>
+
+  <style>
+    body .main #content .course-detail-hero {
+      padding: 48px 32px 28px;
+      border-radius: 26px;
+      background: radial-gradient(ellipse at 50% 0%, #ffffffd0, transparent 65%), radial-gradient(ellipse at 95% 85%, #ffc98070, transparent 55%), linear-gradient(115deg, #fff7ed, #ffe3c4);
+    }
+
+    body .main #content .course-detail-hero h2 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 2.6vw, 34px);
+      font-weight: 700;
+    }
+
+    body .main #content .course-hero-corner {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+    }
+
+    body .main #content .course-detail-hero .course-code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      color: #946c4b;
+      font-size: 14px;
+    }
+
+    body .main #content .course-detail-hero .actions {
+      margin-top: 22px;
+    }
+
+    body .main #content .course-detail-hero .actions>.btn {
+      min-height: 38px;
+      padding: 8px 16px;
+      border: 1px solid #e0b48e;
+      background: #fffaf3;
+      color: #87522f;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px #a5631910;
+    }
+
+    body .main #content .learning-unit {
+      overflow: hidden;
+      padding: 0;
+      margin: 18px 0;
+      border: 1px solid #ead9c8;
+      border-radius: 20px;
+      background: #fffdfa;
+      box-shadow: 0 5px 18px #6a482409;
+    }
+
+    body .main #content .learning-unit>.unit-heading {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 22px;
+      margin: 0;
+      background: linear-gradient(115deg, #fff3e5, #fffaf3);
+      cursor: pointer;
+      list-style: none;
+    }
+
+    body .main #content .learning-unit>.unit-heading::-webkit-details-marker {
+      display: none;
+    }
+
+    body .main #content .unit-number {
+      display: grid;
+      place-items: center;
+      flex: 0 0 48px;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(140deg, #ffdfb7, #ffc78e);
+      color: #895127;
+      font-size: 23px;
+      font-weight: 700;
+    }
+
+    body .main #content .learning-unit .chapter-summary-text {
+      flex: 1;
+      min-width: 0;
+      text-align: left;
+    }
+
+    body .main #content .learning-unit .chapter-summary-text .subtle {
+      font-size: 12px;
+      color: #957454;
+    }
+
+    body .main #content .learning-unit h3 {
+      margin: 4px 0 0;
+      font-size: 20px;
+      line-height: 1.5;
+      color: #523b2a;
+      overflow-wrap: anywhere;
+    }
+
+    body .main #content .unit-heading-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 0 0 auto;
+    }
+
+    body .main #content .unit-chevron {
+      color: #a77950;
+      font-size: 22px;
+      transition: transform .2s;
+    }
+
+    body .main #content .learning-unit[open] .unit-chevron {
+      transform: rotate(180deg);
+    }
+
+    body .main #content .learning-unit .chapter-body {
+      padding: 16px 22px 20px;
+      border-top: 1px solid #f0e4d8;
+    }
+
+    body .main #content .unit-tools {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+
+    body .main #content .learning-unit .resource-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 16px;
+      margin: 10px 0;
+      background: #fff;
+      border: 1px solid #eee4da;
+      border-radius: 13px;
+      box-shadow: none;
+    }
+
+    body .main #content .learning-unit .resource-row>div:first-child {
+      flex: 1;
+      min-width: 0;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+
+    body .main #content .learning-unit .resource-row .actions {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    body .main #content .learning-unit .unit-add-actions {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      border-top: 1px dashed #e7d7c8;
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+
+    @media(max-width:600px) {
+      body .main #content .course-detail-hero {
+        padding: 54px 18px 24px;
+      }
+
+      body .main #content .learning-unit>.unit-heading {
+        padding: 16px 14px;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      body .main #content .unit-number {
+        flex-basis: 40px;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+      }
+
+      body .main #content .learning-unit h3 {
+        font-size: 18px;
+      }
+
+      body .main #content .unit-heading-status {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      body .main #content .learning-unit .chapter-body {
+        padding: 14px;
+      }
+
+      body .main #content .learning-unit .resource-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      body .main #content .learning-unit .resource-row .actions {
+        justify-content: center;
+      }
+
+      body .main #content .learning-unit .unit-add-actions {
+        justify-content: center;
+      }
+    }
+  </style>
+
+  <style>
+    body .main #content .learning-unit[data-unit-status]:not([data-unit-status="active"]) {
+      background: #f8f8f8;
+      border-color: #ddd;
+      box-shadow: none;
+    }
+
+    body .main #content .learning-unit[data-unit-status]:not([data-unit-status="active"])>.unit-heading {
+      background: linear-gradient(115deg, #eeeeee, #f7f7f7);
+    }
+
+    body .main #content .learning-unit[data-unit-status]:not([data-unit-status="active"]) .unit-number {
+      background: #e1e1e1;
+      color: #707070;
+    }
+
+    body .main #content .learning-unit[data-unit-status]:not([data-unit-status="active"]) h3 {
+      color: #656565;
+    }
+
+    body .main #content .learning-unit[data-unit-status]:not([data-unit-status="active"]) .chapter-summary-text .subtle,
+    body .main #content .learning-unit[data-unit-status]:not([data-unit-status="active"]) .unit-chevron {
+      color: #777;
+    }
+
+    body .main #content .learning-unit[data-unit-status]:not([data-unit-status="active"]) .chapter-body {
+      border-color: #e3e3e3;
+    }
+
+    body .main #content .learning-unit[data-unit-status]:not([data-unit-status="active"]) .resource-row {
+      background: #fafafa;
+      border-color: #e4e4e4;
+    }
+  </style>
+
+  <style>
+    .system-confirm-dialog {
+      box-sizing: border-box;
+      width: min(460px, calc(100vw - 32px));
+      max-height: calc(100dvh - 40px);
+      overflow: auto;
+      padding: 26px;
+      border: 1px solid #ead1b9;
+      border-radius: 22px;
+      background: #fffaf5;
+      color: #513b2c;
+      box-shadow: 0 22px 70px #3b251a30;
+      font-family: Tahoma, sans-serif;
+    }
+
+    .system-confirm-dialog::backdrop {
+      background: #34241a66;
+      backdrop-filter: blur(3px);
+    }
+
+    .system-confirm-dialog h2 {
+      margin: 0 0 16px;
+      font-size: 20px;
+      line-height: 1.5;
+    }
+
+    .system-confirm-dialog p {
+      white-space: pre-line;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      line-height: 1.8;
+      margin: 0 0 24px;
+    }
+
+    .system-confirm-actions {
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .system-confirm-actions button {
+      min-height: 42px;
+      min-width: 96px;
+      padding: 10px 18px;
+      border: 1px solid #dec4ad;
+      border-radius: 12px;
+      background: #fff;
+      color: #644a35;
+      font: 14px Tahoma, sans-serif;
+      cursor: pointer;
+    }
+
+    .system-confirm-actions button.primary {
+      background: #e98942;
+      color: white;
+      border-color: #d47733;
+    }
+
+    .system-confirm-actions button:focus-visible {
+      outline: 3px solid #d98d4c;
+      outline-offset: 3px;
+    }
+  </style>
+
+  <style>
+    .content-choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .content-choice-grid .btn {
+      padding: 24px 14px;
+      min-height: 85px;
+      background: #fff4e6;
+      border: 1px solid #e8c9ac;
+    }
+
+    body .main #content .resource-kind {
+      display: block;
+      font-size: 12px;
+      color: #94633d;
+      margin-bottom: 5px;
+    }
+
+    body .main #content .resource-row[data-resource-status]:not([data-resource-status="active"]) {
+      background: #f1f1f1;
+      border-color: #ddd;
+      color: #777;
+    }
+
+    body .main #content .resource-row[data-resource-status]:not([data-resource-status="active"]) .resource-kind {
+      color: #777;
+    }
+
+    body .main #content .unit-add-actions {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .match-grid label {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      margin: 12px 0;
+    }
+
+    @media(max-width:600px) {
+      body .main #content .unit-add-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .content-choice-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -17157,16 +17644,46 @@
       return `<label>${esc(label)}<textarea name="${name}"${placeholder ? ` placeholder="${esc(placeholder)}"` : ""}>${esc(value)}</textarea></label>`;
     }
     let modalDirty = false;
-    function discardModalChanges() {
+    let confirmationPending = false;
+    async function confirmPopup(message, title = "ยืนยันการดำเนินการ") {
+      if (confirmationPending) return false;
+      confirmationPending = true;
+      const previousFocus = document.activeElement;
+      const dialog = document.createElement("dialog");
+      dialog.className = "system-confirm-dialog";
+      dialog.setAttribute("aria-labelledby", "systemConfirmTitle");
+      dialog.setAttribute("aria-describedby", "systemConfirmText");
+      dialog.innerHTML = `<h2 id="systemConfirmTitle">${esc(title)}</h2><p id="systemConfirmText">${esc(message)}</p><div class="system-confirm-actions"><button type="button" class="btn" data-answer="cancel" autofocus>ยกเลิก</button><button type="button" class="btn primary" data-answer="confirm">ยืนยัน</button></div>`;
+      document.body.appendChild(dialog);
+      return new Promise((resolve) => {
+        let settled = false;
+        const finish = (answer) => {
+          if (settled) return;
+          settled = true;
+          dialog.close();
+          dialog.remove();
+          confirmationPending = false;
+          if (previousFocus?.isConnected) previousFocus.focus();
+          resolve(answer);
+        };
+        dialog.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-answer]");
+          if (button) finish(button.dataset.answer === "confirm");
+        });
+        dialog.addEventListener("cancel", (event) => { event.preventDefault(); finish(false); });
+        dialog.showModal();
+      });
+    }
+    async function discardModalChanges() {
       if (busy) {
         toast("กำลังบันทึก กรุณารอสักครู่");
         return false;
       }
       if (
         modalDirty &&
-        !window.confirm(
+        !(await confirmPopup(
           "มีข้อมูลที่ยังไม่ได้บันทึก ต้องการออกโดยไม่บันทึกหรือไม่?",
-        )
+        ))
       )
         return false;
       modalDirty = false;
@@ -18351,7 +18868,7 @@
       const members = db.Enrollments.filter(
         (e) => e.offeringId === selectedOffering && e.status === "active",
       );
-      return `${button("← รายวิชาทั้งหมด", "go-courses")}<div class="hero-v2" style="margin-top:16px"><span class="course-code">${esc(c.code)}</span><h2>${esc(c.name)}</h2><div class="actions">${badge(c.status)}${button("แก้ไข / ตั้งสถานะวิชา", "edit-course", c.id)}</div></div>
+      return `<div class="course-back-row"><button type="button" class="btn course-back-button" data-action="go-courses">← กลับไปหน้ารายวิชา</button></div><section class="hero-v2 course-detail-hero" aria-label="ข้อมูลรายวิชา"><div class="course-hero-corner">${badge(c.status)}</div><div class="course-hero-copy"><h2>${esc(c.name)}</h2><span class="course-code">รหัสวิชา ${esc(c.code)}</span><div class="actions">${button("✎ แก้ไขรายวิชา", "edit-course", c.id)}</div></div></section>
   <nav class="course-tabs" aria-label="จัดการรายวิชา">${[
           ["lessons", "บทเรียน"],
           ["members", "ผู้เรียน"],
@@ -18363,32 +18880,16 @@
           )
           .join(
             "",
-          )}</nav><section class="panel"><h2>ผู้เรียนในรายวิชา</h2><div class="toolbar"><select id="courseOffering" aria-label="เลือกรายวิชา">${offers.map((o) => `<option value="${esc(o.id)}" ${o.id === selectedOffering ? "selected" : ""}>${esc(offeringName(o))} · ${esc(statusLabel[o.status])}</option>`).join("")}</select>${selectedOffering && courseDetailTab === "members" ? button("ตั้งสิทธิ์รายวิชา", "edit-offering", selectedOffering) + button("＋ เพิ่มผู้เรียน", "enroll", "", true) + button("รายชื่อ / นำออก", "members") + button("นำห้องออกจากรายวิชา", "remove-room") : ""}</div><p class="muted">${members.length} คนที่ลงทะเบียนในรายวิชานี้ · การย้ายชั้นเรียนไม่ลงทะเบียนวิชาใหม่ให้อัตโนมัติ</p></section>
+          )}</nav>${courseDetailTab === "members" ? `<section class="panel">${courseDetailTab === "members" ? "<h2>ผู้เรียนในรายวิชา</h2>" : ""}<div class="toolbar"><label class="course-room-select">ชั้นเรียนในรายวิชา<select id="courseOffering" aria-label="เลือกชั้นเรียนในรายวิชา">${offers.map((o) => `<option value="${esc(o.id)}" ${o.id === selectedOffering ? "selected" : ""}>${esc(offeringName(o))} · ${esc(statusLabel[o.status])}</option>`).join("")}</select></label>${selectedOffering && courseDetailTab === "members" ? button("ตั้งสิทธิ์รายวิชา", "edit-offering", selectedOffering) + button("＋ เพิ่มผู้เรียน", "enroll", "", true) + button("รายชื่อ / นำออก", "members") + button("นำห้องออกจากรายวิชา", "remove-room") : ""}</div>${courseDetailTab === "members" ? `<p class="muted">${members.length} คนที่ลงทะเบียนในรายวิชานี้ · การย้ายชั้นเรียนไม่ลงทะเบียนวิชาใหม่ให้อัตโนมัติ</p>` : ""}</section>` : ""}
   ${courseDetailTab === "members"
           ? `<section class="panel table-wrap"><h2>ผู้เรียนในรายวิชานี้ (${members.length} คน)</h2><table><thead><tr><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>งาน</th></tr></thead><tbody>${members.map((e) => `<tr><td>${esc(db.Students.find((s) => s.id === e.studentId)?.fullName || "ไม่พบข้อมูลนักเรียน")}</td><td>${esc(groupName(db.Students.find((s) => s.id === e.studentId)?.groupId || e.groupId))}</td><td>${button("ดูงานรายคน", "student-work", e.studentId)}</td></tr>`).join("")}</tbody></table>${members.length ? "" : empty("ยังไม่มีผู้เรียน ลงทะเบียนด้วยปุ่มเพิ่มผู้เรียน")}</section>`
           : courseDetailTab === "scores"
             ? `<section class="panel"><h2>คะแนนและการติดตาม</h2><p>ดูงานที่ส่ง ความครบของกิจกรรม และคะแนนที่ตรวจแล้วของรายวิชาที่เลือก</p><div class="actions">${button("ดูความก้าวหน้า", "go-progress", "", true)}${button("เปิดตรวจงาน", "home-review")}${button("ส่งออกคะแนน CSV", "export-scores")}</div></section>`
-            : `<div class="section-intro"><div><h2>ใบความรู้ ใบงาน แบบทดสอบ และเกม แยกตามหน่วย</h2><p>เพิ่มเฉพาะสิ่งที่ใช้จริง ส่วนที่ว่างจะไม่แสดงรายการให้เด็กเห็น</p></div>${button("＋ เพิ่มบทเรียน", "new-chapter", "", true)}</div>
+            : `<div class="section-intro"><div><h2>จัดการหน่วยการเรียนรู้</h2></div>${button("＋ เพิ่มบทเรียน", "new-chapter", "", true)}</div>
   ${courseData.Chapters.sort((a, b) => a.order - b.order)
               .map(
                 (ch) =>
-                  `<details class="chapter" open><summary class="section-intro"><div class="chapter-summary-text"><span class="subtle">หน่วยการเรียนรู้ที่ ${esc(ch.order)}</span><h3>${esc(ch.title)}</h3></div>${badge(ch.status)}</summary><div class="chapter-body"><div class="actions">${button("แก้ไขบท", "edit-chapter", ch.id)}</div>${courseData.Materials.filter(
-                    (m) => m.chapterId === ch.id,
-                  )
-                    .map(
-                      (m) =>
-                        `<div class="resource-row"><div>${m.kind === "knowledge" ? "📖" : "🔗"} <strong>${esc(m.title)}</strong><div class="subtle">${m.kind === "knowledge" ? "ใบความรู้" : "แหล่งเรียนรู้เพิ่มเติม"} · ${m.mime || "ลิงก์ภายนอก"}</div></div><div class="actions">${button("พรีวิว", "preview-material", m.id)}${button("นำออก / ลบไฟล์", "delete-material", m.id)}</div></div>`,
-                    )
-                    .join("")}${courseData.Activities.filter(
-                      (a) => a.chapterId === ch.id,
-                    )
-                      .map(
-                        (a) =>
-                          `<div class="resource-row"><div>${a.kind === "worksheet" ? "📝" : a.mode === "game" ? "🎮" : "🧠"} <strong>${esc(a.title)}</strong><div class="subtle">${a.questions.length} ข้อ · ${a.questions.reduce((n, q) => n + q.points, 0)} คะแนน · ${Number(a.seconds) ? a.seconds + " วินาทีทั้งชุด" : "ไม่จับเวลา"}</div></div><div class="actions">${badge(a.status)}${button("ทดลองทำ", "try-activity", a.id)}${button("แก้ไข", "edit-activity", a.id)}${button(a.status === "active" ? "ซ่อน" : "เปิดใช้", "toggle-activity", a.id)}</div></div>`,
-                      )
-                      .join(
-                        "",
-                      )}<div class="actions">${button("＋ ใบความรู้ / ลิงก์", "new-material", ch.id)}${button("＋ ใบงาน / แบบทดสอบ / เกม", "new-activity", ch.id)}</div></div></details>`,
+                  `<details class="chapter learning-unit" data-unit-status="${esc(ch.status || "active")}" open><summary class="unit-heading"><span class="unit-number" aria-hidden="true">${esc(ch.order)}</span><div class="chapter-summary-text"><span class="subtle">หน่วยการเรียนรู้ที่ ${esc(ch.order)}</span><h3>${esc(ch.title)}</h3></div><div class="unit-heading-status">${badge(ch.status)}<span class="unit-chevron" aria-hidden="true">⌄</span></div></summary><div class="chapter-body"><div class="unit-tools">${button("✎ แก้ไขหน่วย", "edit-chapter", ch.id)}</div>${unitResources(ch)}<div class="actions unit-add-actions">${[["knowledge", "＋ ใบความรู้"], ["worksheet", "＋ ใบงาน"], ["quiz", "＋ แบบทดสอบ"], ["game", "＋ เกม"]].map(([kind, label]) => button(label, "choose-content", ch.id + "|" + kind)).join("")}</div></div></details>`,
               )
               .join("") || empty("ยังไม่มีบทเรียน กดเพิ่มบทเรียนเพื่อเริ่มจัดเนื้อหา")
             }`
@@ -18822,8 +19323,8 @@
       form(
         id ? "แก้ไขรายวิชา" : "สร้างรายวิชา",
         "course",
-        input("รหัสวิชา", "code", c.code) +
         input("ชื่อรายวิชา", "name", c.name) +
+        input("รหัสวิชา", "code", c.code) +
         select(
           "สถานะ",
           "status",
@@ -18833,7 +19334,7 @@
           ],
           c.status === "active" || !c.status ? "active" : "closed",
         ) +
-        "<small>โหมดการซ่อนและปิดใช้งาน: นักเรียนไม่สามารถเข้าใช้งานได้</small>",
+        (id ? "<small>โหมดการซ่อนและปิดใช้งาน: นักเรียนไม่สามารถเข้าใช้งานได้</small>" : ""),
         id,
       );
     }
@@ -18845,7 +19346,7 @@
         input(
           "ลำดับหน่วย",
           "order",
-          ch.order || courseData.Chapters.length + 1,
+          ch.order || Math.max(0, ...courseData.Chapters.map((row) => Number(row.order) || 0)) + 1,
           "number",
         ) +
         input("ชื่อหน่วย", "title", ch.title) +
@@ -18853,8 +19354,8 @@
           "สถานะ",
           "status",
           [
-            { id: "active", name: "เปิดใช้" },
-            { id: "hidden", name: "ซ่อน" },
+            { id: "active", name: "เปิดใช้งาน" },
+            { id: "hidden", name: "ซ่อนและปิดใช้งาน" },
           ],
           ch.status || "active",
         ),
@@ -18910,27 +19411,27 @@
         }</div><p class="subtle">การนำออกไม่ลบงานหรือคะแนน และไม่ลบนักเรียน</p>`,
       );
     }
-    function materialForm(chapterId) {
-      form(
-        "เพิ่มใบความรู้ / แหล่งเรียนรู้",
-        "material",
-        select(
-          "หน่วยการเรียนรู้",
-          "chapterId",
-          courseData.Chapters.map((c) => ({
-            id: c.id,
-            name: "หน่วย " + c.order + " · " + c.title,
-          })),
-          chapterId,
-        ) +
-        input("ชื่อสื่อ", "title") +
-        select("ประเภท", "kind", [
-          { id: "knowledge", name: "ใบความรู้" },
-          { id: "extra", name: "แหล่งเรียนรู้เพิ่มเติม" },
-        ]) +
-        input("ลิงก์ภายนอก เช่น Canva / YouTube", "url", "", "url", false) +
-        '<label>หรืออัปโหลด PDF / รูปภาพ (ไม่เกิน 3 MB)<input name="file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label><small>ไฟล์บทเรียนจะเก็บใน Drive แยกโฟลเดอร์รายวิชา/บท และผู้มีลิงก์เปิดดูได้</small>',
-      );
+    function chooseContent(chapterId, kind) {
+      if (kind === "quiz" || kind === "game") return activityForm("", chapterId, kind);
+      const ways = kind === "knowledge" ? [["pdf", "เอกสาร PDF"], ["image", "รูปภาพ"]] : [["web", "ทำใบงานในเว็บ"], ["pdf", "ไฟล์ PDF สำหรับเปิดดู"], ["image", "รูปภาพสำหรับเปิดดู"]];
+      modal(kind === "knowledge" ? "เพิ่มใบความรู้" : "เพิ่มใบงาน", `<p>เลือกวิธีสร้าง</p><div class="content-choice-grid">${ways.map(([way, label]) => button(label, "content-way", chapterId + "|" + kind + "|" + way)).join("")}</div>`);
+    }
+    function materialForm(chapterId, kind = "knowledge", way = "pdf", id = "") {
+      const m = courseData.Materials.find((row) => row.id === id) || {};
+      form(id ? "แก้ไขสื่อ" : kind === "knowledge" ? "เพิ่มใบความรู้" : "เพิ่มไฟล์ใบงาน", "material",
+        `<input type="hidden" name="chapterId" value="${esc(chapterId)}"><input type="hidden" name="kind" value="${esc(kind)}">` +
+        input("ชื่อรายการ", "title", m.title || "") +
+        (id ? "" : `<label>${way === "pdf" ? "เอกสาร PDF" : "รูปภาพ JPG / PNG / WebP"} (ไม่เกิน 3 MB)<input name="file" type="file" required accept="${way === "pdf" ? "application/pdf" : "image/jpeg,image/png,image/webp"}"></label>`) +
+        select("สถานะ", "status", [{ id: "active", name: "เปิดใช้งาน" }, { id: "hidden", name: "ซ่อนและปิดใช้งาน" }], m.status || "active"), id);
+    }
+    function unitResources(ch) {
+      const items = [...courseData.Materials.filter((r) => r.chapterId === ch.id && r.status !== "deleted").map((r) => ({ entity: "Materials", row: r })), ...courseData.Activities.filter((r) => r.chapterId === ch.id && r.status !== "deleted").map((r) => ({ entity: "Activities", row: r }))]
+        .sort((a, b) => (Number(a.row.order) || 1000000) - (Number(b.row.order) || 1000000) || (a.entity === b.entity ? 0 : a.entity === "Materials" ? -1 : 1));
+      return items.map(({ entity, row: r }, i) => {
+        const material = entity === "Materials";
+        const kind = material ? r.kind === "worksheet" ? "ใบงาน · เปิดดูไฟล์" : "ใบความรู้" : r.mode === "game" ? "เกม" : r.kind === "worksheet" ? "ใบงาน · ทำในเว็บ" : "แบบทดสอบ";
+        return `<article class="resource-row" data-resource-status="${esc(r.status)}"><div><span class="resource-kind">${esc(kind)}</span><strong>${esc(r.title)}</strong><div class="subtle">${material ? r.mime === "application/pdf" ? "PDF" : (r.mime || "สื่อเดิม") : (r.questions || []).length + " ข้อ · " + (r.questions || []).reduce((n, q) => n + q.points, 0) + " คะแนน"}</div></div><div class="actions">${badge(r.status)}${button("↑", "move-resource", entity + "|" + r.id + "|up")}${button("↓", "move-resource", entity + "|" + r.id + "|down")}${button(material ? "เปิดดู" : "ทดลองทำ", material ? "preview-material" : "try-activity", r.id)}${button("แก้ไข", material ? "edit-material" : "edit-activity", r.id)}${button(r.status === "active" ? "ซ่อนและปิดใช้งาน" : "เปิดใช้งาน", "resource-status", entity + "|" + r.id)}${button("ลบ", material ? "delete-material" : "delete-activity", r.id)}</div></article>`;
+      }).join("") || `<p class="subtle unit-empty">ยังไม่มีรายการ เลือกเพิ่มสื่อหรือกิจกรรมด้านล่าง</p>`;
     }
     function previewMaterial(id) {
       const m = courseData.Materials.find((m) => m.id === id);
@@ -18959,8 +19460,8 @@
         `<div class="actions"><a class="btn primary" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer" title="เปิดสื่อต้นฉบับในแท็บใหม่">เปิดต้นฉบับ</a>${drive ? `<a class="btn" href="https://drive.google.com/uc?export=download&amp;id=${esc(drive)}" target="_blank" rel="noopener noreferrer">ดาวน์โหลดไฟล์</a>` : ""}</div>`,
       );
     }
-    function activityForm(id = "", chapterId = "") {
-      const a = courseData.Activities.find((a) => a.id === id) || {};
+    function activityForm(id = "", chapterId = "", preset = "worksheet") {
+      const a = courseData.Activities.find((a) => a.id === id) || { kind: preset === "worksheet" ? "worksheet" : "quiz", mode: preset === "game" ? "game" : "quiz", countScore: preset !== "game" };
       editingActivity = id;
       questionDraft = JSON.parse(
         JSON.stringify(
@@ -18968,7 +19469,7 @@
             {
               id: uid("Q"),
               text: "",
-              type: "text",
+              type: a.kind === "worksheet" && a.mode !== "game" ? "text" : "single",
               points: 1,
               options: [],
               correct: 0,
@@ -19011,10 +19512,10 @@
           [
             { id: "draft", name: "ฉบับร่าง" },
             { id: "active", name: "เปิดใช้งาน" },
-            { id: "hidden", name: "ซ่อน" },
+            { id: "hidden", name: "ซ่อนและปิดใช้งาน" },
           ],
           a.status || "draft",
-        )}</div>${input("กำหนดส่ง (เวลาไทย) — เว้นว่างได้", "dueAt", a.dueAt ? new Date(new Date(a.dueAt).getTime() + 7 * 3600000).toISOString().slice(0, 16) : "", "datetime-local", false)}<label><input type="checkbox" name="countScore" ${a.countScore === true || ((a.countScore === "" || a.countScore === undefined) && a.mode !== "game") ? "checked" : ""} style="width:auto"> นับเป็นคะแนนรายวิชา</label><label class="check-list"><span><input type="checkbox" name="showAnswers" ${a.showAnswers ? "checked" : ""} style="width:auto"> แสดงเฉลยหลังส่ง</span><span><input type="checkbox" name="allowEdit" ${a.allowEdit ? "checked" : ""} style="width:auto"> อนุญาตแก้ไขใบงานหลังส่ง (ควิซทำได้ครั้งเดียว)</span></label><div id="questionEditor"></div>${button("＋ เพิ่มคำถาม", "add-question")}<small>คำตอบเขียนให้ครูตรวจรายข้อ • ตัวเลือกเฉลยระบุเป็นเลขเริ่มจาก 1 • เกมรองรับช้อยส์/ใช่–ไม่ใช่</small>`,
+        )}</div>${input("กำหนดส่ง (เวลาไทย) — เว้นว่างได้", "dueAt", a.dueAt ? new Date(new Date(a.dueAt).getTime() + 7 * 3600000).toISOString().slice(0, 16) : "", "datetime-local", false)}<label><input type="checkbox" name="countScore" ${a.countScore === true || ((a.countScore === "" || a.countScore === undefined) && a.mode !== "game") ? "checked" : ""} style="width:auto"> นับเป็นคะแนนรายวิชา</label><label class="check-list"><span><input type="checkbox" name="showAnswers" ${a.showAnswers ? "checked" : ""} style="width:auto"> แสดงเฉลยหลังส่ง</span><span><input type="checkbox" name="allowEdit" ${a.allowEdit ? "checked" : ""} style="width:auto"> อนุญาตแก้ไขใบงานหลังส่ง (ควิซทำได้ครั้งเดียว)</span></label><div id="questionEditor"></div>${button("＋ เพิ่มคำถาม", "add-question")}<small>คำตอบเขียนให้ครูตรวจรายข้อ • จับคู่ได้คะแนนเมื่อถูกทั้งหมด • เลือกคำตอบที่ถูกต้องจากรายการ • เกมรองรับตัวเลือก ใช่/ไม่ใช่ และจับคู่</small>`,
         id,
       );
       renderQuestionEditor();
@@ -19043,6 +19544,12 @@
               ? null
               : Number(el.querySelector("[name=qcorrect]").value) - 1,
         };
+        if (type === "matching") {
+          const pairs = (el.querySelector("[name=qpairs]")?.value || "").split("\n").map((line) => line.split("|").map((v) => v.trim())).filter((v) => v.some(Boolean));
+          questionDraft[i].prompts = pairs.map((v) => v[0] || "");
+          questionDraft[i].options = pairs.map((v) => v.slice(1).join("|").trim());
+          questionDraft[i].correct = pairs.map((_, n) => n);
+        }
       });
     }
     function renderQuestionEditor() {
@@ -19056,9 +19563,10 @@
                 { id: "text", name: "เขียนตอบ" },
                 { id: "single", name: "เลือกคำตอบเดียว" },
                 { id: "boolean", name: "ใช่ / ไม่ใช่" },
+                { id: "matching", name: "จับคู่" },
               ],
               q.type,
-            )}${input("คะแนนเต็ม", "qpoints", q.points, "number")}</div><div ${q.type === "text" ? "hidden" : ""}>${area("ตัวเลือก (หนึ่งตัวเลือกต่อบรรทัด)", "qoptions", (q.type === "boolean" ? ["ใช่", "ไม่ใช่"] : q.options).join("\n"))}${input("เฉลยตัวเลือกที่ (เริ่มจาก 1)", "qcorrect", Number(q.correct || 0) + 1, "number")}</div></div>`,
+            )}${input("คะแนนเต็ม", "qpoints", q.points, "number")}</div>${q.type === "matching" ? area("คู่คำตอบ (หนึ่งคู่ต่อบรรทัด ใช้ | คั่น)", "qpairs", (q.prompts || []).map((v, n) => v + " | " + q.options[n]).join("\n"), "CPU | ประมวลผล\nRAM | หน่วยความจำชั่วคราว") : ""}<div ${q.type === "text" || q.type === "matching" ? "hidden" : ""}>${area("ตัวเลือก (หนึ่งตัวเลือกต่อบรรทัด)", "qoptions", (q.type === "boolean" ? ["ใช่", "ไม่ใช่"] : q.options).join("\n"))}${select("คำตอบที่ถูกต้อง", "qcorrect", (q.type === "boolean" ? ["ใช่", "ไม่ใช่"] : q.type === "text" || q.type === "matching" ? ["—"] : q.options.length ? q.options : ["กรอกตัวเลือกก่อน"]).map((v, n) => ({ id: String(n + 1), name: v || "ตัวเลือก " + (n + 1) })), String(q.type === "matching" || !Number.isInteger(q.correct) ? 1 : q.correct + 1))}</div></div>`,
         )
         .join("");
     }
@@ -19073,7 +19581,7 @@
         )
           throw Error("ตรวจโจทย์และคะแนนข้อ " + (i + 1));
         if (
-          q.type !== "text" &&
+          q.type !== "text" && q.type !== "matching" &&
           (q.options.length < 2 ||
             q.options.length > 10 ||
             !Number.isInteger(q.correct) ||
@@ -19081,8 +19589,9 @@
             q.correct >= q.options.length)
         )
           throw Error("ตรวจตัวเลือกและเฉลยข้อ " + (i + 1));
+        if (q.type === "matching" && (q.options.length < 2 || q.options.length > 10 || q.options.some((v) => !v) || q.prompts.some((v) => !v))) throw Error("กรอกคู่คำตอบให้ครบ 2–10 คู่ในข้อ " + (i + 1));
         if (mode === "game" && q.type === "text")
-          throw Error("เกมตอบคำถามใช้ช้อยส์หรือใช่–ไม่ใช่เท่านั้น");
+          throw Error("เกมรองรับตัวเลือก ใช่/ไม่ใช่ และจับคู่");
       });
     }
     function parseName(raw) {
@@ -19158,7 +19667,7 @@
       const s = await api("submission", { id });
       modal(
         "ตรวจงาน — " + s.studentName,
-        `<p><strong>${esc(s.activityTitle)}</strong></p>${s.history?.length ? button("ประวัติคำตอบ / คะแนน", "submission-history", id) : ""}<form class="form" data-form="grade"><input type="hidden" name="id" value="${esc(id)}"><input type="hidden" name="revision" value="${s.revision}">${s.questions.map((q, i) => `<div class="question-row"><strong>ข้อ ${i + 1} · ${esc(q.text)}</strong><div class="answer-text">${esc(q.type === "text" ? s.answers[i] : q.options[s.answers[i]])}</div>${q.type !== "text" ? `<p class="subtle">เฉลย: ${esc(q.options[q.correct])}</p>` : ""}<label>คะแนน / ${q.points}<input name="score" type="number" min="0" max="${q.points}" step="0.5" required value="${s.scores[i] ?? ""}"></label></div>`).join("")}${area("ข้อเสนอแนะถึงนักเรียน", "feedback", s.feedback)}<div class="actions"><button class="btn primary" type="submit" name="next" value="no">บันทึกคะแนน</button><button class="btn" type="submit" name="next" value="yes">บันทึกและตรวจคนถัดไป</button>${courseData.Activities?.find((a) => a.id === s.activityId)?.kind === "worksheet" || s.kind === "worksheet" ? button("ส่งกลับให้แก้ไข", "return-work", id) : ""}${button("พิมพ์ / บันทึก PDF", "print")}</div><div id="formError" role="alert"></div></form>`,
+        `<p><strong>${esc(s.activityTitle)}</strong></p>${s.history?.length ? button("ประวัติคำตอบ / คะแนน", "submission-history", id) : ""}<form class="form" data-form="grade"><input type="hidden" name="id" value="${esc(id)}"><input type="hidden" name="revision" value="${s.revision}">${s.questions.map((q, i) => `<div class="question-row"><strong>ข้อ ${i + 1} · ${esc(q.text)}</strong><div class="answer-text">${esc(q.type === "text" ? s.answers[i] : q.type === "matching" ? q.prompts.map((v, n) => v + " → " + (q.options[s.answers[i]?.[n]] || "—")).join(" · ") : q.options[s.answers[i]])}</div>${q.type !== "text" ? `<p class="subtle">เฉลย: ${esc(q.type === "matching" ? q.prompts.map((v, n) => v + " → " + q.options[q.correct[n]]).join(" · ") : q.options[q.correct])}</p>` : ""}<label>คะแนน / ${q.points}<input name="score" type="number" min="0" max="${q.points}" step="0.5" required value="${s.scores[i] ?? ""}"></label></div>`).join("")}${area("ข้อเสนอแนะถึงนักเรียน", "feedback", s.feedback)}<div class="actions"><button class="btn primary" type="submit" name="next" value="no">บันทึกคะแนน</button><button class="btn" type="submit" name="next" value="yes">บันทึกและตรวจคนถัดไป</button>${courseData.Activities?.find((a) => a.id === s.activityId)?.kind === "worksheet" || s.kind === "worksheet" ? button("ส่งกลับให้แก้ไข", "return-work", id) : ""}${button("พิมพ์ / บันทึก PDF", "print")}</div><div id="formError" role="alert"></div></form>`,
       );
     }
     let playState = null,
@@ -19196,14 +19705,14 @@
         q = p.a.questions[p.index];
       modal(
         "ทดลองทำ — " + p.a.title,
-        `<p class="notice">พรีวิวมุมมองผู้เรียน ไม่บันทึกคะแนนจริง</p><div class="toolbar"><span class="badge">ข้อ ${p.index + 1} / ${p.a.questions.length}</span><strong id="playTime">${p.end ? "จับเวลารวมทั้งชุด" : "ไม่จับเวลา"}</strong></div><progress style="width:100%" value="${p.index}" max="${p.a.questions.length}"></progress><div class="question-row"><h3>${esc(q.text)}</h3><p>${q.points} คะแนน</p>${q.type === "text" ? `<label>คำตอบ<textarea id="playAnswer" style="width:100%;min-height:130px">${esc(p.answers[p.index] || "")}</textarea></label>` : `<div class="check-list">${q.options.map((o, i) => `<label class="item"><input type="radio" name="playAnswer" value="${i}" ${p.answers[p.index] === i ? "checked" : ""}> ${esc(o)}</label>`).join("")}</div>`}</div><div class="actions">${p.index ? button("← ก่อนหน้า", "play-prev") : ""}${button(p.index === p.a.questions.length - 1 ? "ส่งคำตอบ" : "ข้อต่อไป →", "play-next", "", true)}</div>`,
+        `<p class="notice">พรีวิวมุมมองผู้เรียน ไม่บันทึกคะแนนจริง</p><div class="toolbar"><span class="badge">ข้อ ${p.index + 1} / ${p.a.questions.length}</span><strong id="playTime">${p.end ? "จับเวลารวมทั้งชุด" : "ไม่จับเวลา"}</strong></div><progress style="width:100%" value="${p.index}" max="${p.a.questions.length}"></progress><div class="question-row"><h3>${esc(q.text)}</h3><p>${q.points} คะแนน</p>${q.type === "matching" ? `<div class="match-grid">${(q.prompts || []).map((v, n) => `<label>${esc(v)}<select data-play-match="${n}"><option value="">เลือกคู่</option>${q.options.map((o, j) => ({ o, j })).reverse().map(({ o, j }) => `<option value="${j}" ${p.answers[p.index]?.[n] === j ? "selected" : ""}>${esc(o)}</option>`).join("")}</select></label>`).join("")}</div>` : q.type === "text" ? `<label>คำตอบ<textarea id="playAnswer" style="width:100%;min-height:130px">${esc(p.answers[p.index] || "")}</textarea></label>` : `<div class="check-list">${q.options.map((o, i) => `<label class="item"><input type="radio" name="playAnswer" value="${i}" ${p.answers[p.index] === i ? "checked" : ""}> ${esc(o)}</label>`).join("")}</div>`}</div><div class="actions">${p.index ? button("← ก่อนหน้า", "play-prev") : ""}${button(p.index === p.a.questions.length - 1 ? "ส่งคำตอบ" : "ข้อต่อไป →", "play-next", "", true)}</div>`,
       );
     }
     function collectPlay() {
       const p = playState,
         q = p.a.questions[p.index];
       p.answers[p.index] =
-        q.type === "text"
+        q.type === "matching" ? [...document.querySelectorAll("[data-play-match]")].map((el) => el.value === "" ? null : Number(el.value)) : q.type === "text"
           ? $("playAnswer")?.value || ""
           : document.querySelector("[name=playAnswer]:checked")
             ? Number(
@@ -19218,13 +19727,13 @@
       const score = p.a.questions.reduce(
         (n, q, i) =>
           n +
-          (q.type !== "text" && p.answers[i] === q.correct ? q.points : 0),
+          (q.type === "matching" ? (p.answers[i]?.every((v, n) => v === q.correct[n]) ? q.points : 0) : q.type !== "text" && p.answers[i] === q.correct ? q.points : 0),
         0,
       ),
         manual = p.a.questions.some((q) => q.type === "text");
       modal(
         expired ? "หมดเวลา — ผลทดลอง" : "ผลการทดลอง",
-        `<h2>${manual ? "ส่งคำตอบแล้ว รอครูตรวจข้อเขียน" : score + " / " + p.a.questions.reduce((n, q) => n + q.points, 0) + " คะแนน"}</h2><p class="subtle">ไม่มีการส่งข้อมูลหรือคะแนนจริงจากการทดลองนี้</p>${p.a.showAnswers ? p.a.questions.map((q, i) => `<p>${i + 1}. ${esc(q.text)}<br><strong>${q.type === "text" ? "ครูตรวจคำตอบเขียน" : esc(q.options[q.correct])}</strong></p>`).join("") : ""}${button("ปิด", "close")}`,
+        `<h2>${manual ? "ส่งคำตอบแล้ว รอครูตรวจข้อเขียน" : score + " / " + p.a.questions.reduce((n, q) => n + q.points, 0) + " คะแนน"}</h2><p class="subtle">ไม่มีการส่งข้อมูลหรือคะแนนจริงจากการทดลองนี้</p>${p.a.showAnswers ? p.a.questions.map((q, i) => `<p>${i + 1}. ${esc(q.text)}<br><strong>${q.type === "text" ? "ครูตรวจคำตอบเขียน" : esc(q.type === "matching" ? q.prompts.map((v, n) => v + " → " + q.options[q.correct[n]]).join(" · ") : q.options[q.correct])}</strong></p>`).join("") : ""}${button("ปิด", "close")}`,
       );
     }
 
@@ -19339,9 +19848,11 @@
           "saveMaterial",
           "deleteMaterial",
           "saveActivity",
+          "moveResource",
+          "deleteActivity",
         ].includes(action) ||
         (action === "setStatus" &&
-          ["Chapters", "Activities"].includes(fields.entity)) ||
+          ["Chapters", "Activities", "Materials"].includes(fields.entity)) ||
         (action === "adminManage" && fields.target === "work")
       ) {
         pages = new Set(["home", "review", "progress", "course", "settings"]);
@@ -19532,7 +20043,7 @@
         return navigate(currentPage);
       }
       if (el.dataset.action === "mobile-logout") {
-        if (window.confirm("ต้องการออกจากระบบหรือไม่?")) $("logout").click();
+        $("logout").click();
         return;
       }
       const a = el.dataset.action,
@@ -19567,11 +20078,11 @@
       }
       if (a === "maintenance") {
         if (
-          !window.confirm(
+          !(await confirmPopup(
             db.Settings?.maintenance
               ? "เปิดให้นักเรียนเข้าใช้งาน?"
               : "ปิดให้นักเรียนเข้าใช้งานชั่วคราว? ครูยังเข้าได้",
-          )
+          ))
         )
           return;
         await runMutation("setMaintenance", {
@@ -19785,7 +20296,7 @@
         return;
       }
       if (a === "my-profile") {
-        if (!discardModalChanges()) return;
+        if (!(await discardModalChanges())) return;
         if (!profileReady) {
           try {
             await loadProfile();
@@ -19800,7 +20311,7 @@
         return profileModal();
       }
       if (a === "password-form") {
-        if (!discardModalChanges()) return;
+        if (!(await discardModalChanges())) return;
         return passwordModal();
       }
       if (
@@ -19917,7 +20428,7 @@
         return navigate(a.slice(3));
       }
       if (a === "close") {
-        if (!discardModalChanges()) return;
+        if (!(await discardModalChanges())) return;
         $("modal").close();
         clearInterval(playTimer);
         return;
@@ -20177,13 +20688,20 @@
       if (a === "new-chapter" || a === "edit-chapter") return chapterForm(id);
       if (a === "new-material") return materialForm(id);
       if (a === "preview-material") return previewMaterial(id);
+      if (a === "choose-content") { const [chapterId, kind] = id.split("|"); return chooseContent(chapterId, kind); }
+      if (a === "content-way") { const [chapterId, kind, way] = id.split("|"); return way === "web" ? activityForm("", chapterId, "worksheet") : materialForm(chapterId, kind, way); }
+      if (a === "edit-material") { const m = courseData.Materials.find((r) => r.id === id); return materialForm(m.chapterId, m.kind, m.mime === "application/pdf" ? "pdf" : "image", id); }
+      if (a === "move-resource") { const [entity, rowId, direction] = id.split("|"); await runMutation("moveResource", { entity, id: rowId, direction }); return navigate(currentPage, true); }
+      if (a === "resource-status") { const [entity, rowId] = id.split("|"); const r = courseData[entity].find((r) => r.id === rowId); return confirmAction("เปลี่ยนสถานะรายการ", r.status === "active" ? "ซ่อนรายการนี้จากนักเรียน โดยเก็บเนื้อหาและไฟล์ไว้" : "เปิดรายการนี้ให้นักเรียนใช้งาน", "setStatus", rowId, entity, r.status === "active" ? "hidden" : "active"); }
       if (a === "delete-material") {
-        const m = courseData.Materials.find((item) => item.id === id);
-        if (!m) throw Error("ไม่พบสื่อที่เลือก");
-        return form("นำสื่อออกจากบทเรียน", "material-remove", `<p><strong>${esc(m.title)}</strong></p>` + select("วิธีดำเนินการ", "deleteFile", [
-          { id: "false", name: "นำออกจากบทเรียน แต่เก็บไฟล์ใน Drive" },
-          ...(m.fileId ? [{ id: "true", name: "นำออกจากบทเรียน และย้ายไฟล์ไปถังขยะ Drive" }] : []),
-        ], "false") + '<p class="subtle">เก็บไฟล์: ใช้ไฟล์เดิมภายหลังได้ ลบไฟล์: ล้างลิงก์ออกด้วย ไฟล์อยู่ในถังขยะ Drive จนกว่าจะลบถาวร</p>' + input("พิมพ์ ยืนยัน เพื่อดำเนินการ", "confirmText"), id);
+        const m = courseData.Materials.find((r) => r.id === id);
+        if (!(await confirmPopup("ลบ “" + m.title + "” หรือไม่?\n" + (m.fileId ? "ไฟล์ใน Drive จะถูกย้ายไปถังขยะ และรายการจะหายจากบทเรียน" : "รายการจะหายจากบทเรียน")))) return;
+        await runMutation("deleteMaterial", { id, confirmText: "ยืนยัน", deleteFile: true }); return navigate(currentPage, true);
+      }
+      if (a === "delete-activity") {
+        const r = courseData.Activities.find((r) => r.id === id);
+        if (!(await confirmPopup("ลบ “" + r.title + "” หรือไม่?\nคำถาม งานที่นักเรียนส่ง คะแนน และประวัติของกิจกรรมนี้จะถูกนำออกทั้งหมด"))) return;
+        await runMutation("deleteActivity", { id, confirmText: "ยืนยัน" }); return navigate(currentPage, true);
       }
       if (a === "new-activity") return activityForm("", id);
       if (a === "edit-activity") return activityForm(id);
@@ -20458,7 +20976,7 @@
             (row.hidden =
               !!el.value && row.dataset.enrollGroup !== el.value),
           );
-      if (el.name === "qtype") {
+      if (el.name === "qtype" || el.name === "qoptions") {
         collectQuestions();
         renderQuestionEditor();
       }
@@ -20661,6 +21179,27 @@
         if (f.dataset.form === "chapter") {
           action = "saveChapter";
           payload.courseId = selectedCourse;
+          payload.title = String(data.title || "").trim();
+          payload.order = Number(data.order);
+          if (!payload.title) throw Error("กรุณาระบุชื่อหน่วยการเรียนรู้");
+          if (!Number.isInteger(payload.order) || payload.order < 1)
+            throw Error("เลขหน่วยต้องเป็นจำนวนเต็มตั้งแต่ 1 ขึ้นไป");
+          const normalizeTitle = (title) => String(title || "").normalize("NFC").replace(/\s+/g, "").toLocaleLowerCase("th");
+          if (courseData.Chapters.some((chapter) =>
+            chapter.id !== data.id &&
+            (normalizeTitle(chapter.title) === normalizeTitle(payload.title) || (!data.id && Number(chapter.order) === payload.order))
+          )) throw Error("มีบทเรียนนี้อยู่แล้ว กรุณาใช้ชื่อหน่วยและเลขหน่วยที่ไม่ซ้ำ");
+          const original = courseData.Chapters.find((chapter) => chapter.id === data.id);
+          const swapTarget = original && Number(original.order) !== payload.order
+            ? courseData.Chapters.find((chapter) => chapter.id !== data.id && Number(chapter.order) === payload.order)
+            : null;
+          if (swapTarget && !(await confirmPopup(
+            "ยืนยันสลับลำดับหน่วยการเรียนรู้\n\n" +
+            "“" + payload.title + "” : หน่วยที่ " + original.order + " → " + payload.order + "\n" +
+            "“" + swapTarget.title + "” : หน่วยที่ " + swapTarget.order + " → " + original.order + "\n\n" +
+            "เนื้อหา งานที่นักเรียนส่ง และคะแนนทั้งหมดจะย้ายตามแต่ละหน่วยไปด้วย\n\n" +
+            "ต้องการสลับลำดับและบันทึกการแก้ไขหรือไม่?"
+          ))) return;
         }
         if (f.dataset.form === "promote") {
           action = "promote";
@@ -20683,7 +21222,7 @@
         if (f.dataset.form === "material") {
           action = "saveMaterial";
           delete payload.file;
-          const file = f.querySelector("[name=file]").files[0];
+          const file = f.querySelector("[name=file]")?.files[0];
           if (file) {
             if (
               ![
@@ -20703,8 +21242,7 @@
               reader.readAsDataURL(file);
             });
             payload.file = { name: file.name, mime: file.type, data: base64 };
-          } else if (!data.url || !data.url.startsWith("https://"))
-            throw Error("ใส่ลิงก์ https:// หรือเลือกไฟล์");
+          } else if (!data.id) throw Error("กรุณาเลือกไฟล์ก่อนบันทึก");
         }
         if (f.dataset.form === "activity") {
           collectQuestions();
@@ -20766,18 +21304,19 @@
         toast(e.message);
       }
     });
-    $("closeModal").onclick = () => {
-      if (discardModalChanges()) {
+    $("closeModal").onclick = async () => {
+      if (await discardModalChanges()) {
         $("modal").close();
         clearInterval(playTimer);
       }
     };
-    $("modal").addEventListener("cancel", (e) => {
-      if (!discardModalChanges()) e.preventDefault();
-      else clearInterval(playTimer);
+    $("modal").addEventListener("cancel", async (e) => {
+      e.preventDefault();
+      if (await discardModalChanges()) { $("modal").close(); clearInterval(playTimer); }
     });
-    $("logout").onclick = () => {
-      if (!discardModalChanges()) return;
+    $("logout").onclick = async () => {
+      if (!(await confirmPopup("ต้องการออกจากระบบหรือไม่?"))) return;
+      if (!(await discardModalChanges())) return;
       $("logout").disabled = true;
       if (window.kruvandaSession)
         return window.kruvandaSession.expire(
@@ -20922,8 +21461,8 @@
     }, 180000);
     boot();
 
-    document.getElementById("brandReload").addEventListener("click", () => {
-      if (discardModalChanges()) location.reload();
+    document.getElementById("brandReload").addEventListener("click", async () => {
+      if (await discardModalChanges()) location.reload();
     });
 
     (() => {

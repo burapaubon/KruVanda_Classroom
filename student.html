@@ -30,7 +30,7 @@
         }
 
         main {
-            max-width: 640px;
+            max-width: 1100px;
             margin: 36px auto;
             padding: 24px;
         }
@@ -48,6 +48,244 @@
             font-size: 24px;
         }
     </style>
+
+    <style>
+        * {
+            box-sizing: border-box
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        button:disabled {
+            opacity: .5;
+            cursor: wait
+        }
+
+        .primary {
+            background: #e98942;
+            color: #fff;
+            border-color: #d27734
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        .course-choices {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 24px 0
+        }
+
+        .course-choices small {
+            display: block;
+            font-size: 12px
+        }
+
+        .student-hero {
+            padding: 26px;
+            border: 1px solid #edc4a1;
+            border-radius: 22px;
+            background: linear-gradient(115deg, #fff7ed, #ffe3c4)
+        }
+
+        .student-unit {
+            margin: 20px 0;
+            background: #fff;
+            border: 1px solid #ead9c8;
+            border-radius: 20px;
+            padding: 22px
+        }
+
+        .student-unit h2 {
+            font-size: 21px
+        }
+
+        .student-unit h2 small {
+            display: block;
+            font-size: 13px;
+            color: #977252
+        }
+
+        .student-resource {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: center;
+            padding: 15px 0;
+            border-top: 1px solid #f0e4d8
+        }
+
+        .student-resource small {
+            display: block;
+            color: #977252;
+            font-size: 12px
+        }
+
+        .student-resource strong {
+            display: block;
+            overflow-wrap: anywhere
+        }
+
+        .student-dialog {
+            width: min(850px, calc(100vw - 28px));
+            max-height: calc(100dvh - 40px);
+            overflow: auto;
+            border: 1px solid #e4c8ad;
+            border-radius: 22px;
+            padding: 24px;
+            background: #fffaf5;
+            color: #603a24;
+            font: 15px/1.7 Tahoma, sans-serif
+        }
+
+        .student-dialog::backdrop {
+            background: #34241a66;
+            backdrop-filter: blur(3px)
+        }
+
+        .student-dialog h2 {
+            font-size: 22px
+        }
+
+        .student-dialog iframe {
+            width: 100%;
+            height: 65vh;
+            border: 0;
+            border-radius: 12px
+        }
+
+        .dialog-close-row {
+            display: flex;
+            justify-content: flex-end
+        }
+
+        .student-question {
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ebdccc;
+            border-radius: 16px;
+            margin: 16px 0
+        }
+
+        .student-question h3 {
+            font-size: 18px;
+            overflow-wrap: anywhere
+        }
+
+        .answer-choice {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin: 10px 0;
+            padding: 14px;
+            border: 1px solid #ecd9c5;
+            border-radius: 12px;
+            cursor: pointer
+        }
+
+        .student-question textarea {
+            width: 100%;
+            min-height: 130px;
+            padding: 12px;
+            border: 1px solid #ddc4ac;
+            border-radius: 12px;
+            font: inherit
+        }
+
+        .matching-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+            margin: 12px 0
+        }
+
+        .matching-row select {
+            min-width: 0;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddc4ac;
+            border-radius: 10px;
+            font: inherit
+        }
+
+        .activity-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        progress {
+            width: 100%;
+            accent-color: #e98942
+        }
+
+        #studentAnswerError {
+            color: #b04325
+        }
+
+        #studentToast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: calc(100vw - 28px);
+            padding: 14px 22px;
+            border-radius: 14px;
+            background: #513b2c;
+            color: white;
+            z-index: 9999
+        }
+
+        button:focus-visible,
+        select:focus-visible {
+            outline: 3px solid #d68f50;
+            outline-offset: 3px
+        }
+
+        @media(max-width:600px) {
+            main {
+                margin: 14px auto;
+                padding: 16px
+            }
+
+            .student-unit {
+                padding: 16px
+            }
+
+            .student-resource {
+                flex-direction: column;
+                align-items: stretch
+            }
+
+            .student-resource .actions {
+                justify-content: center
+            }
+
+            .course-choices>button {
+                width: 100%
+            }
+
+            .student-dialog {
+                padding: 18px
+            }
+
+            .matching-row {
+                grid-template-columns: 1fr
+            }
+
+            .student-question {
+                padding: 14px
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -55,6 +293,9 @@
         <h1>KruVanda Classroom</h1>
         <p id="studentName"></p>
         <button type="button" id="studentLogout">ออกจากระบบ</button>
+        <div id="studentContent" aria-live="polite">
+            <p>กำลังโหลดบทเรียน…</p>
+        </div>
     </main>
     <script>
         (() => {
@@ -317,13 +558,42 @@
         } catch { }
         document.getElementById("studentName").textContent =
             currentUser.fullName || "";
-        document
-            .getElementById("studentLogout")
-            .addEventListener("click", () =>
-                window.kruvandaSession?.expire(
-                    "ออกจากระบบแล้ว กรุณาเข้าสู่ระบบด้วยบัญชีของตนเอง",
-                ),
-            );
+
+    </script>
+    <dialog id="studentDialog" class="student-dialog">
+        <div class="dialog-close-row"><button id="studentDialogClose" type="button">ปิด</button></div>
+        <div id="studentDialogBody"></div>
+    </dialog>
+    <div id="studentToast" hidden role="status"></div>
+    <script>(() => {
+            const content = document.getElementById('studentContent'), esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            let offerings = [], selected = '', data = null, current = null, saving = false, timer = null;
+            const user = JSON.parse(sessionStorage.getItem('userData') || '{}');
+            function toast(message) { const t = document.getElementById('studentToast'); t.textContent = message; t.hidden = false; setTimeout(() => t.hidden = true, 5000); }
+            async function api(action, fields = {}) { const url = sessionStorage.getItem('kruvandaGasUrl'); if (!url) throw Error('กรุณาเข้าสู่ระบบใหม่เพื่อเชื่อมต่อบทเรียน'); const ctrl = new AbortController(), timeout = setTimeout(() => ctrl.abort(), 90000); try { const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action, ...fields, token: user.token }), signal: ctrl.signal }); const r = await res.json(); if (r.status !== 'success') { if (r.code === 'AUTH_EXPIRED') window.kruvandaSession?.expire(r.message); throw Error(r.message || 'ดำเนินการไม่สำเร็จ'); } return r.data; } finally { clearTimeout(timeout); } }
+            function popup(title, html) { const d = document.getElementById('studentDialog'); document.getElementById('studentDialogBody').innerHTML = `<h2>${esc(title)}</h2>${html}`; if (!d.open) d.showModal(); }
+            function confirmStudent(message) { return new Promise(resolve => { const d = document.createElement('dialog'); d.className = 'student-dialog'; d.innerHTML = `<h2>ยืนยันการดำเนินการ</h2><p>${esc(message)}</p><div class="actions"><button data-result="no" autofocus>ยกเลิก</button><button data-result="yes" class="primary">ยืนยัน</button></div>`; document.body.appendChild(d); const finish = v => { d.close(); d.remove(); resolve(v) }; d.onclick = e => { if (e.target.dataset.result) finish(e.target.dataset.result === 'yes') }; d.oncancel = e => { e.preventDefault(); finish(false) }; d.showModal(); }); }
+            function mixed(ch) { return [...data.Materials.filter(r => r.chapterId === ch.id).map(r => ({ r, type: 'material' })), ...data.Activities.filter(r => r.chapterId === ch.id).map(r => ({ r, type: 'activity' }))].sort((a, b) => (Number(a.r.order) || 1000000) - (Number(b.r.order) || 1000000) || (a.type === b.type ? 0 : a.type === 'material' ? -1 : 1)); }
+            function render() { content.innerHTML = `<div class="course-choices">${offerings.map(o => `<button data-course="${esc(o.id)}" class="${selected === o.id ? 'primary' : ''}">${esc(o.courseName)}<small>${esc(o.code)}</small></button>`).join('')}</div>` + (data ? `<section class="student-hero"><h2>${esc(offerings.find(o => o.id === selected)?.courseName)}</h2><p>เลือกสื่อหรือกิจกรรมเพื่อเริ่มเรียน</p></section>${data.Chapters.slice().sort((a, b) => a.order - b.order).map(ch => `<section class="student-unit"><h2><small>หน่วยการเรียนรู้ที่ ${esc(ch.order)}</small>${esc(ch.title)}</h2>${mixed(ch).map(({ r, type }) => `<article class="student-resource"><div><small>${type === 'material' ? r.kind === 'worksheet' ? 'ใบงานสำหรับเปิดดู' : 'ใบความรู้' : r.mode === 'game' ? 'เกม' : r.kind === 'worksheet' ? 'ใบงาน' : 'แบบทดสอบ'}</small><strong>${esc(r.title)}</strong></div><div class="actions"><button data-open="${esc(r.id)}" data-type="${type}" class="primary">${type === 'material' ? 'เปิดดู' : r.mode === 'game' ? 'เริ่มเกม' : 'ทำกิจกรรม'}</button>${type === 'activity' ? `<button data-result="${esc(r.id)}">ดูงานและคะแนน</button>` : ''}</div></article>`).join('') || '<p>ยังไม่มีรายการที่เปิดใช้งาน</p>'}</section>`).join('') || '<p>ยังไม่มีหน่วยที่เปิดใช้งาน</p>'}` : '<p>เลือกรายวิชาเพื่อดูบทเรียน</p>'); }
+            async function load(id) { const next = await api('studentCourse', { offeringId: id }); selected = id; data = next; render(); }
+            async function openMaterial(id) { const result = await api('readMaterial', { offeringId: selected, materialId: id }); let media = ''; if (result.fileId && /^[\w-]+$/.test(result.fileId)) media = `<iframe src="https://drive.google.com/file/d/${esc(result.fileId)}/preview" title="${esc(result.title)}"></iframe>`; else if (/^https:\/\//.test(result.url)) media = `<a href="${esc(result.url)}" target="_blank" rel="noopener">เปิดสื่อเดิม</a>`; popup(result.title, media); }
+            function draftKey() { return 'kvAnswers:' + user.token.slice(-12) + ':' + current.runId; }
+            function questionHTML(q, i) { let input; if (q.type === 'text') input = `<textarea data-answer="${i}" required maxlength="5000">${esc(current.answers[i] || '')}</textarea>`; else if (q.type === 'matching') { const choices = q.options.map((o, n) => ({ o, n })).sort((a, b) => a.o.localeCompare(b.o, 'th')); input = '<p class="subtle">เลือกคำตอบไม่ซ้ำกัน ได้คะแนนเมื่อจับคู่ถูกทั้งหมด</p>' + q.prompts.map((v, n) => `<label class="matching-row"><span>${esc(v)}</span><select data-match="${i}" data-pair="${n}" required><option value="">เลือกคำตอบ</option>${choices.map(({ o, n: j }) => `<option value="${j}" ${current.answers[i]?.[n] === j ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`).join(''); } else input = q.options.map((o, n) => `<label class="answer-choice"><input type="radio" name="answer${i}" data-answer="${i}" value="${n}" ${current.answers[i] === n ? 'checked' : ''} required>${esc(o)}</label>`).join(''); return `<section class="student-question"><small>ข้อ ${i + 1} · ${q.points} คะแนน</small><h3>${esc(q.text)}</h3>${input}</section>`; }
+            function drawActivity() { const game = current.activity.mode === 'game'; const qs = current.questions; popup(current.activity.title, `<div class="activity-top"><span>${game ? 'เกมฝึกคิด' : 'กิจกรรม'} · ${qs.length} ข้อ</span><strong id="studentTime"></strong></div><form id="studentActivityForm">${game ? `<progress value="${current.index + 1}" max="${qs.length}"></progress>${questionHTML(qs[current.index], current.index)}<div class="actions">${current.index ? '<button type="button" data-game="prev">ก่อนหน้า</button>' : ''}<button type="button" data-game="next" class="primary">${current.index === qs.length - 1 ? 'ส่งคำตอบ' : 'ข้อต่อไป'}</button></div>` : qs.map(questionHTML).join('') + '<button class="primary" type="submit">ส่งคำตอบ</button>'}<p id="studentAnswerError" role="alert"></p></form>`); tick(); }
+            function collect() { document.querySelectorAll('#studentActivityForm [data-answer]').forEach(el => { const i = Number(el.dataset.answer); if (el.tagName === 'TEXTAREA') current.answers[i] = el.value; else if (el.checked) current.answers[i] = Number(el.value); }); document.querySelectorAll('#studentActivityForm [data-match]').forEach(el => { const i = Number(el.dataset.match), n = Number(el.dataset.pair); if (!Array.isArray(current.answers[i])) current.answers[i] = []; current.answers[i][n] = el.value === '' ? null : Number(el.value) }); sessionStorage.setItem(draftKey(), JSON.stringify(current.answers)); }
+            function complete(q, i) { const a = current.answers[i]; return q.type === 'text' ? typeof a === 'string' && a.trim() : q.type === 'matching' ? Array.isArray(a) && a.length === q.prompts.length && a.every(v => Number.isInteger(v)) && new Set(a).size === a.length : Number.isInteger(a); }
+            function tick() { if (!current) return; const left = current.expiresAt ? Math.max(0, Math.ceil((current.expiresAt - (Date.now() + current.offset)) / 1000)) : null; const el = document.getElementById('studentTime'); if (el) el.textContent = left === null ? 'ไม่จับเวลา' : `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`; if (left === 0) { clearInterval(timer); document.querySelectorAll('#studentActivityForm button').forEach(b => b.disabled = true); const e = document.getElementById('studentAnswerError'); if (e) e.textContent = 'หมดเวลาทำกิจกรรมแล้ว'; } }
+            async function openActivity(id) { const activity = data.Activities.find(a => a.id === id); const run = await api('startActivity', { offeringId: selected, activityId: id }); current = { ...run, activity, offeringId: selected, index: 0, offset: Number(run.serverNow || Date.now()) - Date.now(), requestId: crypto.randomUUID() }; try { const draft = JSON.parse(sessionStorage.getItem(draftKey()) || 'null'); if (Array.isArray(draft) && draft.length <= run.questions.length) current.answers = draft; } catch { } current.answers = current.answers || []; drawActivity(); clearInterval(timer); timer = setInterval(tick, 1000); }
+            async function submit() { if (saving) return; collect(); if (current.questions.some((q, i) => !complete(q, i))) throw Error('กรุณาตอบคำถามให้ครบ และเลือกคู่คำตอบไม่ซ้ำ'); if (!(await confirmStudent('ส่งคำตอบกิจกรรมนี้หรือไม่?'))) return; saving = true; document.querySelectorAll('#studentActivityForm button').forEach(b => b.disabled = true); try { const r = await api('submitActivity', { offeringId: current.offeringId, activityId: current.activity.id, answers: current.answers, requestId: current.requestId }); sessionStorage.removeItem(draftKey()); clearInterval(timer); const qs = current.questions; current = null; popup('ส่งคำตอบแล้ว', `<h3>${r.status === 'pending' ? 'รอครูตรวจคำตอบเขียน' : esc(r.score) + ' / ' + esc(r.maxScore) + ' คะแนน'}</h3>${r.correctAnswers ? qs.map((q, i) => `<p>${esc(q.text)}<br>${q.type === 'text' ? 'ครูตรวจคำตอบเขียน' : q.type === 'matching' ? q.prompts.map((v, n) => esc(v) + ' → ' + esc(q.options[r.correctAnswers[i][n]])).join('<br>') : esc(q.options[r.correctAnswers[i]])}</p>`).join('') : ''}`); toast('ส่งคำตอบแล้ว'); } finally { saving = false; document.querySelectorAll('#studentActivityForm button').forEach(b => b.disabled = false); } }
+            async function result(id) { const r = await api('mySubmission', { offeringId: selected, activityId: id }); if (!r) return toast('ยังไม่ได้ส่งกิจกรรมนี้'); popup('งานและคะแนน', `<p>สถานะ: ${r.status === 'graded' ? 'ตรวจแล้ว' : r.status === 'returned' ? 'ส่งกลับให้แก้ไข' : 'รอครูตรวจ'}</p><p>คะแนน ${esc((r.scores || []).reduce((n, v) => n + (Number(v) || 0), 0))}</p><p>${esc(r.feedback || 'ยังไม่มีข้อเสนอแนะ')}</p>`); }
+            function showError(e) { const t = document.getElementById('studentAnswerError'); if (t) t.textContent = e.message; toast(e.name === 'AbortError' ? 'รอข้อมูลนานเกินไป กรุณาลองอีกครั้ง' : e.message); }
+            document.addEventListener('click', async e => { const b = e.target.closest('button'); if (!b) return; try { if (b.dataset.course) await load(b.dataset.course); else if (b.dataset.open) b.dataset.type === 'material' ? await openMaterial(b.dataset.open) : await openActivity(b.dataset.open); else if (b.dataset.result && b.dataset.result !== 'yes' && b.dataset.result !== 'no') await result(b.dataset.result); else if (b.dataset.game) { collect(); if (b.dataset.game === 'prev') { current.index--; drawActivity(); } else { if (!complete(current.questions[current.index], current.index)) throw Error('กรุณาตอบข้อนี้ให้ครบก่อน'); if (current.index === current.questions.length - 1) await submit(); else { current.index++; drawActivity(); } } } } catch (error) { showError(error) } });
+            document.addEventListener('input', e => { if (current && e.target.closest('#studentActivityForm')) collect() }); document.addEventListener('change', e => { if (current && e.target.closest('#studentActivityForm')) collect() });
+            document.addEventListener('submit', async e => { if (e.target.id !== 'studentActivityForm') return; e.preventDefault(); try { await submit() } catch (error) { showError(error) } });
+            async function close() { if (saving) { toast('กำลังส่งคำตอบ กรุณารอสักครู่'); return; } if (current && !(await confirmStudent('ปิดกิจกรรมนี้หรือไม่? คำตอบที่กรอกจะเก็บไว้ในแท็บนี้ แต่เวลาจับยังเดินต่อ'))) return; if (current) collect(); current = null; clearInterval(timer); document.getElementById('studentDialog').close(); }
+            document.getElementById('studentLogout').onclick = async () => { if (saving) { toast('กำลังส่งคำตอบ กรุณารอสักครู่'); return; } if (await confirmStudent('ต้องการออกจากระบบหรือไม่?')) window.kruvandaSession?.expire('ออกจากระบบแล้ว กรุณาเข้าสู่ระบบใหม่'); }; document.getElementById('studentDialogClose').onclick = close; document.getElementById('studentDialog').addEventListener('cancel', e => { e.preventDefault(); close() });
+            (async () => { try { offerings = await api('studentHome'); if (offerings.length) await load(offerings[0].id); else content.innerHTML = '<p>ยังไม่มีรายวิชาที่เปิดให้เข้าเรียน</p>'; } catch (e) { content.innerHTML = '<p>โหลดบทเรียนไม่สำเร็จ</p><button id="retryStudent">ลองอีกครั้ง</button>'; document.getElementById('retryStudent').onclick = () => location.reload(); showError(e) } })();
+        })();
     </script>
 </body>
 
