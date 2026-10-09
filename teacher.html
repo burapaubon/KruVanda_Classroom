@@ -17297,6 +17297,24 @@
           btn.disabled = count === 0;
         });
     }
+    function classSortKey(value) {
+      const name = String(typeof value === "string" ? value : value?.name || "")
+        .replace(/[๐-๙]/g, (digit) => String("๐๑๒๓๔๕๖๗๘๙".indexOf(digit)))
+        .replace(/\s+/g, "").replace(/^ชั้น/, "");
+      const match = name.match(/^(ประถมศึกษา(?:ปีที่)?|ป\.?|มัธยมศึกษา(?:ปีที่)?|ม\.?|ประกาศนียบัตรวิชาชีพ(?:ชั้น)?(?:ปีที่)?|ปวช\.?)(\d+)(?:(?:\/|ห้อง(?:ที่)?)(\d+))?/);
+      if (!match) return [3, 0, 0, name];
+      const rank = /^(ประถม|ป\.?$)/.test(match[1]) ? 0
+        : /^(มัธยม|ม\.?$)/.test(match[1]) ? 1 : 2;
+      return [rank, Number(match[2]), Number(match[3] || 0), name];
+    }
+    function compareClasses(a, b) {
+      const left = classSortKey(a), right = classSortKey(b);
+      return left[0] - right[0] || left[1] - right[1] || left[2] - right[2]
+        || left[3].localeCompare(right[3], "th", { numeric: true });
+    }
+    function sortedGroups(rows = db.Groups) {
+      return rows.slice().sort(compareClasses);
+    }
     function groupName(id) {
       const g = db.Groups.find((g) => g.id === id);
       return g
@@ -17307,7 +17325,7 @@
         : "ยังไม่จัดห้อง";
     }
     function groupOptions() {
-      return db.Groups.filter((g) => g.status !== "inactive").map((g) => ({
+      return sortedGroups().filter((g) => g.status !== "inactive").map((g) => ({
         id: g.id,
         name:
           g.name +
@@ -18070,7 +18088,7 @@
             ),
           ),
         ),
-      ].sort((a, b) => a.localeCompare(b, "th", { numeric: true }));
+      ].sort(compareClasses);
       const classList = (list) =>
         list
           .map((name) => `<span>${esc(name)}</span>`)
@@ -18090,11 +18108,13 @@
       review: "newest",
     };
     function orderedRows(rows, page) {
+      if (page === "groups") return sortedGroups(rows);
       return listOrder[page] === "newest"
         ? rows.slice().reverse()
         : rows.slice();
     }
     function orderButton(page) {
+      if (page === "groups") return `<span class="order-description">เรียงตามระดับชั้น: ประถม → มัธยม → ปวช. · ชั้นปีและเลขห้องจากน้อยไปมาก</span>`;
       const newest = listOrder[page] === "newest";
       return `<span class="order-description">เรียงตามลำดับเพิ่มข้อมูล</span><button type="button" class="btn order-toggle" data-action="toggle-order" data-id="${page}" title="${newest ? "กดเพื่อเรียงรายการเก่าสุดก่อน" : "กดเพื่อเรียงรายการล่าสุดก่อน"}" aria-label="${newest ? "เรียงล่าสุดก่อน กดเพื่อเรียงเก่าสุดก่อน" : "เรียงเก่าสุดก่อน กดเพื่อเรียงล่าสุดก่อน"}"><span aria-hidden="true">${newest ? "↓" : "↑"}</span> ${newest ? "ล่าสุดก่อน" : "เก่าสุดก่อน"}</button>`;
     }
@@ -18268,7 +18288,7 @@
             "",
           ],
         ]) +
-        `<div class="toolbar student-filters"><label>แสดงรายชื่อนักเรียน<select id="studentGroup"><option value="">ทุกชั้นเรียน</option>${db.Groups.map((g) => `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}${g.status === "inactive" ? " (ปิดใช้งาน)" : ""}</option>`).join("")}</select></label><label>ค้นหานักเรียน<input id="studentSearch" value="${esc(studentSearch)}" placeholder="ชื่อ–นามสกุล"></label></div><div class="list-order-bar"><span class="student-order-note">นักเรียนทั้งหมด ${rows.length} คน</span>${orderButton("students")}</div><div class="toolbar selection-toolbar"><label><input type="checkbox" id="selectVisibleStudents"> เลือกทั้งหมดที่แสดง</label><details class="more-menu" id="batchStudentMenu" hidden><summary>จัดการนักเรียนที่เลือก ▾</summary><div>${button("เปิดการเข้าใช้งาน", "batch-students", "active")}${button("ปิดการเข้าใช้งาน", "batch-students", "inactive")}${button("ลบนักเรียนที่เลือก", "delete-selected-students")}</div></details></div><div class="panel table-wrap student-table"><table><thead><tr><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>รายวิชา</th><th>สิทธิ์เข้าใช้งาน</th><th>สถานะการใช้งาน</th><th>จัดการ</th></tr></thead><tbody>${rows.map((s) => `<tr data-student-row="${esc(s.fullName)}"><td><div class="student-name-cell"><input type="checkbox" name="selectedStudent" value="${esc(s.id)}" aria-label="เลือก ${esc(s.fullName)}"><strong title="${esc(s.fullName)}" tabindex="0" data-full-student-name="${esc(s.fullName)}">${esc(s.fullName)}</strong></div></td><td>${esc(groupName(s.groupId))}</td><td>${[...(studentCourses.get(s.id) || [])].map((name) => `<span class="student-course-tag">${esc(name)}</span>`).join(" ") || "ยังไม่ได้เพิ่มเข้ารายวิชา"}</td><td><span class="access-badge ${studentAccess(s) === "เข้าใช้งานได้" ? "available" : "restricted"}">${esc(studentAccess(s))}</span></td><td><span data-presence-id="${esc(s.id)}">${presenceBadge(s.id)}</span></td><td><div class="actions">${button("แก้ไขข้อมูลนักเรียน", "edit-student", s.id)}<details class="more-menu"><summary>จัดการ ▾</summary><div>${button("รีเซ็ตรหัสผ่านเป็นค่าเริ่มต้น", "reset-password", s.id)}${button(s.status === "active" ? "ปิดการเข้าใช้งาน" : "เปิดการเข้าใช้งาน", "toggle-student", s.id)}${button("ลบนักเรียน", "delete-entity", "student|" + s.id)}</div></details></div></td></tr>`).join("")}</tbody></table>${rows.length ? "" : empty("ยังไม่มีนักเรียน")}</div>`
+        `<div class="toolbar student-filters"><label>แสดงรายชื่อนักเรียน<select id="studentGroup"><option value="">ทุกชั้นเรียน</option>${sortedGroups().map((g) => `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}${g.status === "inactive" ? " (ปิดใช้งาน)" : ""}</option>`).join("")}</select></label><label>ค้นหานักเรียน<input id="studentSearch" value="${esc(studentSearch)}" placeholder="ชื่อ–นามสกุล"></label></div><div class="list-order-bar"><span class="student-order-note">นักเรียนทั้งหมด ${rows.length} คน</span>${orderButton("students")}</div><div class="toolbar selection-toolbar"><label><input type="checkbox" id="selectVisibleStudents"> เลือกทั้งหมดที่แสดง</label><details class="more-menu" id="batchStudentMenu" hidden><summary>จัดการนักเรียนที่เลือก ▾</summary><div>${button("เปิดการเข้าใช้งาน", "batch-students", "active")}${button("ปิดการเข้าใช้งาน", "batch-students", "inactive")}${button("ลบนักเรียนที่เลือก", "delete-selected-students")}</div></details></div><div class="panel table-wrap student-table"><table><thead><tr><th>ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>รายวิชา</th><th>สิทธิ์เข้าใช้งาน</th><th>สถานะการใช้งาน</th><th>จัดการ</th></tr></thead><tbody>${rows.map((s) => `<tr data-student-row="${esc(s.fullName)}"><td><div class="student-name-cell"><input type="checkbox" name="selectedStudent" value="${esc(s.id)}" aria-label="เลือก ${esc(s.fullName)}"><strong title="${esc(s.fullName)}" tabindex="0" data-full-student-name="${esc(s.fullName)}">${esc(s.fullName)}</strong></div></td><td>${esc(groupName(s.groupId))}</td><td>${[...(studentCourses.get(s.id) || [])].map((name) => `<span class="student-course-tag">${esc(name)}</span>`).join(" ") || "ยังไม่ได้เพิ่มเข้ารายวิชา"}</td><td><span class="access-badge ${studentAccess(s) === "เข้าใช้งานได้" ? "available" : "restricted"}">${esc(studentAccess(s))}</span></td><td><span data-presence-id="${esc(s.id)}">${presenceBadge(s.id)}</span></td><td><div class="actions">${button("แก้ไขข้อมูลนักเรียน", "edit-student", s.id)}<details class="more-menu"><summary>จัดการ ▾</summary><div>${button("รีเซ็ตรหัสผ่านเป็นค่าเริ่มต้น", "reset-password", s.id)}${button(s.status === "active" ? "ปิดการเข้าใช้งาน" : "เปิดการเข้าใช้งาน", "toggle-student", s.id)}${button("ลบนักเรียน", "delete-entity", "student|" + s.id)}</div></details></div></td></tr>`).join("")}</tbody></table>${rows.length ? "" : empty("ยังไม่มีนักเรียน")}</div>`
       );
     }
 
@@ -18507,6 +18527,7 @@
         ]) +
         filters +
         `<section class="dash-panel class-comparison"><h2>เปรียบเทียบการส่งงานแต่ละชั้นเรียน</h2><div class="class-comparison-list">${groups
+          .slice().sort((a, b) => compareClasses(groupName(a.id), groupName(b.id)))
           .map((g) => {
             const rate = g.expected
               ? Math.min(100, Math.max(0, (g.submitted / g.expected) * 100))
@@ -18707,7 +18728,7 @@
         return form(
           "เลือกขอบเขตล้างงานนักเรียน",
           "admin-select",
-          `<input type="hidden" name="target" value="work"><input type="hidden" name="mode" value="clearWork">${select("รายวิชา", "courseId", all.concat(db.Courses))}${select("ชั้นเรียน", "groupId", all.concat(db.Groups.map((g) => ({ id: g.id, name: groupName(g.id) }))))}${select("นักเรียน", "studentId", all.concat(db.Students.map((s) => ({ id: s.id, name: s.fullName }))))}<label>กิจกรรม<select name="activityId" disabled><option value="">ทุกกิจกรรม</option></select><small>เลือกรายวิชาเพื่อเลือกกิจกรรมเฉพาะรายการ</small></label><p class="notice">ล้างงาน คะแนน ประวัติส่งงาน และรอบทำกิจกรรมตามขอบเขต หากเลือกทุกกิจกรรมจะล้างความก้าวหน้าการอ่านในขอบเขตนี้ด้วย เก็บนักเรียนและเนื้อหาบทเรียนไว้</p>`,
+          `<input type="hidden" name="target" value="work"><input type="hidden" name="mode" value="clearWork">${select("รายวิชา", "courseId", all.concat(db.Courses))}${select("ชั้นเรียน", "groupId", all.concat(sortedGroups().map((g) => ({ id: g.id, name: groupName(g.id) }))))}${select("นักเรียน", "studentId", all.concat(db.Students.map((s) => ({ id: s.id, name: s.fullName }))))}<label>กิจกรรม<select name="activityId" disabled><option value="">ทุกกิจกรรม</option></select><small>เลือกรายวิชาเพื่อเลือกกิจกรรมเฉพาะรายการ</small></label><p class="notice">ล้างงาน คะแนน ประวัติส่งงาน และรอบทำกิจกรรมตามขอบเขต หากเลือกทุกกิจกรรมจะล้างความก้าวหน้าการอ่านในขอบเขตนี้ด้วย เก็บนักเรียนและเนื้อหาบทเรียนไว้</p>`,
         );
       }
       const table = {
@@ -18812,7 +18833,7 @@
           ],
           c.status === "active" || !c.status ? "active" : "closed",
         ) +
-        "<small>ซ่อนและปิดใช้งาน: นักเรียนจะไม่เห็นและเข้าไม่ได้ ครูยังจัดการได้</small>",
+        "<small>โหมดการซ่อนและปิดใช้งาน: นักเรียนไม่สามารถเข้าใช้งานได้</small>",
         id,
       );
     }
@@ -19755,7 +19776,7 @@
           select(
             "ห้องที่ลงทะเบียน",
             "groupId",
-            db.Groups.filter((g) => ids.has(g.id)).map((g) => ({
+            sortedGroups().filter((g) => ids.has(g.id)).map((g) => ({
               id: g.id,
               name: groupName(g.id),
             })),
