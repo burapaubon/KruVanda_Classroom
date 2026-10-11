@@ -1,3 +1,17 @@
+// Public notices must describe the user's next step without exposing implementation details.
+function publicErrorMessage_(error) {
+  const message = String(error.message || error || "");
+  if (error.code === "AUTH_EXPIRED") return "หมดเวลาเข้าใช้งาน กรุณาเข้าสู่ระบบใหม่";
+  if (/ไม่พบชื่อผู้ใช้นี้ในชีท Users/.test(message)) return "ไม่พบชื่อผู้ใช้นี้ กรุณาตรวจชื่อผู้ใช้ หรือติดต่อครู";
+  if (/รหัสผ่านไม่ตรงกับบัญชีนี้/.test(message)) return "รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
+  if (/กรุณาเข้าสู่ระบบจาก index\.html/.test(message)) return "กรุณาเข้าสู่ระบบก่อนใช้งาน";
+  if (/updatesheet|Apps Script|resetTeacherLogin|หัวตาราง|พบชีทซ้ำ/.test(message))
+    return "ระบบยังไม่พร้อมใช้งาน กรุณาแจ้งผู้ดูแลระบบ";
+  if (/GAS|bootstrap|\bAPI\b|deployment|Google Sheets|ชีท Users|Exception|TypeError|ReferenceError|SyntaxError|Service invoked|permission|spreadsheet|DriveApp|SpreadsheetApp|stack trace|index\.html/i.test(message))
+    return "ระบบยังดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง หากยังพบปัญหาให้แจ้งผู้ดูแลระบบ";
+  return message || "ดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง";
+}
+
 const SCHEMA = {
   Users: [
     "id",
@@ -4525,6 +4539,11 @@ function apiCall(json) {
         if (previous.action !== q.action || previous.payloadHash !== requestHash)
           throw Error("รหัสคำขอซ้ำกับข้อมูลอื่น กรุณาโหลดข้อมูลล่าสุด");
         const replayed = JSON.parse(previous.result);
+        if (replayed.status === "error") {
+          replayed.message = publicErrorMessage_(replayed);
+          if (!teacherMutation && replayed.diagnostics)
+            replayed.diagnostics = { outcome: replayed.diagnostics.outcome };
+        }
         delete replayed.sync;
         return JSON.stringify(replayed);
       }
@@ -4603,6 +4622,7 @@ function apiCall(json) {
         traceId: diagnosticTrace,
         action: diagnosticAction,
         code: err.code || "API_ERROR",
+        message: err.message || String(err),
         stage: diagnostics.stage,
         resource: diagnostics.resource,
         outcome: diagnostics.outcome,
@@ -4611,12 +4631,14 @@ function apiCall(json) {
     );
     const result = JSON.stringify({
       status: "error",
-      message: err.message || String(err),
+      message: publicErrorMessage_(err),
       code: err.code || "API_ERROR",
       authReason: err.authReason || "",
       action: diagnosticAction,
       traceId: diagnosticTrace,
-      diagnostics,
+      diagnostics: MEM.$auth?.user?.role === "teacher"
+        ? { ...diagnostics, originalMessage: err.message || String(err) }
+        : { outcome: diagnostics.outcome },
       serverMs: Date.now() - startedAt,
     });
     if (requestId && executed) {

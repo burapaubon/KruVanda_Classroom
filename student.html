@@ -23673,6 +23673,19 @@
             function courseCards() {
                 return `<div class="course-grid">${offerings.map((o) => `<article class="card course-card" data-course-status="active"><div class="toolbar course-card-header"><span class="course-code">${esc(o.code)}</span>${activeBadge()}</div><div class="course-emblem">${shortcutIcon("go-courses")}</div><h3>${esc(o.courseName)}</h3><div class="actions"><button type="button" class="btn primary" data-course="${esc(o.id)}">เข้าสู่รายวิชา</button></div></article>`).join("") || '<div class="empty">ยังไม่มีรายวิชาที่เปิดให้เข้าเรียน</div>'}</div>`;
             }
+            const studentViewKey = "kruvandaStudentView";
+            function saveStudentView() {
+                try {
+                    sessionStorage.setItem(studentViewKey, JSON.stringify({
+                        token: user.token, url: sessionStorage.getItem("kruvandaGasUrl"),
+                        at: Date.now(), offerings, data, page: studentPage, selected
+                    }));
+                } catch (_) { }
+            }
+            window.addEventListener("pagehide", saveStudentView);
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) saveStudentView();
+            });
             function render() {
                 document.getElementById("title").textContent =
                     studentPage === "course" ? "รายวิชา" : studentPage === "courses" ? "รายวิชา" : "หน้าหลัก";
@@ -23710,18 +23723,18 @@
                     return;
                 }
                 content.innerHTML = `<div class="course-back-row"><button type="button" class="btn course-back-button" data-student-page="courses">← กลับไปหน้ารายวิชา</button></div><section class="dash-welcome welcome-hero course-detail-hero" data-course-status="active" aria-label="ข้อมูลรายวิชา">${courseLearningIllustration()}<div class="course-hero-corner">${activeBadge()}</div><div class="course-hero-copy"><h2>${esc(o.courseName)}</h2><span class="course-code">รหัสวิชา ${esc(o.code)}</span></div></section><div class="section-intro"><div><h2>หน่วยการเรียนรู้</h2></div><button class="btn" type="button" data-student-action="refresh-course">อัปเดตข้อมูล</button></div>${data.Chapters.slice()
-                        .sort((a, b) => a.order - b.order)
-                        .map(
-                            (ch) =>
-                                `<details class="chapter learning-unit" data-unit-status="active" open><summary class="unit-heading"><span class="unit-number" aria-hidden="true">${esc(ch.order)}</span><div class="chapter-summary-text"><span class="subtle">หน่วยการเรียนรู้ที่ ${esc(ch.order)}</span><h3>${esc(ch.title)}</h3></div><div class="unit-heading-status"><span class="unit-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></span></div></summary><div class="chapter-body">${mixed(ch)
-                                    .map(
-                                        ({ r, type }) =>
-                                            `<article class="resource-row" data-resource-status="active" data-resource-kind="${type === "material" ? "knowledge" : r.kind === "worksheet" ? "worksheet" : r.mode === "game" ? "game" : "quiz"}"><div class="student-resource-name"><strong title="${esc(r.title)}">${esc(r.title)}</strong><span class="resource-format">${type === "material" ? (r.mime === "application/pdf" ? "PDF" : String(r.mime || "").startsWith("image/") ? "Image" : "URL") : r.kind === "worksheet" ? (r.submissionMode === "file" ? "แนบไฟล์ส่ง" : "ใบงานออนไลน์") : (r.questions?.length ?? r.questionCount ?? 0) + " ข้อ"}</span></div><div class="actions"><button type="button" class="btn primary" data-open="${esc(r.id)}" data-type="${type}">${type === "material" ? "เปิดดู" : r.mode === "game" ? "เริ่มเกม" : r.kind === "worksheet" ? "ทำใบงาน" : "ทำแบบทดสอบ"}</button>${type === "activity" ? `<button type="button" class="btn" data-result="${esc(r.id)}">ดูงานและคะแนน</button>` : ""}</div></article>`,
-                                    )
-                                    .join("") || '<p class="subtle unit-empty">ยังไม่มีรายการที่เปิดใช้งาน</p>'
-                                }</div></details>`,
-                        )
-                        .join("") || '<div class="empty">ยังไม่มีหน่วยที่เปิดใช้งาน</div>'
+                    .sort((a, b) => a.order - b.order)
+                    .map(
+                        (ch) =>
+                            `<details class="chapter learning-unit" data-unit-status="active" open><summary class="unit-heading"><span class="unit-number" aria-hidden="true">${esc(ch.order)}</span><div class="chapter-summary-text"><span class="subtle">หน่วยการเรียนรู้ที่ ${esc(ch.order)}</span><h3>${esc(ch.title)}</h3></div><div class="unit-heading-status"><span class="unit-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></span></div></summary><div class="chapter-body">${mixed(ch)
+                                .map(
+                                    ({ r, type }) =>
+                                        `<article class="resource-row" data-resource-status="active" data-resource-kind="${type === "material" ? "knowledge" : r.kind === "worksheet" ? "worksheet" : r.mode === "game" ? "game" : "quiz"}"><div class="student-resource-name"><strong title="${esc(r.title)}">${esc(r.title)}</strong><span class="resource-format">${type === "material" ? (r.mime === "application/pdf" ? "PDF" : String(r.mime || "").startsWith("image/") ? "Image" : "URL") : r.kind === "worksheet" ? (r.submissionMode === "file" ? "แนบไฟล์ส่ง" : "ใบงานออนไลน์") : (r.questions?.length ?? r.questionCount ?? 0) + " ข้อ"}</span></div><div class="actions"><button type="button" class="btn primary" data-open="${esc(r.id)}" data-type="${type}">${type === "material" ? "เปิดดู" : r.mode === "game" ? "เริ่มเกม" : r.kind === "worksheet" ? "ทำใบงาน" : "ทำแบบทดสอบ"}</button>${type === "activity" ? `<button type="button" class="btn" data-result="${esc(r.id)}">ดูงานและคะแนน</button>` : ""}</div></article>`,
+                                )
+                                .join("") || '<p class="subtle unit-empty">ยังไม่มีรายการที่เปิดใช้งาน</p>'
+                            }</div></details>`,
+                    )
+                    .join("") || '<div class="empty">ยังไม่มีหน่วยที่เปิดใช้งาน</div>'
                     }`;
             }
             async function load(id, force = false) {
@@ -24475,10 +24488,20 @@
                 true,
             );
 
+            function friendlyError(error) {
+                if (error.authRequired || error.code === "AUTH_EXPIRED") return "หมดเวลาเข้าใช้งาน กรุณาเข้าสู่ระบบใหม่";
+                if (error.uncertain) return "ยังยืนยันผลรายการนี้ไม่ได้ กรุณาตรวจข้อมูลล่าสุดและประวัติก่อนทำซ้ำ";
+                if (error.name === "AbortError" || error.code === "REQUEST_TIMEOUT") return "ยังโหลดข้อมูลไม่เสร็จ กรุณาลองอีกครั้ง";
+                const message = String(error.message || "");
+                if (/GAS|bootstrap|API|deployment|HTTP|fetch|network|syntax|JSON|endpoint|URL|เซิร์ฟเวอร์|stack|token/i.test(message))
+                    return "ระบบยังดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง หากยังพบปัญหาให้แจ้งผู้ดูแลระบบ";
+                return message || "ดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง";
+            }
             function showError(e) {
+                console.error("LMS student diagnostics", e);
                 const t = document.getElementById("studentAnswerError");
-                if (t) t.textContent = e.message;
-                toast(e.name === "AbortError" ? "รอข้อมูลนานเกินไป กรุณาลองอีกครั้ง" : e.message);
+                if (t) t.textContent = friendlyError(e);
+                toast(friendlyError(e));
             }
 
             document.addEventListener("click", async (e) => {
@@ -24605,14 +24628,44 @@
 
             document.getElementById("brandReload").onclick = () => location.reload();
             (async () => {
+                let view = null;
+                let showingSnapshot = false;
+                try { view = JSON.parse(sessionStorage.getItem(studentViewKey) || "null"); } catch (_) { }
+                const validView = view && view.token === user.token &&
+                    view.url === sessionStorage.getItem("kruvandaGasUrl") &&
+                    ["home", "courses", "course", "work"].includes(view.page);
+                if (validView) {
+                    studentPage = view.page;
+                    selected = typeof view.selected === "string" ? view.selected : "";
+                    if (Date.now() - view.at < 1800000 && Array.isArray(view.offerings)) {
+                        offerings = view.offerings;
+                        data = view.data || null;
+                        render();
+                        showingSnapshot = true;
+                        toast("กำลังอัปเดตข้อมูล");
+                    }
+                }
                 try {
                     offerings = await api("studentHome");
                     loadOwnProfile().catch(() => { });
+                    const page = studentPage;
+                    if (["course", "work"].includes(page) && offerings.some((o) => o.id === selected)) {
+                        // Keep the current view visible while fetching the latest course.
+                        const offeringId = selected;
+                        const next = await api("studentCourse", { offeringId });
+                        if (studentPage === page && selected === offeringId) data = next;
+                    } else if (page === "course" || (selected && !offerings.some((o) => o.id === selected))) {
+                        selected = "";
+                        data = null;
+                        if (page === "course") studentPage = "courses";
+                    }
                     render();
+                    if (showingSnapshot) toast("อัปเดตข้อมูลแล้ว");
                 } catch (e) {
-                    content.innerHTML =
-                        '<p>โหลดบทเรียนไม่สำเร็จ</p><button id="retryStudent">ลองอีกครั้ง</button>';
-                    document.getElementById("retryStudent").onclick = () => location.reload();
+                    if (!showingSnapshot) {
+                        content.innerHTML = '<p>โหลดบทเรียนไม่สำเร็จ</p><button id="retryStudent">ลองอีกครั้ง</button>';
+                        document.getElementById("retryStudent").onclick = () => location.reload();
+                    }
                     showError(e);
                 }
             })();

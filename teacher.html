@@ -25868,6 +25868,15 @@
       if (!Array.isArray(localApiAlerts)) localApiAlerts = [];
     } catch (_) { }
 
+    function friendlyError(error) {
+      if (error.authRequired || error.code === "AUTH_EXPIRED") return "หมดเวลาเข้าใช้งาน กรุณาเข้าสู่ระบบใหม่";
+      if (error.uncertain) return "ยังยืนยันผลรายการนี้ไม่ได้ กรุณาตรวจข้อมูลล่าสุดและประวัติก่อนทำซ้ำ";
+      if (error.name === "AbortError" || error.code === "REQUEST_TIMEOUT") return "ยังโหลดข้อมูลไม่เสร็จ กรุณาลองอีกครั้ง";
+      const message = String(error.message || "");
+      if (/GAS|bootstrap|API|deployment|HTTP|fetch|network|syntax|JSON|endpoint|URL|เซิร์ฟเวอร์|stack|token/i.test(message))
+        return "ระบบยังดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง หากยังพบปัญหาให้แจ้งผู้ดูแลระบบ";
+      return message || "ดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง";
+    }
     function errorNotice(error) {
       if (error.code === "ACTIVITY_LOCKED") { error.uncertain = false; error.advice = "แก้เฉพาะข้อมูลที่ไม่กระทบงานส่งและคะแนนเดิม หรือสร้างกิจกรรมใหม่"; }
       console.error("LMS diagnostics", {
@@ -25890,17 +25899,16 @@
 
       const what = apiActionLabels[error.action] || "ดำเนินการกับข้อมูล";
       const advice = error.authRequired
-        ? "เซสชันหมดอายุหรือถูกยกเลิก กรุณาเข้าสู่ระบบใหม่"
+        ? "กรุณาเข้าสู่ระบบใหม่เพื่อทำรายการต่อ"
         : error.uncertain
-          ? "ยังยืนยันผลไม่ได้ ตรวจข้อมูลล่าสุดและประวัติก่อนส่งคำสั่งซ้ำ"
-          : error.advice ||
-          (error.httpStatus === 404
-            ? "ลองโหลดใหม่ หากเกิดซ้ำให้ตรวจ URL, deployment และสิทธิ์เข้าถึง"
-            : error.code === "REQUEST_TIMEOUT"
-              ? "ลองโหลดข้อมูลใหม่ หากเกิดซ้ำให้ตรวจการทำงาน GAS ด้วยรหัสติดตาม"
-              : "ใช้รหัสติดตามตรวจบันทึกการทำงาน GAS หากไม่มีบันทึกตรงกัน อาจยังไปไม่ถึง GAS");
+          ? "ตรวจข้อมูลล่าสุดและประวัติก่อนทำรายการซ้ำ เพื่อป้องกันข้อมูลซ้ำ"
+          : error.code === "ACTIVITY_LOCKED"
+            ? "แก้เฉพาะข้อมูลที่ไม่กระทบคะแนนเดิม หรือสร้างกิจกรรมใหม่"
+            : "ลองอีกครั้ง หากยังพบปัญหาให้แจ้งผู้ดูแลระบบ";
       const outcome = error.uncertain ? "ยังยืนยันผลไม่ได้" : "ไม่สำเร็จ";
       const detail = [
+        ["ข้อความต้นฉบับ", error.message || "ไม่ระบุ"],
+        ["คำแนะนำสำหรับผู้ดูแล", error.advice || "ไม่ระบุ"],
         ["เวลา", new Date(error.at || Date.now()).toLocaleString("th-TH")],
         ["คำสั่ง", error.action || "ไม่ระบุ"],
         ["รหัส", error.code || "ไม่ระบุ"],
@@ -25913,7 +25921,7 @@
       ]
         .map(([label, value]) => esc(label) + " " + esc(String(value)))
         .join("<br>");
-      return `<div class="notice error" role="alert"><strong>${esc(what)} · ${esc(outcome)}</strong><p>${esc(error.message)}</p><p>${esc(advice)}</p><details><summary>รายละเอียดสำหรับตรวจสอบ</summary><p>${detail}</p></details></div>`;
+      return `<div class="notice error" role="alert"><strong>${esc(what)} · ${esc(outcome)}</strong><p>${esc(friendlyError(error))}</p><p>${esc(advice)}</p><details><summary>รายละเอียดสำหรับตรวจสอบ</summary><p>${detail}</p></details></div>`;
     }
 
     function localAlertsView() {
@@ -26841,7 +26849,7 @@
           !(!previousPage && pageDataReady(page) && !refreshData))
       ) {
         $("content").innerHTML =
-          (refreshData ? loadingView(page) : previousPage) ||
+          previousPage ||
           (startupLoadingBase || !baseReady ? loadingView(page) : openingView(page));
         readableTables();
         if (page === "students" && previousPage) filterStudentRows();
@@ -26925,7 +26933,9 @@
       } catch (e) {
         if (version === navVersion) {
           $("content").removeAttribute("aria-busy");
-          if (!(refreshData && previousPage)) loadFailure(e);
+          if (refreshData && previousPage) {
+            $("message").innerHTML = errorNotice(e) + button("ลองโหลดอีกครั้ง", "refresh");
+          } else loadFailure(e);
         }
       }
     }
@@ -27620,7 +27630,7 @@
         p = await api("studentProfile", { studentId: id });
       } catch (error) {
         if (body.dataset.studentCard === id)
-          body.innerHTML = empty(error.message || "โหลดข้อมูลนักเรียนไม่สำเร็จ");
+          body.innerHTML = empty(friendlyError(error));
         throw error;
       }
       if (body.dataset.studentCard !== id || !$("modal").open) return;
@@ -27690,7 +27700,7 @@
         : work.status === "returned"
           ? "รอแก้ไข"
           : "รอตรวจ";
-      return `<button type="button" class="score-work-state ${scored ? "graded" : work.status === "returned" ? "returned" : "pending"} fit-line" data-action="grade" data-id="${esc(work.id)}" title="${esc(activity.title + " · " + label)}">${label}${scored ? " · " + esc(score) + "/" + esc(work.maxScore ?? max) : ""}</button>`;
+      return `<button type="button" class="score-work-state ${scored ? "graded" : work.status === "returned" ? "returned" : "pending"}" style="display:inline-flex!important;align-items:center!important;justify-content:center!important;margin-inline:auto!important;text-align:center!important" data-action="grade" data-id="${esc(work.id)}" title="${esc(activity.title + " · " + label)}">${label}${scored ? " · " + esc(score) + "/" + esc(work.maxScore ?? max) : ""}</button>`;
     }
     async function courseScoresView(force = false) {
       const courseId = selectedCourse,
@@ -27776,7 +27786,7 @@
         ],
         ["ชิ้นงานรอตรวจ", pendingIds.size, "ชิ้น", "งานที่ส่งมาและยังไม่ตรวจ", "✎", "pending"],
       ];
-      return `<section class="panel course-score-panel"><div class="course-score-heading"><h2 class="fit-line">คะแนนและการติดตาม</h2><div class="actions">${button("ส่งออกรายงาน", "report-course")}${button("อัปเดตข้อมูล", "course-scores-refresh")}</div></div><div class="course-score-summary">${cards.map(([label, n, unit, hint, icon, kind]) => `<article class="course-score-metric ${kind}"><span class="score-metric-icon" aria-hidden="true">${courseMetricIcon(kind)}</span><span class="fit-line">${label}</span><strong>${n}<small>${unit}</small></strong><p class="fit-line">${hint}</p></article>`).join("")}</div><div class="course-score-table-wrap" tabindex="0" aria-label="ตารางงานและคะแนน เลื่อนแนวนอนเพื่อดูทุกชิ้นงาน"><table class="course-score-table"><thead><tr><th class="score-student">ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>ส่งแล้ว</th><th>ยังไม่ส่ง</th>${tasks.map((a) => `<th><span class="fit-line" title="${esc(a.title)}">${esc(a.title)}</span><small>${(a.questions || []).reduce((n, q) => n + Number(q.points || 0), 0)} คะแนน</small></th>`).join("")}<th class="score-total">คะแนนรวม</th><th>งานรายบุคคล</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="score-student">${studentIdentity(r.studentId, r.name)}</td><td><span class="fit-line score-group">${esc(groupName(r.groupId))}</span></td><td>${r.submitted}/${r.expected}</td><td>${r.missing}</td>${tasks.map((a) => `<td>${courseScoreCell(r, a)}</td>`).join("")}<td class="score-total"><span class="fit-line">${r.maxScore ? esc(r.score) + " / " + esc(r.maxScore) : "ยังไม่มีคะแนน"}</span></td><td>${button("ดูงานทั้งหมด", "course-student-work", r.offeringId + "|" + r.studentId)}</td></tr>`).join("")}</tbody></table>${rows.length ? "" : empty("ยังไม่มีผู้เรียนในรายวิชานี้")}</div>${tasks.length ? "" : empty("ยังไม่มีชิ้นงานที่เปิดให้ส่ง")}</section>`;
+      return `<section class="panel course-score-panel"><div class="course-score-heading"><h2 class="fit-line">คะแนนและการติดตาม</h2><div class="actions">${button("ส่งออกรายงาน", "report-course")}${button("อัปเดตข้อมูล", "course-scores-refresh")}</div></div><div class="course-score-summary">${cards.map(([label, n, unit, hint, icon, kind]) => `<article class="course-score-metric ${kind}"><span class="score-metric-icon" aria-hidden="true">${courseMetricIcon(kind)}</span><span class="fit-line">${label}</span><strong>${n}<small>${unit}</small></strong><p class="fit-line">${hint}</p></article>`).join("")}</div><div class="course-score-table-wrap" tabindex="0" aria-label="ตารางงานและคะแนน เลื่อนแนวนอนเพื่อดูทุกชิ้นงาน"><table class="course-score-table"><thead><tr><th class="score-student">ชื่อ–นามสกุล</th><th>ชั้นเรียน</th><th>ส่งแล้ว</th><th>ยังไม่ส่ง</th>${tasks.map((a) => `<th><span class="fit-line" title="${esc(a.title)}">${esc(a.title)}</span><small>${(a.questions || []).reduce((n, q) => n + Number(q.points || 0), 0)} คะแนน</small></th>`).join("")}<th class="score-total">คะแนนรวม</th><th>งานรายบุคคล</th></tr></thead><tbody>${rows.map((r) => `<tr><td class="score-student">${studentIdentity(r.studentId, r.name)}</td><td><span class="fit-line score-group">${esc(groupName(r.groupId))}</span></td><td>${r.submitted}/${r.expected}</td><td>${r.missing}</td>${tasks.map((a) => `<td><div class="score-cell-center" style="display:flex!important;justify-content:center!important;align-items:center!important;width:100%;min-width:0">${courseScoreCell(r, a)}</div></td>`).join("")}<td class="score-total"><span class="fit-line">${r.maxScore ? esc(r.score) + " / " + esc(r.maxScore) : "ยังไม่มีคะแนน"}</span></td><td>${button("ดูงานทั้งหมด", "course-student-work", r.offeringId + "|" + r.studentId)}</td></tr>`).join("")}</tbody></table>${rows.length ? "" : empty("ยังไม่มีผู้เรียนในรายวิชานี้")}</div>${tasks.length ? "" : empty("ยังไม่มีชิ้นงานที่เปิดให้ส่ง")}</section>`;
     }
     async function loadCourseScores(force = false) {
       const course = selectedCourse,
@@ -27789,7 +27799,7 @@
       } catch (e) {
         if (host.isConnected)
           host.innerHTML =
-            empty(e.message || "โหลดข้อมูลไม่สำเร็จ") + button("ลองอีกครั้ง", "course-scores-refresh");
+            empty(friendlyError(e)) + button("ลองอีกครั้ง", "course-scores-refresh");
       }
     }
     async function courseStudentWork(id) {
@@ -29378,7 +29388,7 @@
           mutationRequests.delete(mutationRequestId(action, fields).key);
           saveMutationRequests();
         }
-        toast(e.message || "บันทึกไม่สำเร็จ");
+        toast(friendlyError(e));
         throw e;
       } finally {
         hideOperation();
@@ -30711,7 +30721,7 @@
       try {
         await handleAction(el);
       } catch (e) {
-        if ($("formError")) $("formError").innerHTML = e.action ? errorNotice(e) : esc(e.message);
+        if ($("formError")) $("formError").innerHTML = e.action ? errorNotice(e) : esc(friendlyError(e));
         toast(e.message);
       }
     });
@@ -31252,7 +31262,7 @@
         }
       } catch (e) {
         if ($("formError")) {
-          $("formError").innerHTML = e.action ? errorNotice(e) : esc(e.message);
+          $("formError").innerHTML = e.action ? errorNotice(e) : esc(friendlyError(e));
           $("formError").className = "error-text";
         }
         toast(e.message);
@@ -31284,6 +31294,57 @@
       sessionStorage.removeItem("userData");
       location.replace(CONFIG.LOGIN_PAGE);
     };
+    // Remember navigation only; data and permissions are loaded again on refresh.
+    const teacherViewKey = "kruvandaTeacherView";
+    function saveTeacherView() {
+      try {
+        sessionStorage.setItem(teacherViewKey, JSON.stringify({
+          token: session.token, url: sessionStorage.getItem("kruvandaGasUrl"),
+          at: Date.now(), html: pageCache.get(pageCacheKey()) || "", courseData,
+          page: currentPage, selectedCourse, selectedOffering, selectedGroup,
+          courseTab, courseDetailTab, homeCourse, reviewAcross, reviewPending, reviewStudent,
+          reviewSearch, reviewActivity, reviewStatus, reviewOffset, progressSearch, progressStatus, adminTab, adminOffset, listOrder
+        }));
+      } catch (_) { }
+    }
+    let restoredTeacherHTML = "";
+    function restoreTeacherView() {
+      try {
+        const view = JSON.parse(sessionStorage.getItem(teacherViewKey) || "null");
+        if (!view || view.token !== session.token || view.url !== sessionStorage.getItem("kruvandaGasUrl")) return;
+        if (![...Object.keys(labels), "course"].includes(view.page)) return;
+        currentPage = view.page;
+        if (Date.now() - view.at < 1800000 && typeof view.html === "string") {
+          restoredTeacherHTML = view.html;
+          if (view.courseData && typeof view.courseData === "object") courseData = view.courseData;
+        }
+        for (const key of ["selectedCourse", "selectedOffering", "selectedGroup", "homeCourse", "reviewStudent"])
+          if (typeof view[key] !== "string") view[key] = "";
+        selectedCourse = view.selectedCourse;
+        selectedOffering = view.selectedOffering;
+        selectedGroup = view.selectedGroup;
+        homeCourse = view.homeCourse;
+        reviewStudent = view.reviewStudent;
+        courseTab = view.courseTab === "hidden" ? "hidden" : "active";
+        courseDetailTab = ["lessons", "members", "scores"].includes(view.courseDetailTab) ? view.courseDetailTab : "lessons";
+        reviewAcross = view.reviewAcross === true;
+        reviewPending = view.reviewPending !== false;
+        reviewSearch = typeof view.reviewSearch === "string" ? view.reviewSearch : "";
+        reviewActivity = typeof view.reviewActivity === "string" ? view.reviewActivity : "";
+        reviewStatus = typeof view.reviewStatus === "string" ? view.reviewStatus : "pending";
+        reviewOffset = Number.isSafeInteger(view.reviewOffset) && view.reviewOffset >= 0 ? view.reviewOffset : 0;
+        progressSearch = typeof view.progressSearch === "string" ? view.progressSearch : "";
+        progressStatus = typeof view.progressStatus === "string" ? view.progressStatus : "all";
+        adminTab = typeof view.adminTab === "string" ? view.adminTab : "status";
+        adminOffset = Number.isSafeInteger(view.adminOffset) && view.adminOffset >= 0 ? view.adminOffset : 0;
+        for (const key of Object.keys(listOrder))
+          if (["newest", "oldest"].includes(view.listOrder?.[key])) listOrder[key] = view.listOrder[key];
+      } catch (_) { }
+    }
+    window.addEventListener("pagehide", saveTeacherView);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) saveTeacherView();
+    });
     async function boot() {
       {
         try {
@@ -31310,11 +31371,12 @@
         )
           showMyProfile(saved.profile);
       } catch (_) { }
+      restoreTeacherView();
       const cached = restoreBaseSnapshot();
       startupLoadingBase = true;
       const startupBase = refreshBase();
       startupBase.catch(() => { });
-      startupDashboard = {
+      startupDashboard = currentPage === "home" ? {
         key: homeCourse + ":" + selectedGroup,
         epoch: dataEpoch,
         promise: api("dashboard", {
@@ -31325,10 +31387,17 @@
           (data) => ({ data }),
           (error) => ({ error }),
         ),
-      };
-      if (cached) await navigate("home");
+      } : null;
+      if (cached && restoredTeacherHTML) {
+        pageCache.set(pageCacheKey(), restoredTeacherHTML);
+        $("content").innerHTML = restoredTeacherHTML;
+        $("title").textContent = labels[currentPage] || "รายวิชา";
+        document.querySelectorAll("[data-page]").forEach((b) =>
+          b.classList.toggle("active", b.dataset.page === currentPage));
+        readableTables();
+      } else if (cached && currentPage !== "course") await navigate(currentPage);
       else {
-        $("content").innerHTML = loadingView("home");
+        $("content").innerHTML = loadingView(currentPage);
         $("content").setAttribute("aria-busy", "true");
       }
       try {
@@ -31346,7 +31415,13 @@
           selectedOffering =
             db.Offerings.find((o) => o.status === "active")?.id || db.Offerings[0]?.id || "";
 
-        await navigate("home");
+        if (selectedGroup && !db.Groups.some((g) => g.id === selectedGroup)) selectedGroup = "";
+        if (homeCourse && !db.Courses.some((c) => c.id === homeCourse)) homeCourse = "";
+        if (currentPage === "course" && !db.Courses.some((c) => c.id === selectedCourse)) {
+          selectedCourse = "";
+          currentPage = "courses";
+        }
+        await navigate(currentPage, false, true);
         scheduleReadyPages();
       } catch (e) {
         startupLoadingBase = false;
