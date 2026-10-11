@@ -32771,7 +32771,9 @@
                     toast("กำลังส่งคำตอบ กรุณารอสักครู่");
                     return;
                 }
-                if (current && !(await confirmStudent("ต้องการออกจากกิจกรรมนี้หรือไม่?"))) return;
+                if (confirmationPending) return;
+                if (current && current.activity.mode !== "game" &&
+                    !(await confirmStudent("ต้องการออกจากกิจกรรมนี้หรือไม่?"))) return;
                 if (saving) {
                     toast("กำลังส่งคำตอบ กรุณารอสักครู่");
                     return;
@@ -32782,14 +32784,16 @@
                     console.warn("LMS draft could not be saved before leaving", error);
                     toast("ออกจากกิจกรรมแล้ว แต่บันทึกคำตอบล่าสุดบนอุปกรณ์ไม่สำเร็จ");
                 } finally {
-                    window.KVSandboxGame?.stop();
                     current = null;
                     clearInterval(timer);
                     timer = null;
-                    endFocus();
+                    // Close the workspace even if optional game cleanup fails.
                     document.getElementById("modal").close();
                     document.body.classList.remove("learning-open");
                     document.querySelector(".app").inert = false;
+                    try { window.KVSandboxGame?.stop(); }
+                    catch (error) { console.warn("LMS game cleanup failed", error); }
+                    endFocus();
                 }
             }
 

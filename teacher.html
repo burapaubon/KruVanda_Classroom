@@ -30736,7 +30736,7 @@ body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px s
           !(await confirmPopup(
             "ลบ “" +
             r.title +
-            "” หรือไม่?\nคำถาม งานที่นักเรียนส่ง คะแนน และประวัติของกิจกรรมนี้จะถูกนำออกทั้งหมด",
+            "” หรือไม่?\nประวัติของกิจกรรมนี้จะถูกนำออกทั้งหมด",
           ))
         )
           return;
@@ -31476,20 +31476,18 @@ body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px s
         }
       }
     });
-    $("closeModal").onclick = async () => {
-      if (await discardModalChanges()) {
-        window.KVSandboxGame?.stop();
-        clearInterval(playTimer);
-        playTimer = null;
-        $("modal").close();
-      }
-    };
-    $("modal").addEventListener("cancel", async (e) => {
+    async function closeTeacherModal() {
+      if (!(await discardModalChanges())) return;
+      clearInterval(playTimer);
+      playTimer = null;
+      $("modal").close();
+      try { window.KVSandboxGame?.stop(); }
+      catch (error) { console.warn("LMS game cleanup failed", error); }
+    }
+    $("closeModal").onclick = closeTeacherModal;
+    $("modal").addEventListener("cancel", (e) => {
       e.preventDefault();
-      if (await discardModalChanges()) {
-        $("modal").close();
-        clearInterval(playTimer);
-      }
+      void closeTeacherModal();
     });
     $("logout").onclick = async () => {
       $("logout").disabled = true;
