@@ -29586,6 +29586,73 @@
             max-width: 540px;
         }
     </style>
+    <style id="student-desktop-course-width">
+        @media (min-width: 701px) {
+            body.student-layout #studentCourseCards .course-card {
+                max-width: none !important;
+            }
+        }
+    </style>
+    <style id="student-course-classroom-design">
+        body.student-layout #content #studentCourseCards .course-card {
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+            background: radial-gradient(ellipse at 90% 0%, #ffe0b7 0%, transparent 52%),
+                linear-gradient(145deg, #fff0dd, #fffaf2 65%, #fff3e6) !important;
+            border: 1px solid #e9b882 !important;
+            border-top: 4px solid #da9554 !important;
+            box-shadow: 0 8px 24px rgba(149, 93, 43, .1) !important;
+        }
+
+        body.student-layout #content #studentCourseCards .student-classroom-art {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 144px !important;
+            height: 90px !important;
+            margin: 8px auto 2px !important;
+            padding: 0 !important;
+            background: transparent !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            flex-shrink: 0;
+        }
+
+        body.student-layout #content #studentCourseCards .student-classroom-art svg {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        body.student-layout #content #studentCourseCards .student-classroom-label {
+            display: block;
+            margin: 0 auto 8px;
+            color: #94613c;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .04em;
+            text-align: center;
+        }
+
+        body.student-layout #content #studentCourseCards .course-card h3 {
+            color: #58351d !important;
+        }
+
+        @media (max-width: 700px) {
+            body.student-layout #content #studentCourseCards .student-classroom-art {
+                width: 108px !important;
+                height: 68px !important;
+                margin-top: 4px !important;
+            }
+
+            body.student-layout #content #studentCourseCards .student-classroom-label {
+                font-size: 10px;
+                margin-bottom: 6px;
+            }
+        }
+    </style>
 </head>
 
 <body class="student-layout">
@@ -31203,13 +31270,13 @@
             const activeBadge = () => '<span class="badge active">ใช้งานอยู่</span>';
             function courseCards() {
                 return `<div class="course-grid">${offerings
-                        .map((o) => {
-                            const course = overviewSnapshot?.courses.find((c) => c.offeringId === o.id);
-                            const missing = course?.rows.filter((r) => r.category === "missing").length || 0;
-                            const returned = course?.rows.filter((r) => r.category === "returned").length || 0;
-                            return `<article class="card course-card" data-course-status="active"><div class="toolbar course-card-header"><span class="course-code">${esc(o.code)}</span>${activeBadge()}</div><div class="course-emblem">${shortcutIcon("go-courses")}</div><h3>${esc(o.courseName)}</h3><div class="student-course-workload">${course ? `<span>ยังไม่ส่ง <b>${missing}</b> งาน</span><span>ต้องแก้ไข <b>${returned}</b> งาน</span>` : '<span class="inline-load-indicator" role="status" aria-label="กำลังโหลดสถานะงาน"></span>'}</div><div class="actions"><button type="button" class="btn primary" data-course="${esc(o.id)}">เข้าสู่รายวิชา</button></div></article>`;
-                        })
-                        .join("") || '<div class="empty">ยังไม่มีรายวิชาที่เปิดให้เข้าเรียน</div>'
+                    .map((o) => {
+                        const course = overviewSnapshot?.courses.find((c) => c.offeringId === o.id);
+                        const missing = course?.rows.filter((r) => r.category === "missing").length || 0;
+                        const returned = course?.rows.filter((r) => r.category === "returned").length || 0;
+                        return `<article class="card course-card" data-course-status="active"><div class="toolbar course-card-header"><span class="course-code">${esc(o.code)}</span>${activeBadge()}</div><div class="course-emblem student-classroom-art"><svg viewBox="0 0 160 100" fill="none" aria-hidden="true" focusable="false"><ellipse cx="80" cy="91" rx="66" ry="5" fill="#D6955D" opacity=".16"/><path d="m40 78-5 12m83-12 5 12" stroke="#AD693A" stroke-width="5" stroke-linecap="round"/><rect x="22" y="8" width="116" height="72" rx="10" fill="#CF8B51"/><rect x="28" y="14" width="104" height="58" rx="6" fill="#36685A"/><path d="m52 34-9 8 9 8m56-16 9 8-9 8m-30-21-7 25" stroke="#FFF4D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M35 63h31" stroke="#A4CABC" stroke-width="3" stroke-linecap="round"/><rect x="106" y="67" width="17" height="4" rx="2" fill="#FFE3AA"/><path d="M54 71c10-4 18-4 26 1 8-5 16-5 26-1v20c-10-4-18-4-26 1-8-5-16-5-26-1V71Z" fill="#FFF9EC" stroke="#BC7644" stroke-width="2" stroke-linejoin="round"/><path d="M80 73v18m-19-13 11 1m-11 5 11 1m17-7 11-1m-11 7 11-1" stroke="#DFB38D" stroke-width="2" stroke-linecap="round"/><path d="m127 79 11-21 6 3-11 21-6 3v-6Z" fill="#F1B44E" stroke="#B77A36" stroke-width="1.5"/><path d="m14 27 2-5 2 5 5 2-5 2-2 5-2-5-5-2 5-2Zm129-12 2-4 2 4 4 2-4 2-2 4-2-4-4-2 4-2Z" fill="#E8AB4D"/></svg></div><span class="student-classroom-label">ห้องเรียนครูแวนด้า</span><h3>${esc(o.courseName)}</h3><div class="student-course-workload">${course ? `<span>ยังไม่ส่ง <b>${missing}</b> งาน</span><span>ต้องแก้ไข <b>${returned}</b> งาน</span>` : '<span class="inline-load-indicator" role="status" aria-label="กำลังโหลดสถานะงาน"></span>'}</div><div class="actions"><button type="button" class="btn primary" data-course="${esc(o.id)}">เข้าสู่รายวิชา</button></div></article>`;
+                    })
+                    .join("") || '<div class="empty">ยังไม่มีรายวิชาที่เปิดให้เข้าเรียน</div>'
                     }</div>`;
             }
             const overviewCache = new Map();
@@ -31434,18 +31501,18 @@
                     return;
                 }
                 content.innerHTML = `<div class="course-back-row"><button type="button" class="btn course-back-button" data-student-page="courses">← กลับหน้าหลัก</button></div><section class="dash-welcome welcome-hero course-detail-hero" data-course-status="active" aria-label="ข้อมูลรายวิชา">${courseLearningIllustration()}<div class="course-hero-corner">${activeBadge()}</div><div class="course-hero-copy"><h2>${esc(o.courseName)}</h2><span class="course-code">รหัสวิชา ${esc(o.code)}</span></div></section><div class="section-intro student-unit-section-heading"><div><h2>หน่วยการเรียนรู้</h2></div><button class="btn" type="button" data-student-action="refresh-course">อัปเดตข้อมูล</button></div>${data.Chapters.slice()
-                        .sort((a, b) => a.order - b.order)
-                        .map(
-                            (ch) =>
-                                `<details class="chapter learning-unit" data-unit-status="active" open><summary class="unit-heading"><span class="unit-number" aria-hidden="true">${esc(ch.order)}</span><div class="chapter-summary-text"><span class="subtle">หน่วยการเรียนรู้ที่ ${esc(ch.order)}</span><h3>${esc(ch.title)}</h3></div><div class="unit-heading-status"><span class="unit-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></span></div></summary><div class="chapter-body">${mixed(ch)
-                                    .map(
-                                        ({ r, type }) =>
-                                            `<article class="resource-row" data-resource-status="active" data-resource-kind="${type === "material" ? "knowledge" : r.kind === "worksheet" ? "worksheet" : r.mode === "game" ? "game" : "quiz"}">${resourceIcon(r, type)}<div class="student-resource-name"><strong title="${esc(r.title)}">${esc(r.title)}</strong><span class="resource-format">${type === "material" ? (r.mime === "application/pdf" ? "PDF" : String(r.mime || "").startsWith("image/") ? "Image" : "URL") : r.kind === "worksheet" ? (r.submissionMode === "file" ? "แนบไฟล์ส่ง" : "ใบงานออนไลน์") : (r.questions?.length ?? r.questionCount ?? 0) + " ข้อ"}</span></div>${resourceActions(r, type)}</article>`,
-                                    )
-                                    .join("") || '<p class="subtle unit-empty">ยังไม่มีรายการที่เปิดใช้งาน</p>'
-                                }</div></details>`,
-                        )
-                        .join("") || '<div class="empty">ยังไม่มีหน่วยที่เปิดใช้งาน</div>'
+                    .sort((a, b) => a.order - b.order)
+                    .map(
+                        (ch) =>
+                            `<details class="chapter learning-unit" data-unit-status="active" open><summary class="unit-heading"><span class="unit-number" aria-hidden="true">${esc(ch.order)}</span><div class="chapter-summary-text"><span class="subtle">หน่วยการเรียนรู้ที่ ${esc(ch.order)}</span><h3>${esc(ch.title)}</h3></div><div class="unit-heading-status"><span class="unit-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></span></div></summary><div class="chapter-body">${mixed(ch)
+                                .map(
+                                    ({ r, type }) =>
+                                        `<article class="resource-row" data-resource-status="active" data-resource-kind="${type === "material" ? "knowledge" : r.kind === "worksheet" ? "worksheet" : r.mode === "game" ? "game" : "quiz"}">${resourceIcon(r, type)}<div class="student-resource-name"><strong title="${esc(r.title)}">${esc(r.title)}</strong><span class="resource-format">${type === "material" ? (r.mime === "application/pdf" ? "PDF" : String(r.mime || "").startsWith("image/") ? "Image" : "URL") : r.kind === "worksheet" ? (r.submissionMode === "file" ? "แนบไฟล์ส่ง" : "ใบงานออนไลน์") : (r.questions?.length ?? r.questionCount ?? 0) + " ข้อ"}</span></div>${resourceActions(r, type)}</article>`,
+                                )
+                                .join("") || '<p class="subtle unit-empty">ยังไม่มีรายการที่เปิดใช้งาน</p>'
+                            }</div></details>`,
+                    )
+                    .join("") || '<div class="empty">ยังไม่มีหน่วยที่เปิดใช้งาน</div>'
                     }`;
             }
             async function load(id, force = false) {
