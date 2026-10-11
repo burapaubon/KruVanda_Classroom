@@ -29976,7 +29976,7 @@
                         : [];
                 const scene = document.createElement("section");
                 scene.className = "sandbox-scene classroom-platformer";
-                scene.innerHTML = `<div class="sandbox-instructions">${text ? "พิมพ์คำตอบ แล้วกระโดดไปประตู" : selects.length ? "เก็บคู่คำตอบตามลำดับ แล้วไปประตู" : "กระโดดเก็บคำตอบ แล้วไปประตู"}</div><canvas width="720" height="420" tabindex="0" aria-label="เกมผจญภัยเก็บคำตอบ ลูกศรซ้ายขวาเพื่อเดิน Space เพื่อกระโดด"></canvas><div class="sandbox-answer-legend"></div><p class="sandbox-status" role="status">กระโดดเก็บคำตอบ · เก็บดาวระหว่างทาง</p><div class="console-caption"><b>แผงควบคุมเกม</b><span class="desktop-keys">W A S D · Space กระโดด · Enter เข้าประตู</span></div><div class="platform-controls"><div class="platform-dpad" aria-label="จอยควบคุมทิศทาง"><button type="button" data-jump class="pad-up" aria-label="กระโดดขึ้น W">▲<small>W</small></button><button type="button" data-run="left" class="pad-left" aria-label="เดินซ้าย A">◀<small>A</small></button><span class="pad-center" aria-hidden="true">✚</span><button type="button" data-run="right" class="pad-right" aria-label="เดินขวา D">▶<small>D</small></button><button type="button" data-drop class="pad-down" aria-label="ลงจากโต๊ะ S">▼<small>S</small></button></div><div class="console-action-pad"><button type="button" class="platform-jump" data-jump>กระโดด<small>SPACE</small></button><button type="button" class="btn sandbox-exit">เข้าประตู<small>ENTER</small></button><button type="button" data-restart aria-label="เริ่มใหม่" title="เริ่มใหม่"><span>↺</span><small>เริ่มใหม่</small></button></div></div><p class="console-help">▲ กระโดด · ▼ ลงจากโต๊ะ · ◀ ▶ เดิน</p>`;
+                scene.innerHTML = `<div class="sandbox-instructions">${text ? "พิมพ์คำตอบ แล้วกระโดดไปประตู" : selects.length ? "เก็บหนึ่งคำตอบต่อคู่ · กดคู่ถัดไป · จับคู่ครบแล้วไปประตู" : "กระโดดเก็บคำตอบ แล้วไปประตู"}</div><canvas width="720" height="420" tabindex="0" aria-label="เกมผจญภัยเก็บคำตอบ ลูกศรซ้ายขวาเพื่อเดิน Space เพื่อกระโดด"></canvas><div class="sandbox-answer-legend"></div><p class="sandbox-status" role="status">กระโดดเก็บคำตอบ · เก็บดาวระหว่างทาง</p><div class="console-caption"><b>แผงควบคุมเกม</b><span class="desktop-keys">W A S D · Space กระโดด · Enter เข้าประตู</span></div><div class="platform-controls"><div class="platform-dpad" aria-label="จอยควบคุมทิศทาง"><button type="button" data-jump class="pad-up" aria-label="กระโดดขึ้น W">▲<small>W</small></button><button type="button" data-run="left" class="pad-left" aria-label="เดินซ้าย A">◀<small>A</small></button><span class="pad-center" aria-hidden="true">✚</span><button type="button" data-run="right" class="pad-right" aria-label="เดินขวา D">▶<small>D</small></button><button type="button" data-drop class="pad-down" aria-label="ลงจากโต๊ะ S">▼<small>S</small></button></div><div class="console-action-pad"><button type="button" class="platform-jump" data-jump>กระโดด<small>SPACE</small></button><button type="button" class="btn sandbox-exit">เข้าประตู<small>ENTER</small></button><button type="button" data-restart aria-label="เริ่มใหม่" title="เริ่มใหม่"><span>↺</span><small>เริ่มใหม่</small></button></div></div><p class="console-help">▲ กระโดด · ▼ ลงจากโต๊ะ · ◀ ▶ เดิน</p>`;
                 const sidePanel = document.createElement("aside");
                 sidePanel.className = "game-side-panel";
                 sidePanel.setAttribute("aria-label", "คำตอบและการควบคุมเกม");
@@ -30046,7 +30046,8 @@
                     coyote = 0.1,
                     jumpBuffer = 0,
                     dropTime = 0;
-                const pair = () => selects.findIndex((el) => el.value === "");
+                let activePair = Math.max(0, selects.findIndex((el) => el.value === ""));
+                const pair = () => selects.length ? activePair : -1;
                 const ready = () =>
                     radios.length
                         ? radios.some((el) => el.checked)
@@ -30055,36 +30056,47 @@
                             new Set(selects.map((el) => el.value)).size === selects.length
                             : !!text?.value.trim();
                 function updateLegend() {
-                    const n = pair(),
-                        prompt =
-                            selects.length && n >= 0
-                                ? selects[n].closest("label")?.querySelector("span")?.textContent || `คู่ที่ ${n + 1}`
-                                : "";
-                    legend.innerHTML =
-                        (prompt ? `<strong class="sandbox-pair-prompt">จับคู่: ${escape(prompt)}</strong>` : "") +
-                        pickups
-                            .map(
-                                (p, i) =>
-                                    `<button type="button" data-choose-answer="${p.index}" class="sandbox-choice ${radios[p.index]?.checked || selects.some((el) => el.value !== "" && Number(el.value) === p.index) ? "picked" : ""}" ${!radios.some((el) => el.checked) || pending ? "disabled" : ""} aria-pressed="${!!radios[p.index]?.checked}"><b>${i + 1}</b><span>${escape(p.text)}</span></button>`,
-                            )
-                            .join("") +
-                        (radios.some((el) => el.checked)
-                            ? '<button type="button" class="sandbox-change-answer" data-clear-choice>เปลี่ยนคำตอบ</button>'
-                            : "");
-                    legend.querySelectorAll("[data-choose-answer]").forEach((button) =>
-                        button.addEventListener("click", () => {
-                            const radio = radios[Number(button.dataset.chooseAnswer)];
-                            if (!radio || pending) return;
-                            radio.checked = true;
-                            radio.dispatchEvent(new Event("change", { bubbles: true }));
-                            status.textContent = "เปลี่ยนคำตอบแล้ว · ไปที่ประตูเพื่อยืนยัน";
-                            updateLegend();
-                        }),
-                    );
+                    const n = pair();
+                    const prompt = selects[n]?.closest("label")?.querySelector("span")?.textContent || "";
+                    legend.innerHTML = (selects.length ? `<strong class="sandbox-pair-prompt">คู่ ${n + 1} / ${selects.length}: ${escape(prompt)}</strong>` : "") + pickups.map((p, i) => {
+                        const picked = radios.length ? !!radios[p.index]?.checked : selects[n]?.value === String(p.index);
+                        return `<button type="button" data-choose-answer="${p.index}" class="sandbox-choice ${picked ? "picked" : ""}" ${pending || (!selects.length && !radios.some(el => el.checked)) ? "disabled" : ""} aria-pressed="${picked}"><b>${i + 1}</b><span>${escape(p.text)}</span></button>`;
+                    }).join("") + (selects.length ? selects.map((el, i) => `<button type="button" class="btn" data-edit-pair="${i}" ${pending ? "disabled" : ""}>คู่ ${i + 1}: ${escape(el.selectedOptions[0]?.textContent || "เลือกคำตอบ")}</button>`).join("") + (selects[n]?.value !== "" && !ready() ? '<button type="button" class="btn" data-next-pair>คู่ถัดไป</button>' : "") : "") + (radios.some(el => el.checked) || selects[n]?.value ? '<button type="button" class="sandbox-change-answer" data-clear-choice>เปลี่ยนคำตอบ</button>' : "");
+                    legend.querySelectorAll("[data-choose-answer]").forEach(button => button.onclick = () => {
+                        if (pending) return;
+                        const index = Number(button.dataset.chooseAnswer);
+                        if (selects.length) {
+                            if (selects.some((el, i) => i !== n && el.value === String(index))) {
+                                status.textContent = "คำตอบนี้ใช้กับคู่อื่นแล้ว · แก้คู่นั้นก่อน";
+                                return;
+                            }
+                            selects[n].value = String(index);
+                            selects[n].dispatchEvent(new Event("change", { bubbles: true }));
+                        } else {
+                            radios[index].checked = true;
+                            radios[index].dispatchEvent(new Event("change", { bubbles: true }));
+                        }
+                        status.textContent = ready() ? "เลือกครบแล้ว · ไปประตูเพื่อยืนยัน" : "เลือกคำตอบคู่นี้แล้ว · กดคู่ถัดไป";
+                        updateLegend();
+                    });
+                    legend.querySelectorAll("[data-edit-pair]").forEach(button => button.onclick = () => {
+                        activePair = Number(button.dataset.editPair);
+                        updateLegend();
+                    });
+                    legend.querySelector("[data-next-pair]")?.addEventListener("click", () => {
+                        activePair = Math.max(0, selects.findIndex(el => el.value === ""));
+                        updateLegend();
+                    });
                     legend.querySelector("[data-clear-choice]")?.addEventListener("click", () => {
-                        radios.forEach((el) => (el.checked = false));
-                        radios[0]?.dispatchEvent(new Event("change", { bubbles: true }));
-                        status.textContent = "เลือกใหม่ · กระโดดไปเก็บคำตอบที่ต้องการ";
+                        if (pending) return;
+                        if (selects.length) {
+                            selects[n].value = "";
+                            selects[n].dispatchEvent(new Event("change", { bubbles: true }));
+                        } else {
+                            radios.forEach(el => el.checked = false);
+                            radios[0]?.dispatchEvent(new Event("change", { bubbles: true }));
+                        }
+                        status.textContent = "ล้างคำตอบแล้ว · เลือกใหม่ได้";
                         updateLegend();
                     });
                     exit.disabled = !ready() || pending;
@@ -30210,8 +30222,21 @@
                     drop();
                 };
                 scene.querySelector("[data-restart]").onclick = () => {
+                    if (pending) return;
+                    radios.forEach(el => { el.checked = false; });
+                    selects.forEach(el => { el.value = ""; });
+                    if (text) text.value = "";
+                    const fields = radios.length ? radios : selects.length ? selects : text ? [text] : [];
+                    fields.forEach(el => el.dispatchEvent(new Event("change", { bubbles: true })));
+                    activePair = 0;
+                    collected.clear();
+                    held.left = held.right = false;
+                    jumpBuffer = 0;
+                    dropTime = 0;
                     checkpoint = 55;
                     reset();
+                    status.textContent = "เริ่มด่านนี้ใหม่ · ล้างคำตอบและดาวแล้ว";
+                    updateLegend();
                 };
                 exit.onclick = () => {
                     if (player.x > width - 100 && player.ground && ready()) {
@@ -30284,7 +30309,12 @@
                         }
                         if (player.y > 470) reset();
                         for (const p of pickups)
-                            if (Math.abs(player.x + 12 - p.x) < 23 && Math.abs(player.y + 17 - p.y) < 30) {
+                            if ((() => {
+                                const touching = Math.abs(player.x + 12 - p.x) < 23 && Math.abs(player.y + 17 - p.y) < 30;
+                                const entered = touching && !p.touching;
+                                p.touching = touching;
+                                return entered;
+                            })()) {
                                 if (radios.length && !radios.some((el) => el.checked)) {
                                     radios[p.index].checked = true;
                                     radios[p.index].dispatchEvent(new Event("change", { bubbles: true }));
@@ -30293,7 +30323,7 @@
                                 } else if (selects.length) {
                                     const n = pair();
                                     if (
-                                        n >= 0 &&
+                                        n >= 0 && selects[n].value === "" &&
                                         !selects.some((el) => el.value !== "" && Number(el.value) === p.index)
                                     ) {
                                         selects[n].value = String(p.index);
