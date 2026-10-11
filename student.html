@@ -29702,6 +29702,12 @@
             }
         }
     </style>
+    <style id="closed-workspace-visibility">
+        html body dialog#modal:not([open]),
+        html body dialog#modal[hidden] {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body class="student-layout">
@@ -29767,6 +29773,38 @@
         </div>
         <div id="modalBody"></div>
     </dialog>
+    <script id="workspace-dialog-lifecycle">
+        (() => {
+            const dialog = document.getElementById("modal");
+            const body = document.getElementById("modalBody");
+            for (const method of ["show", "showModal"]) {
+                const native = HTMLDialogElement.prototype[method];
+                dialog[method] = function (...args) {
+                    this.hidden = false;
+                    return native.apply(this, args);
+                };
+            }
+            dialog.addEventListener("close", () => {
+                // A delayed close event can belong to a dialog already reopened.
+                if (dialog.open) return;
+                dialog.hidden = true;
+                const game = body?.querySelector(".minigame-arena");
+                if (game) {
+                    try { window.KVSandboxGame?.stop(); }
+                    catch (error) { console.warn("LMS game cleanup failed", error); }
+                    body.replaceChildren();
+                    body.style.removeProperty("height");
+                    body.style.removeProperty("zoom");
+                    body.style.removeProperty("width");
+                }
+                dialog.classList.remove("learning-workspace", "focus-mode", "focus-paused");
+                document.body.classList.remove("learning-open");
+                const app = document.querySelector(".app");
+                if (app) app.inert = false;
+                if (body) body.inert = false;
+            });
+        })();
+    </script>
     <div id="toast" hidden role="status" aria-live="polite"></div>
 
     <script id="student-scripts">
