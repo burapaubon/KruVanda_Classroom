@@ -7489,6 +7489,8 @@
 
     .dash-stack {
       display: flex;
+      flex-direction: row;
+      direction: ltr;
       height: 15.04px;
       background: #edf0f3;
       border-radius: 5.64px;
@@ -20356,6 +20358,7 @@
     body .student-list-avatar,
     body .student-card-avatar,
     body .student-profile-avatar,
+    body .teacher-avatar,
     body .teacher-avatar-inner {
       aspect-ratio: 1/1 !important;
       border-radius: 50% !important;
@@ -22956,10 +22959,10 @@
       --pastel-lilac-ink: #665087;
       --pastel-butter-ink: #785a20;
       --pastel-rose-ink: #8b4c61;
-      --pastel-graded-chart: #78b795;
-      --pastel-pending-chart: #eca459;
-      --pastel-returned-chart: #e5c75e;
-      --pastel-missing-chart: #e9a0a0;
+      --pastel-graded-chart: #81c784;
+      --pastel-pending-chart: #ffb74d;
+      --pastel-returned-chart: #e57373;
+      --pastel-missing-chart: #e0e0e0;
     }
 
     body .main #content :is(.course-card, .room-card, .admin-hub-card, .dash-stat),
@@ -23299,7 +23302,7 @@
     }
 
     body .main #content .follow-track>span {
-      background: linear-gradient(90deg, #76ae91, #b6e6cb) !important;
+      background: linear-gradient(90deg, #81c784, #4caf50) !important;
     }
 
     body .main #content :is(.course-tabs, .admin-tabs)>.btn:not(.primary):nth-child(4n + 2) {
@@ -24113,7 +24116,6 @@
       font-weight: 500;
     }
 
-    /* Submission charts, resource columns and attachment layout. */
     body .main #content .resource-row.resource-compact {
       grid-template-columns: 28px minmax(0, 1fr) 96px 34px auto !important;
     }
@@ -24236,7 +24238,7 @@
       margin: 0 !important;
     }
 
-    @media(max-width:600px) {
+    @media (max-width:600px) {
       body .main #content .resource-row.resource-compact {
         grid-template-columns: 18px minmax(0, 1fr) 66px 24px auto !important;
         padding-inline: 10px !important;
@@ -24259,7 +24261,6 @@
       }
     }
 
-    /* Final dashboard palette and score-card layout. */
     body .main #content :is(.home-chart, .home-comparison) .empty {
       color: #858585 !important;
       background: #f3f3f3 !important;
@@ -24328,7 +24329,7 @@
       margin: 12px 0 16px auto;
     }
 
-    @media(max-width:1100px) {
+    @media (max-width:1100px) {
       body .main #content .course-score-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
       }
@@ -24338,7 +24339,7 @@
       }
     }
 
-    @media(max-width:600px) {
+    @media (max-width:600px) {
       body .main #content .course-score-summary {
         gap: 8px !important;
       }
@@ -24353,7 +24354,6 @@
       }
     }
 
-    /* Center review heading independently of export control. */
     body .main #content .review-workspace .follow-list-heading {
       display: grid !important;
       grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
@@ -24386,7 +24386,7 @@
       margin: 10px 0 12px auto !important;
     }
 
-    @media(max-width:600px) {
+    @media (max-width:600px) {
       body .main #content .review-workspace .follow-list-heading {
         grid-template-columns: minmax(0, 1fr) !important;
       }
@@ -24402,7 +24402,6 @@
       }
     }
 
-    /* Course scores: keep the student-name column unchanged. */
     body .main #content .course-score-table th:not(.score-student),
     body .main #content .course-score-table td:not(.score-student) {
       text-align: center !important;
@@ -24413,7 +24412,6 @@
       margin-inline: auto !important;
     }
 
-    /* Individual progress cards: phone layout only. */
     @media (max-width: 600px) {
       body .main #content .progress-workspace .follow-progress-table tbody tr {
         grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
@@ -24492,7 +24490,6 @@
       }
     }
 
-    /* Align both text lines on the same axis beside the avatar. */
     @media (min-width: 601px) {
       body .main #content .progress-workspace .follow-student-cell {
         position: relative;
@@ -24531,6 +24528,50 @@
       body .main #content .progress-workspace .follow-student-cell .student-list-avatar {
         left: 10px !important;
       }
+    }
+  </style>
+  <style id="teacher-game-map-update">
+    body #modal .sandbox-map-label {
+      display: none !important;
+    }
+  </style>
+  <style id="game-answer-button-style">
+    body #modal .sandbox-choice {
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+      border: 1px solid #dfb98e;
+      border-radius: 10px;
+      padding: 8px 10px;
+      background: #fffaf2;
+      color: #61412d;
+    }
+
+    body #modal .sandbox-choice:disabled {
+      opacity: 1;
+      cursor: default;
+    }
+
+    body #modal .sandbox-choice:not(:disabled):hover {
+      background: #ffe8cb;
+      border-color: #bd7332;
+    }
+
+    body #modal .sandbox-choice.picked {
+      background: #ffe0ad;
+      border: 2px solid #b86d28;
+    }
+
+    body #modal .sandbox-change-answer {
+      font: inherit;
+      font-weight: 600;
+      border: 1px solid #b9793e;
+      border-radius: 10px;
+      background: #fff1df;
+      color: #825023;
+      padding: 10px 16px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -24754,154 +24795,154 @@
         const stage = Math.max(0, Math.floor(Number(settings.index) || 0));
         const maps = [
           {
-            name: "ห้องเรียน",
-            kind: "class",
-            gaps: [
-              [520, 620],
-              [1030, 1130],
+            "name": "map1",
+            "kind": "class",
+            "gaps": [
+              [520, 610],
+              [1090, 1180],
             ],
-            start: 180,
-            step: 250,
-            heights: [285, 240],
-            sky: "#fff6e9",
-            floor: "#d5b38e",
-            wood: "#b97946",
-            accent: "#52766a",
+            "start": 180,
+            "step": 250,
+            "heights": [275, 245, 285, 260],
+            "sky": "#fff1d8",
+            "floor": "#e8bc87",
+            "wood": "#cf9050",
+            "accent": "#68af8a",
           },
           {
-            name: "ห้องสมุด",
-            kind: "library",
-            gaps: [
-              [580, 670],
-              [1110, 1200],
+            "name": "map2",
+            "kind": "beach",
+            "gaps": [
+              [540, 630],
+              [1120, 1210],
             ],
-            start: 210,
-            step: 255,
-            heights: [265, 285, 250],
-            sky: "#f4eedf",
-            floor: "#c4a77f",
-            wood: "#99714c",
-            accent: "#826d50",
+            "start": 190,
+            "step": 260,
+            "heights": [280, 250, 270, 245],
+            "sky": "#bcf0ff",
+            "floor": "#ffe4a0",
+            "wood": "#e8b566",
+            "accent": "#16aac0",
           },
           {
-            name: "ห้องคอมพิวเตอร์",
-            kind: "computer",
-            gaps: [
-              [490, 580],
-              [970, 1080],
+            "name": "map3",
+            "kind": "garden",
+            "gaps": [
+              [560, 650],
+              [1090, 1180],
             ],
-            start: 160,
-            step: 270,
-            heights: [285, 260, 240],
-            sky: "#eef4f4",
-            floor: "#a8bec0",
-            wood: "#6b9296",
-            accent: "#49797e",
+            "start": 200,
+            "step": 250,
+            "heights": [275, 245, 285, 260],
+            "sky": "#d9f7e9",
+            "floor": "#9dd56d",
+            "wood": "#73b855",
+            "accent": "#4b9f6d",
           },
           {
-            name: "สวนการเรียนรู้",
-            kind: "garden",
-            gaps: [
-              [560, 660],
-              [1180, 1280],
+            "name": "map4",
+            "kind": "flowers",
+            "gaps": [
+              [520, 610],
+              [1120, 1210],
             ],
-            start: 190,
-            step: 265,
-            heights: [275, 245, 285],
-            sky: "#edf4e5",
-            floor: "#a3b788",
-            wood: "#82985c",
-            accent: "#618147",
+            "start": 180,
+            "step": 260,
+            "heights": [280, 250, 270, 245],
+            "sky": "#fce7f5",
+            "floor": "#b1df80",
+            "wood": "#96bd68",
+            "accent": "#df83bd",
           },
           {
-            name: "ห้องศิลปะ",
-            kind: "art",
-            gaps: [
-              [610, 700],
-              [1080, 1190],
+            "name": "map5",
+            "kind": "forest",
+            "gaps": [
+              [540, 630],
+              [1090, 1180],
             ],
-            start: 220,
-            step: 245,
-            heights: [285, 255, 275],
-            sky: "#fff0e9",
-            floor: "#d4ae9b",
-            wood: "#b78165",
-            accent: "#ad7260",
+            "start": 190,
+            "step": 250,
+            "heights": [275, 245, 285, 260],
+            "sky": "#d1f7ee",
+            "floor": "#8aca86",
+            "wood": "#79ab69",
+            "accent": "#328d74",
           },
           {
-            name: "ห้องดนตรี",
-            kind: "music",
-            gaps: [
-              [540, 640],
-              [1150, 1240],
+            "name": "map6",
+            "kind": "mountains",
+            "gaps": [
+              [560, 650],
+              [1120, 1210],
             ],
-            start: 175,
-            step: 280,
-            heights: [260, 285, 245],
-            sky: "#f4eff7",
-            floor: "#b8a9c1",
-            wood: "#95809f",
-            accent: "#796587",
+            "start": 200,
+            "step": 260,
+            "heights": [280, 250, 270, 245],
+            "sky": "#d9efff",
+            "floor": "#acd990",
+            "wood": "#85b479",
+            "accent": "#699cc7",
           },
           {
-            name: "ห้องวิทยาศาสตร์",
-            kind: "science",
-            gaps: [
-              [550, 640],
-              [1060, 1160],
+            "name": "map7",
+            "kind": "orchard",
+            "gaps": [
+              [520, 610],
+              [1090, 1180],
             ],
-            start: 190,
-            step: 250,
-            heights: [275, 250, 285],
-            sky: "#edf6fa",
-            floor: "#a9c4cf",
-            wood: "#6c99aa",
-            accent: "#477f96",
+            "start": 180,
+            "step": 250,
+            "heights": [275, 245, 285, 260],
+            "sky": "#fff1cf",
+            "floor": "#b0df82",
+            "wood": "#8bc56c",
+            "accent": "#e9a354",
           },
           {
-            name: "ห้องคณิตศาสตร์",
-            kind: "math",
-            gaps: [
-              [600, 690],
-              [1140, 1240],
+            "name": "map8",
+            "kind": "clouds",
+            "gaps": [
+              [540, 630],
+              [1120, 1210],
             ],
-            start: 200,
-            step: 260,
-            heights: [285, 255, 270],
-            sky: "#fff8df",
-            floor: "#c9bd8d",
-            wood: "#aa9657",
-            accent: "#8b7940",
+            "start": 190,
+            "step": 260,
+            "heights": [280, 250, 270, 245],
+            "sky": "#dcefff",
+            "floor": "#b9daf9",
+            "wood": "#a8c7ec",
+            "accent": "#ab94d6",
           },
           {
-            name: "ห้องอวกาศ",
-            kind: "space",
-            gaps: [
-              [530, 630],
-              [1090, 1190],
+            "name": "map9",
+            "kind": "rainbow",
+            "gaps": [
+              [560, 650],
+              [1090, 1180],
             ],
-            start: 180,
-            step: 270,
-            heights: [270, 245, 285],
-            sky: "#eaeafa",
-            floor: "#a4a6c8",
-            wood: "#7a7daf",
-            accent: "#5f6396",
+            "start": 200,
+            "step": 250,
+            "heights": [275, 245, 285, 260],
+            "sky": "#fcebdc",
+            "floor": "#bbdf99",
+            "wood": "#89bf7c",
+            "accent": "#ee8ca6",
           },
           {
-            name: "ห้องภูมิศาสตร์",
-            kind: "geography",
-            gaps: [
-              [570, 660],
-              [1170, 1270],
+            "name": "map10",
+            "kind": "candy",
+            "gaps": [
+              [520, 610],
+              [1120, 1210],
             ],
-            start: 210,
-            step: 255,
-            heights: [280, 250, 270],
-            sky: "#eaf5ef",
-            floor: "#a4c2ad",
-            wood: "#749b80",
-            accent: "#4c7d60",
+            "start": 180,
+            "step": 260,
+            "heights": [280, 250, 270, 245],
+            "sky": "#ffecf6",
+            "floor": "#edb4db",
+            "wood": "#dc92c1",
+            "accent": "#b494da",
           },
         ];
         const session = settings.session || arena;
@@ -24944,7 +24985,7 @@
             : [];
         const scene = document.createElement("section");
         scene.className = "sandbox-scene classroom-platformer";
-        scene.innerHTML = `<div class="sandbox-map-label">${escape(map.name)}</div><div class="sandbox-instructions">${text ? "พิมพ์คำตอบ แล้วกระโดดไปประตู" : selects.length ? "เก็บคู่คำตอบตามลำดับ แล้วไปประตู" : "กระโดดเก็บคำตอบ แล้วไปประตู"}</div><canvas width="720" height="420" tabindex="0" aria-label="เกมกระโดดห้องเรียน ลูกศรซ้ายขวาเพื่อเดิน Space เพื่อกระโดด"></canvas><div class="sandbox-answer-legend"></div><p class="sandbox-status" role="status">หลบหุ่นยางลบ · กระโดดข้ามช่องว่าง</p><div class="console-caption"><b>แผงควบคุมเกม</b><span class="desktop-keys">W A S D · Space กระโดด · Enter เข้าประตู</span></div><div class="platform-controls"><div class="platform-dpad" aria-label="จอยควบคุมทิศทาง"><button type="button" data-jump class="pad-up" aria-label="กระโดดขึ้น W">▲<small>W</small></button><button type="button" data-run="left" class="pad-left" aria-label="เดินซ้าย A">◀<small>A</small></button><span class="pad-center" aria-hidden="true">✚</span><button type="button" data-run="right" class="pad-right" aria-label="เดินขวา D">▶<small>D</small></button><button type="button" data-drop class="pad-down" aria-label="ลงจากโต๊ะ S">▼<small>S</small></button></div><div class="console-action-pad"><button type="button" class="platform-jump" data-jump>กระโดด<small>SPACE</small></button><button type="button" class="btn sandbox-exit">เข้าประตู<small>ENTER</small></button><button type="button" data-restart aria-label="เริ่มใหม่" title="เริ่มใหม่"><span>↺</span><small>เริ่มใหม่</small></button></div></div><p class="console-help">▲ กระโดด · ▼ ลงจากโต๊ะ · ◀ ▶ เดิน</p>`;
+        scene.innerHTML = `<div class="sandbox-instructions">${text ? "พิมพ์คำตอบ แล้วกระโดดไปประตู" : selects.length ? "เก็บคู่คำตอบตามลำดับ แล้วไปประตู" : "กระโดดเก็บคำตอบ แล้วไปประตู"}</div><canvas width="720" height="420" tabindex="0" aria-label="เกมผจญภัยเก็บคำตอบ ลูกศรซ้ายขวาเพื่อเดิน Space เพื่อกระโดด"></canvas><div class="sandbox-answer-legend"></div><p class="sandbox-status" role="status">กระโดดเก็บคำตอบ · เก็บดาวระหว่างทาง</p><div class="console-caption"><b>แผงควบคุมเกม</b><span class="desktop-keys">W A S D · Space กระโดด · Enter เข้าประตู</span></div><div class="platform-controls"><div class="platform-dpad" aria-label="จอยควบคุมทิศทาง"><button type="button" data-jump class="pad-up" aria-label="กระโดดขึ้น W">▲<small>W</small></button><button type="button" data-run="left" class="pad-left" aria-label="เดินซ้าย A">◀<small>A</small></button><span class="pad-center" aria-hidden="true">✚</span><button type="button" data-run="right" class="pad-right" aria-label="เดินขวา D">▶<small>D</small></button><button type="button" data-drop class="pad-down" aria-label="ลงจากโต๊ะ S">▼<small>S</small></button></div><div class="console-action-pad"><button type="button" class="platform-jump" data-jump>กระโดด<small>SPACE</small></button><button type="button" class="btn sandbox-exit">เข้าประตู<small>ENTER</small></button><button type="button" data-restart aria-label="เริ่มใหม่" title="เริ่มใหม่"><span>↺</span><small>เริ่มใหม่</small></button></div></div><p class="console-help">▲ กระโดด · ▼ ลงจากโต๊ะ · ◀ ▶ เดิน</p>`;
         question.after(scene);
         const oldActions = arena.querySelector(":scope > .actions");
         if (oldActions) oldActions.hidden = true;
@@ -24972,7 +25013,12 @@
           w: 110,
         }));
         const platforms = [...ground, ...desks];
-        const pickups = options.map((o, i) => ({ ...o, x: desks[i].x + 55, y: desks[i].y - 35 }));
+        const pickups = options.map((o, i) => ({
+          ...o,
+          x: desks[i].x + 55,
+          y: desks[i].y - 35,
+          baseY: desks[i].y - 35,
+        }));
         const checkpointPositions = gaps.map((g) => g[1] + 30);
         const stamps = [
           ...gaps.map(([a, b]) => ({ x: (a + b) / 2, y: 210 })),
@@ -24983,7 +25029,7 @@
           from: p.x + 90,
           to: Math.min(p.x + p.w - 75, p.x + 350),
           y: floor - 24,
-          speed: 95 + i * 25 + (stage % 3) * 8,
+          speed: 82 + i * 16 + (stage % 3) * 6,
         }));
         const held = { left: false, right: false };
         let player = { x: 55, y: floor - 36, vx: 0, vy: 0, ground: true },
@@ -25018,17 +25064,25 @@
             pickups
               .map(
                 (p, i) =>
-                  `<div class="sandbox-choice ${radios[p.index]?.checked || selects.some((el) => el.value !== "" && Number(el.value) === p.index) ? "picked" : ""}"><b>${i + 1}</b><span>${escape(p.text)}</span></div>`,
+                  `<button type="button" data-choose-answer="${p.index}" class="sandbox-choice ${radios[p.index]?.checked || selects.some((el) => el.value !== "" && Number(el.value) === p.index) ? "picked" : ""}" ${!radios.some((el) => el.checked) || pending ? "disabled" : ""} aria-pressed="${!!radios[p.index]?.checked}"><b>${i + 1}</b><span>${escape(p.text)}</span></button>`,
               )
               .join("") +
             (radios.some((el) => el.checked)
               ? '<button type="button" class="sandbox-change-answer" data-clear-choice>เปลี่ยนคำตอบ</button>'
               : "");
+          legend.querySelectorAll("[data-choose-answer]").forEach((button) =>
+            button.addEventListener("click", () => {
+              const radio = radios[Number(button.dataset.chooseAnswer)];
+              if (!radio || pending) return;
+              radio.checked = true;
+              radio.dispatchEvent(new Event("change", { bubbles: true }));
+              status.textContent = "เปลี่ยนคำตอบแล้ว · ไปที่ประตูเพื่อยืนยัน";
+              updateLegend();
+            }),
+          );
           legend.querySelector("[data-clear-choice]")?.addEventListener("click", () => {
             radios.forEach((el) => (el.checked = false));
             radios[0]?.dispatchEvent(new Event("change", { bubbles: true }));
-            checkpoint = 55;
-            player = { x: 55, y: floor - 36, vx: 0, vy: 0, ground: true };
             status.textContent = "เลือกใหม่ · กระโดดไปเก็บคำตอบที่ต้องการ";
             updateLegend();
           });
@@ -25160,6 +25214,9 @@
           invincible = Math.max(0, invincible - dt);
           jumpBuffer = Math.max(0, jumpBuffer - dt);
           dropTime = Math.max(0, dropTime - dt);
+          pickups.forEach((p, i) => {
+            p.y = p.baseY + Math.sin(time * 2.1 + i * 1.7) * 7;
+          });
           if (!pending) {
             if (player.ground) coyote = 0.1;
             else coyote = Math.max(0, coyote - dt);
@@ -25195,7 +25252,7 @@
             }
             if (player.y > 470) reset();
             for (const p of pickups)
-              if (Math.abs(player.x + 12 - p.x) < 25 && Math.abs(player.y + 17 - p.y) < 35) {
+              if (Math.abs(player.x + 12 - p.x) < 23 && Math.abs(player.y + 17 - p.y) < 30) {
                 if (radios.length && !radios.some((el) => el.checked)) {
                   radios[p.index].checked = true;
                   radios[p.index].dispatchEvent(new Event("change", { bubbles: true }));
@@ -25217,8 +25274,14 @@
                 }
               }
             stamps.forEach((s, i) => {
-              if (Math.abs(player.x + 12 - s.x) < 25 && Math.abs(player.y + 17 - s.y) < 30)
+              if (
+                !collected.has(i) &&
+                Math.abs(player.x + 12 - s.x) < 25 &&
+                Math.abs(player.y + 17 - s.y) < 30
+              ) {
                 collected.add(i);
+                status.textContent = `เก็บดาวแล้ว ${collected.size} / ${stamps.length} ★`;
+              }
             });
             for (const r of robots) {
               r.x = r.from + ((Math.sin((time * r.speed) / 100) + 1) / 2) * (r.to - r.from);
@@ -25240,149 +25303,128 @@
           ctx.clearRect(0, 0, 720, 420);
           ctx.fillStyle = map.sky;
           ctx.fillRect(0, 0, 720, 420);
-          for (let x = 0; x < width; x += 350) {
-            const sx = x - camera * 0.45;
-            if (map.kind === "library") {
-              rounded(sx + 45, 45, 190, 112, 6, map.accent);
-              for (let shelf = 0; shelf < 3; shelf++) {
-                for (let book = 0; book < 8; book++)
-                  rounded(
-                    sx + 56 + book * 21,
-                    54 + shelf * 32,
-                    14,
-                    22 + (book % 2) * 3,
-                    2,
-                    ["#dcb77f", "#b8c59b", "#d49e88"][book % 3],
-                  );
-                ctx.fillStyle = "#d8c5a6";
-                ctx.fillRect(sx + 50, 81 + shelf * 32, 180, 4);
-              }
-            } else if (map.kind === "computer") {
-              rounded(sx + 45, 50, 110, 75, 7, map.accent);
-              rounded(sx + 53, 58, 94, 56, 3, "#cce0d9");
-              ctx.font = "16px monospace";
-              ctx.fillStyle = map.accent;
-              ctx.fillText("</>", sx + 76, 94);
-              ctx.fillRect(sx + 96, 125, 12, 12);
-              ctx.fillRect(sx + 77, 137, 50, 5);
-              rounded(sx + 185, 50, 110, 75, 7, map.accent);
-              rounded(sx + 193, 58, 94, 56, 3, "#cce0d9");
-            } else if (map.kind === "garden") {
-              ctx.fillStyle = "#d7e7c1";
-              ctx.beginPath();
-              ctx.ellipse(sx + 140, 170, 140, 70, 0, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = "#9daf74";
-              ctx.fillRect(sx + 92, 93, 12, 85);
-              for (const [dx, dy] of [
-                [0, 0],
-                [-20, 15],
-                [20, 15],
-              ]) {
-                ctx.fillStyle = "#a8c68c";
+          const circle = (x, y, r, color) => {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+          };
+          const triangle = (x, y, w, h, color) => {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + w / 2, y - h);
+            ctx.lineTo(x + w, y);
+            ctx.fill();
+          };
+          const tree = (x, y, color, fruit = false) => {
+            rounded(x - 5, y, 10, 65, 3, "#bb8a5c");
+            circle(x, y - 14, 38, color);
+            circle(x - 27, y, 26, color);
+            circle(x + 27, y, 26, color);
+            if (fruit)
+              for (let k = 0; k < 4; k++) circle(x - 22 + k * 14, y - 20 + (k % 2) * 20, 7, "#ff9b61");
+          };
+          const flower = (x, y, color) => {
+            ctx.fillStyle = "#63ad72";
+            ctx.fillRect(x - 1, y, 3, 25);
+            for (let k = 0; k < 5; k++)
+              circle(x + Math.cos(k * 1.256) * 7, y + Math.sin(k * 1.256) * 7, 5, color);
+            circle(x, y, 4, "#ffe681");
+          };
+
+          if (map.kind !== "class") {
+            circle(630, 53, 25, "#ffe89b");
+            for (let i = 0; i < 5; i++) {
+              const x = ((((i * 180 - camera * 0.13) % 900) + 900) % 900) - 80;
+              circle(x, 65 + (i % 2) * 20, 19, "#ffffffcc");
+              circle(x + 20, 54 + (i % 2) * 20, 24, "#ffffffcc");
+              circle(x + 44, 67 + (i % 2) * 20, 18, "#ffffffcc");
+            }
+          }
+          for (let x = 0; x < width + 400; x += 320) {
+            const sx = x - camera * 0.4;
+            if (sx < -350 || sx > 760) continue;
+            if (map.kind === "class") {
+              rounded(sx + 35, 45, 180, 100, 9, "#fffefa");
+              rounded(sx + 43, 53, 164, 84, 5, "#6bad94");
+              ctx.fillStyle = "#fff7d8";
+              ctx.font = "22px sans-serif";
+              ctx.textAlign = "left";
+              ctx.fillText("A B C  +  −", sx + 63, 104);
+              rounded(sx + 245, 55, 55, 95, 5, "#bfeaff");
+              ctx.fillStyle = "#fff";
+              ctx.fillRect(sx + 270, 55, 4, 95);
+              ctx.fillRect(sx + 245, 100, 55, 4);
+            } else if (map.kind === "beach") {
+              ctx.fillStyle = "#6bd4e6";
+              ctx.fillRect(sx, 158, 325, 84);
+              ctx.strokeStyle = "#defaff";
+              ctx.lineWidth = 3;
+              for (let j = 0; j < 3; j++) {
                 ctx.beginPath();
-                ctx.arc(sx + 97 + dx, 75 + dy, 30, 0, Math.PI * 2);
-                ctx.fill();
-              }
-              rounded(sx + 230, 130, 55, 32, 5, "#cda477");
-              ctx.fillStyle = map.accent;
-              ctx.beginPath();
-              ctx.arc(sx + 245, 120, 18, 0, Math.PI * 2);
-              ctx.arc(sx + 268, 120, 18, 0, Math.PI * 2);
-              ctx.fill();
-            } else if (map.kind === "art") {
-              ctx.fillStyle = "#c49b76";
-              ctx.fillRect(sx + 77, 45, 5, 125);
-              ctx.fillRect(sx + 165, 45, 5, 125);
-              rounded(sx + 65, 55, 115, 85, 3, "#fffaf0");
-              ctx.fillStyle = "#e8c187";
-              ctx.beginPath();
-              ctx.arc(sx + 140, 78, 14, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = "#a2bc9c";
-              ctx.beginPath();
-              ctx.moveTo(sx + 75, 130);
-              ctx.lineTo(sx + 112, 91);
-              ctx.lineTo(sx + 165, 130);
-              ctx.fill();
-              rounded(sx + 245, 70, 45, 70, 10, map.accent);
-            } else if (map.kind === "music") {
-              rounded(sx + 45, 45, 215, 105, 7, "#e5dae9");
-              ctx.strokeStyle = "#b6a4bf";
-              for (let line = 0; line < 5; line++) {
-                ctx.beginPath();
-                ctx.moveTo(sx + 55, 75 + line * 10);
-                ctx.lineTo(sx + 250, 75 + line * 10);
+                for (let n = 0; n <= 320; n += 10) {
+                  const y = 177 + j * 23 + Math.sin(n * 0.05 + time * 0.7) * 4;
+                  n ? ctx.lineTo(sx + n, y) : ctx.moveTo(sx + n, y);
+                }
                 ctx.stroke();
               }
-              ctx.fillStyle = map.accent;
-              for (let note = 0; note < 4; note++) {
-                ctx.beginPath();
-                ctx.ellipse(sx + 82 + note * 44, 108 - (note % 2) * 20, 9, 6, -0.4, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillRect(sx + 89 + note * 44, 75 - (note % 2) * 20, 3, 33);
+              tree(sx + 75, 157, "#62ba8d");
+              triangle(sx + 205, 203, 85, 44, "#ff9ca4");
+              rounded(sx + 246, 203, 4, 45, 2, "#bb9166");
+            } else if (map.kind === "mountains") {
+              triangle(sx, 234, 220, 130, "#a8c9e6");
+              triangle(sx + 140, 235, 180, 110, "#8ebcdb");
+              triangle(sx + 85, 124, 48, 31, "#fff");
+              tree(sx + 235, 190, "#87bb89");
+            } else if (map.kind === "clouds") {
+              for (let k = 0; k < 3; k++) {
+                circle(sx + k * 100, 160 + k * 20, 32, "#fff");
+                circle(sx + k * 100 + 33, 168 + k * 20, 28, "#fff");
               }
-            } else if (map.kind === "science") {
-              rounded(sx + 45, 45, 230, 110, 8, "#d5e9ef");
-              for (let tube = 0; tube < 3; tube++) {
-                rounded(sx + 65 + tube * 55, 65, 25, 65, 10, "#ffffff");
-                rounded(
-                  sx + 68 + tube * 55,
-                  92 - tube * 8,
-                  19,
-                  34 + tube * 8,
-                  7,
-                  ["#8cc9b4", "#e3bd74", "#aaaddb"][tube],
-                );
-              }
-              ctx.fillStyle = map.accent;
-              ctx.font = "26px sans-serif";
-              ctx.fillText("⚛", sx + 235, 108);
-            } else if (map.kind === "math") {
-              rounded(sx + 40, 45, 245, 105, 8, map.accent);
-              ctx.fillStyle = "#fff8df";
-              ctx.font = "22px monospace";
-              ctx.fillText("2 + 3 = 5", sx + 65, 88);
-              ctx.fillText("△  ○  □", sx + 65, 128);
-            } else if (map.kind === "space") {
-              rounded(sx + 40, 40, 250, 120, 9, "#454a76");
-              ctx.fillStyle = "#fff5cf";
-              for (let star = 0; star < 9; star++)
-                ctx.fillRect(sx + 52 + star * 25, 52 + ((star * 31) % 85), 3, 3);
-              ctx.fillStyle = "#b8b2e2";
-              ctx.beginPath();
-              ctx.arc(sx + 155, 100, 29, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.strokeStyle = "#e6c18c";
-              ctx.beginPath();
-              ctx.ellipse(sx + 155, 100, 52, 11, -0.35, 0, Math.PI * 2);
-              ctx.stroke();
-            } else if (map.kind === "geography") {
-              rounded(sx + 40, 40, 245, 120, 8, "#d1e9e2");
-              ctx.fillStyle = "#8ebeb7";
-              ctx.beginPath();
-              ctx.arc(sx + 160, 100, 48, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = "#6d9d6e";
-              ctx.beginPath();
-              ctx.moveTo(sx + 135, 65);
-              ctx.lineTo(sx + 173, 72);
-              ctx.lineTo(sx + 183, 100);
-              ctx.lineTo(sx + 155, 110);
-              ctx.lineTo(sx + 142, 139);
-              ctx.lineTo(sx + 123, 109);
-              ctx.fill();
+              circle(sx + 175, 105, 22, "#c3a8ed");
+              rounded(sx + 171, 125, 8, 35, 3, "#b292d3");
+            } else if (map.kind === "candy") {
+              rounded(sx + 70, 122, 9, 93, 4, "#fff");
+              circle(sx + 74, 110, 32, "#ffa8cf");
+              circle(sx + 74, 110, 19, "#fff3bf");
+              rounded(sx + 218, 112, 9, 112, 4, "#fff");
+              circle(sx + 222, 104, 35, "#bda1ef");
+              circle(sx + 222, 104, 20, "#dff7ff");
+              flower(sx + 150, 224, "#ffaacb");
             } else {
-              rounded(sx + 40, 40, 205, 100, 10, "#d9eee4");
-              rounded(sx + 48, 48, 189, 84, 5, map.accent);
-              ctx.fillStyle = "#f7f4db";
-              ctx.font = "18px sans-serif";
-              ctx.textAlign = "left";
-              ctx.fillText("A B C   + − ×", sx + 70, 90);
-              rounded(sx + 275, 55, 55, 80, 5, "#d8e8f0");
-              ctx.fillStyle = "#fff";
-              ctx.fillRect(sx + 299, 55, 5, 80);
-              ctx.fillRect(sx + 275, 91, 55, 5);
+              ctx.fillStyle = map.kind === "forest" ? "#a4d9c7" : "#d0edaa";
+              ctx.beginPath();
+              ctx.ellipse(sx + 155, 219, 180, 73, 0, 0, Math.PI * 2);
+              ctx.fill();
+              if (map.kind === "rainbow") {
+                ctx.lineWidth = 9;
+                ["#ffadb4", "#ffd194", "#fae8a1", "#a3d8af", "#a8caee"].forEach((c, i) => {
+                  ctx.strokeStyle = c;
+                  ctx.beginPath();
+                  ctx.arc(sx + 145, 183, 90 - i * 9, Math.PI, Math.PI * 2);
+                  ctx.stroke();
+                });
+              }
+              if (map.kind !== "flowers" && map.kind !== "rainbow")
+                tree(
+                  sx + 75,
+                  142,
+                  map.kind === "forest" ? "#4da68b" : "#85c970",
+                  map.kind === "orchard",
+                );
+              const count = map.kind === "flowers" ? 11 : 5;
+              for (let k = 0; k < count; k++)
+                flower(
+                  sx + 20 + k * (280 / count),
+                  215 + (k % 3) * 10,
+                  ["#f79fc6", "#ffc579", "#b8a2ec"][k % 3],
+                );
+              if (map.kind === "garden") {
+                rounded(sx + 205, 185, 72, 10, 4, "#cf9b66");
+                rounded(sx + 212, 195, 5, 27, 2, "#cf9b66");
+                rounded(sx + 263, 195, 5, 27, 2, "#cf9b66");
+              }
             }
           }
           ctx.save();
@@ -25390,13 +25432,17 @@
           platforms.forEach((p) => {
             if (p.y === floor) {
               rounded(p.x, p.y, p.w, 55, 0, map.floor);
-              ctx.fillStyle = "#ac845e";
+              ctx.fillStyle = map.accent;
               ctx.fillRect(p.x, p.y, p.w, 6);
             } else {
               rounded(p.x, p.y, p.w, 12, 4, map.wood);
-              ctx.fillStyle = "#e4bc90";
-              ctx.fillRect(p.x + 10, p.y + 12, 8, 70);
-              ctx.fillRect(p.x + p.w - 18, p.y + 12, 8, 70);
+              if (map.kind === "class") {
+                ctx.fillStyle = "#e4bc90";
+                ctx.fillRect(p.x + 10, p.y + 12, 8, 70);
+                ctx.fillRect(p.x + p.w - 18, p.y + 12, 8, 70);
+              } else {
+                rounded(p.x + 3, p.y + 3, p.w - 6, 4, 2, "#ffffff60");
+              }
             }
           });
           gaps.forEach(([a, b]) => {
@@ -25838,7 +25884,7 @@
       studentsBatchPreview: "ตรวจนักเรียนที่เลือก",
       studentsBatch: "จัดการนักเรียนที่เลือก",
       replaceRosterPreview: "ตรวจรายชื่อและผลกระทบ",
-      replaceRoster: "อัพเดทรายชื่อนักเรียนทั้งหมดในชั้น",
+      replaceRoster: "อัปเดตรายชื่อนักเรียนทั้งหมดในชั้น",
       bootstrap: "โหลดข้อมูลวิชา ชั้นเรียน และนักเรียน",
       profile: "โหลดข้อมูลครู",
       dashboard: "โหลดสถานะงานบนหน้าหลัก",
@@ -25869,16 +25915,45 @@
     } catch (_) { }
 
     function friendlyError(error) {
-      if (error.authRequired || error.code === "AUTH_EXPIRED") return "หมดเวลาเข้าใช้งาน กรุณาเข้าสู่ระบบใหม่";
+      if (error.authRequired || error.code === "AUTH_EXPIRED")
+        return "หมดเวลาเข้าใช้งาน กรุณาเข้าสู่ระบบใหม่";
       if (error.uncertain) return "ยังยืนยันผลรายการนี้ไม่ได้ กรุณาตรวจข้อมูลล่าสุดและประวัติก่อนทำซ้ำ";
-      if (error.name === "AbortError" || error.code === "REQUEST_TIMEOUT") return "ยังโหลดข้อมูลไม่เสร็จ กรุณาลองอีกครั้ง";
+      if (error.name === "AbortError" || error.code === "REQUEST_TIMEOUT")
+        return "ยังโหลดข้อมูลไม่เสร็จ กรุณาลองอีกครั้ง";
       const message = String(error.message || "");
-      if (/GAS|bootstrap|API|deployment|HTTP|fetch|network|syntax|JSON|endpoint|URL|เซิร์ฟเวอร์|stack|token/i.test(message))
+      if (error.code === "INVALID_API_URL")
+        return "การเชื่อมต่อบทเรียนยังไม่พร้อม กรุณาเข้าสู่ระบบใหม่ หากยังพบปัญหาให้แจ้งผู้ดูแลระบบ";
+      if (error.code === "NETWORK_ERROR" || /Failed to fetch|NetworkError|Load failed/i.test(message))
+        return "เชื่อมต่อไม่สำเร็จ กรุณาตรวจการเชื่อมต่ออินเทอร์เน็ตแล้วลองอีกครั้ง";
+      if (["RESPONSE_SCHEMA_MISMATCH", "RESPONSE_ACTION_MISMATCH"].includes(error.code))
+        return "ข้อมูลที่ได้รับยังไม่ครบ กรุณาอัปเดตข้อมูลอีกครั้ง หากยังพบปัญหาให้แจ้งผู้ดูแลระบบ";
+      if (message === "บัญชีนี้ปิดใช้งาน") return "บัญชีนี้ปิดใช้งาน กรุณาติดต่อครูหรือผู้ดูแลระบบ";
+      if (message === "บัญชีนี้ยังไม่เปิดใช้งาน")
+        return "บัญชีนี้ยังไม่เปิดใช้งาน กรุณาติดต่อครูหรือผู้ดูแลระบบ";
+      if (message === "ระบบปิดให้นักเรียนเข้าใช้งานชั่วคราว")
+        return "ระบบปิดให้นักเรียนเข้าใช้งานชั่วคราว กรุณารอครูเปิดระบบแล้วเข้าสู่ระบบอีกครั้ง";
+      if (message === "รายวิชานี้ยังไม่เปิดใช้งาน") return "รายวิชานี้ยังไม่เปิดใช้งาน กรุณาติดต่อครู";
+      if (message === "ยังไม่ได้ลงทะเบียนวิชานี้") return "ยังไม่ได้ลงทะเบียนรายวิชานี้ กรุณาติดต่อครู";
+      if (message === "กิจกรรมยังไม่เปิด") return "กิจกรรมนี้ยังไม่เปิดใช้งาน กรุณาติดต่อครู";
+      if (message === "สื่อยังไม่เปิด") return "สื่อนี้ยังไม่เปิดใช้งาน กรุณาติดต่อครู";
+      if (message === "ส่งกิจกรรมนี้แล้ว") return "ส่งกิจกรรมนี้แล้ว สามารถเปิดดูงานและคะแนนได้";
+      if (message === "รอบทำกิจกรรมเปลี่ยนแล้ว")
+        return "รอบทำกิจกรรมมีการเปลี่ยนแปลง กรุณาเปิดกิจกรรมอีกครั้ง";
+      if (message === "หมดระยะกู้คืน 90 วันแล้ว")
+        return "หมดระยะกู้คืน 90 วันแล้ว กรุณาตรวจไฟล์สำรองที่มีอยู่";
+      if (
+        /GAS|bootstrap|API|deployment|HTTP|fetch|network|syntax|JSON|endpoint|URL|เซิร์ฟเวอร์|stack|token/i.test(
+          message,
+        )
+      )
         return "ระบบยังดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง หากยังพบปัญหาให้แจ้งผู้ดูแลระบบ";
       return message || "ดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง";
     }
     function errorNotice(error) {
-      if (error.code === "ACTIVITY_LOCKED") { error.uncertain = false; error.advice = "แก้เฉพาะข้อมูลที่ไม่กระทบงานส่งและคะแนนเดิม หรือสร้างกิจกรรมใหม่"; }
+      if (error.code === "ACTIVITY_LOCKED") {
+        error.uncertain = false;
+        error.advice = "แก้เฉพาะข้อมูลที่ไม่กระทบงานส่งและคะแนนเดิม หรือสร้างกิจกรรมใหม่";
+      }
       console.error("LMS diagnostics", {
         action: error.action,
         code: error.code,
@@ -26591,16 +26666,90 @@
           : "")
       );
     }
-    function offeringFilter() {
-      if (currentPage !== "home" && !db.Offerings.some((o) => o.id === selectedOffering))
-        selectedOffering =
-          db.Offerings.find((o) => o.status === "active")?.id || db.Offerings[0]?.id || "";
-      return `<div class="toolbar"><label>รายวิชา <select id="offeringFilter">${currentPage === "home" ? `<option value="" ${selectedOffering ? "" : "selected"}>ทุกรายวิชา</option>` : ""}${db.Offerings.map((o) => `<option value="${esc(o.id)}" ${o.id === selectedOffering ? "selected" : ""}>${esc(offeringName(o))}</option>`).join("")}</select></label><label>ชั้นเรียน <select id="groupFilter"><option value="">ทุกชั้นเรียน</option>${groupOptions()
-        .map(
-          (g) =>
-            `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}</option>`,
+    function filterRelations() {
+      const students = new Map(db.Students.filter((s) => s.status === "active").map((s) => [s.id, s]));
+      const groups = new Set(groupOptions().map((g) => g.id));
+      const courses = new Set(db.Courses.filter((c) => c.status === "active").map((c) => c.id));
+      const offers = new Map(
+        db.Offerings.filter((o) => o.status === "active" && courses.has(o.courseId)).map((o) => [
+          o.id,
+          o,
+        ]),
+      );
+      const relations = [];
+      for (const e of db.Enrollments) {
+        if (e.status !== "active" || !offers.has(e.offeringId)) continue;
+        const groupId = e.studentId ? students.get(e.studentId)?.groupId : e.groupId;
+        if (groups.has(groupId))
+          relations.push({
+            offeringId: e.offeringId,
+            courseId: offers.get(e.offeringId).courseId,
+            groupId,
+          });
+      }
+      return relations;
+    }
+    function relatedGroups(courseId = "", offeringId = "") {
+      const ids = new Set(
+        filterRelations()
+          .filter(
+            (r) =>
+              (!courseId || r.courseId === courseId) && (!offeringId || r.offeringId === offeringId),
+          )
+          .map((r) => r.groupId),
+      );
+      return groupOptions().filter((g) => ids.has(g.id));
+    }
+    function relatedCourses(groupId = "") {
+      const ids = new Set(
+        filterRelations()
+          .filter((r) => !groupId || r.groupId === groupId)
+          .map((r) => r.courseId),
+      );
+      return db.Courses.filter((c) => c.status === "active" && ids.has(c.id));
+    }
+    function relatedOfferings(groupId = "") {
+      const ids = new Set(
+        filterRelations()
+          .filter((r) => !groupId || r.groupId === groupId)
+          .map((r) => r.offeringId),
+      );
+      return db.Offerings.filter((o) => o.status === "active" && ids.has(o.id));
+    }
+    function reconcileWorkFilters(changed) {
+      if (currentPage === "home") {
+        if (
+          changed === "group" &&
+          homeCourse &&
+          !relatedCourses(selectedGroup).some((c) => c.id === homeCourse)
         )
-        .join("")}</select></label></div>`;
+          homeCourse = "";
+        if (
+          changed === "course" &&
+          selectedGroup &&
+          !relatedGroups(homeCourse).some((g) => g.id === selectedGroup)
+        )
+          selectedGroup = "";
+      } else if (["progress", "review"].includes(currentPage)) {
+        if (
+          changed === "group" &&
+          !relatedOfferings(selectedGroup).some((o) => o.id === selectedOffering)
+        )
+          selectedOffering = "";
+        if (
+          changed === "offering" &&
+          selectedGroup &&
+          !relatedGroups("", selectedOffering).some((g) => g.id === selectedGroup)
+        )
+          selectedGroup = "";
+      }
+    }
+    function offeringFilter() {
+      if (selectedGroup && !relatedGroups().some((g) => g.id === selectedGroup)) selectedGroup = "";
+      const offers = relatedOfferings(selectedGroup);
+      if (selectedOffering && !offers.some((o) => o.id === selectedOffering)) selectedOffering = "";
+      const groups = relatedGroups("", selectedOffering);
+      return `<div class="toolbar"><label>รายวิชา <select id="offeringFilter" ${offers.length ? "" : "disabled"}>${offers.length ? '<option value="">ทุกรายวิชาที่เกี่ยวข้อง</option>' + offers.map((o) => `<option value="${esc(o.id)}" ${o.id === selectedOffering ? "selected" : ""}>${esc(offeringName(o))}</option>`).join("") : '<option value="">ไม่มีรายวิชาที่เปิดใช้</option>'}</select></label><label>ชั้นเรียน <select id="groupFilter" ${groups.length ? "" : "disabled"}><option value="">ทุกชั้นเรียนที่เกี่ยวข้อง</option>${groups.map((g) => `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</select></label></div>`;
     }
     function loadingView(page = "home") {
       const bar = (type = "") => `<div class="skeleton-bar ${type}"></div>`;
@@ -26849,8 +26998,7 @@
           !(!previousPage && pageDataReady(page) && !refreshData))
       ) {
         $("content").innerHTML =
-          previousPage ||
-          (startupLoadingBase || !baseReady ? loadingView(page) : openingView(page));
+          previousPage || (startupLoadingBase || !baseReady ? loadingView(page) : openingView(page));
         readableTables();
         if (page === "students" && previousPage) filterStudentRows();
         for (const id of ["courseSearch", "roomSearch"]) if ($(id)) filterWorkspaceCards($(id));
@@ -26984,13 +27132,15 @@
       return `<span class="welcome-orbit orbit-left" aria-hidden="true"></span><span class="welcome-orbit orbit-right" aria-hidden="true"></span><span class="welcome-spark spark-one" aria-hidden="true">✦</span><span class="welcome-spark spark-two" aria-hidden="true">✦</span><span class="welcome-spark spark-three" aria-hidden="true">✧</span><svg class="welcome-tech-decoration" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="#c88a4a" stroke-width="1.5" opacity=".23"><path d="M0 35h86l20 20h83M0 55h62l25 25h62M1000 32h-88l-22 22h-78M1000 54h-64l-28 28h-55M0 222h60l18-18h53M1000 224h-60l-18-18h-53"/><circle cx="193" cy="55" r="4"/><circle cx="153" cy="80" r="4"/><circle cx="808" cy="54" r="4"/><circle cx="849" cy="82" r="4"/><circle cx="135" cy="204" r="3"/><circle cx="865" cy="206" r="3"/></g><g fill="#c88a4a" opacity=".2"><rect x="230" y="28" width="5" height="5" rx="1"/><rect x="242" y="40" width="5" height="5" rx="1"/><rect x="760" y="29" width="5" height="5" rx="1"/><rect x="748" y="41" width="5" height="5" rx="1"/><rect x="295" y="223" width="5" height="5" rx="1"/><rect x="710" y="221" width="5" height="5" rx="1"/></g></svg><span class="welcome-code-mark code-mark-left" aria-hidden="true">{ }</span><span class="welcome-code-mark code-mark-right" aria-hidden="true">&lt;/&gt;</span><div class="welcome-computer-scene" aria-hidden="true"><svg class="welcome-computer" viewBox="0 0 220 180" fill="none"><ellipse cx="109" cy="163" rx="92" ry="10" fill="#e9ba86" opacity=".3"/><rect x="24" y="24" width="170" height="112" rx="14" fill="#fffaf2" stroke="#b96d30" stroke-width="4"/><rect x="35" y="36" width="148" height="83" rx="7" fill="#f6dbb8"/><path d="m82 65-14 12 14 12m55-24 14 12-14 12m-22-28-12 32" stroke="#b96d30" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="109" cy="128" r="3" fill="#b96d30"/><path d="M97 138v15h24v-15m-41 21h58" stroke="#b96d30" stroke-width="4" stroke-linecap="round"/><rect x="153" y="133" width="46" height="25" rx="6" fill="#fffaf2" stroke="#c47a39" stroke-width="2"/><path d="M162 141h27m-27 8h20" stroke="#c47a39" stroke-width="2" stroke-linecap="round"/></svg></div><div class="welcome-learning-scene" aria-hidden="true"><svg viewBox="0 0 220 180" fill="none"><ellipse cx="110" cy="164" rx="86" ry="10" fill="#e9ba86" opacity=".3"/><rect x="87" y="17" width="93" height="111" rx="10" transform="rotate(9 87 17)" fill="#f6dbb8" stroke="#c47a39" stroke-width="3"/><rect x="74" y="14" width="88" height="116" rx="10" fill="#fffaf0" stroke="#b96d30" stroke-width="3"/><rect x="91" y="33" width="25" height="25" rx="6" fill="#f6dbb8"/><path d="m96 46 5 5 9-11M91 73h53M91 85h53M91 97h36" stroke="#b96d30" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 113q39-17 77 4v43q-38-21-77-4zM104 117q38-21 77-4v43q-39-17-77 4z" fill="#fff5e6" stroke="#b96d30" stroke-width="3" stroke-linejoin="round"/><path d="M39 126q25-9 53 3m-53 10q25-9 53 3m24-13q26-12 53-3m-53 16q26-12 53-3" stroke="#d3975f" stroke-width="2" stroke-linecap="round"/><path d="m185 58 9 5-33 59-11 7 1-13z" fill="#e5a34c" stroke="#b96d30" stroke-width="2"/></svg></div><div class="welcome-paper-shower" aria-hidden="true">${Array.from({ length: 6 }, (_, i) => `<span class="welcome-paper paper-${i}">${paper}</span>`).join("")}</div>`;
     }
     async function homeView(summary = null) {
+      if (selectedGroup && !relatedGroups().some((g) => g.id === selectedGroup)) selectedGroup = "";
+      reconcileWorkFilters("group");
       const counts = [
         ["รายวิชาทั้งหมด", db.Courses.length, "วิชา", "go-courses"],
         ["ชั้นเรียนทั้งหมด", db.Groups.length, "ชั้นเรียน", "go-groups"],
         ["นักเรียนทั้งหมด", db.Students.length, "คน", "go-students"],
       ];
-      const filters = `<div class="dash-filters"><label>รายวิชา<select id="homeCourse"><option value="">ทุกรายวิชา</option>${db.Courses.filter(
-        (c) => c.status === "active",
+      const filters = `<div class="dash-filters"><label>รายวิชา<select id="homeCourse"><option value="">ทุกรายวิชา</option>${relatedCourses(
+        selectedGroup,
       )
         .map(
           (c) =>
@@ -26998,7 +27148,9 @@
         )
         .join(
           "",
-        )}</select></label><label>ชั้นเรียน<select id="groupFilter"><option value="">ทุกชั้นเรียน</option>${groupOptions()
+        )}</select></label><label>ชั้นเรียน<select id="groupFilter"><option value="">ทุกชั้นเรียน</option>${relatedGroups(
+          homeCourse,
+        )
           .map(
             (g) =>
               `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}</option>`,
@@ -27013,7 +27165,7 @@
         return homeCourse || selectedGroup
           ? "ยังไม่ได้เพิ่มนักเรียนในรายวิชาและชั้นเรียนที่เลือก"
           : "ยังไม่ได้เพิ่มนักเรียนเข้ารายวิชา";
-      if (!t.expected) return "ยังไม่มีงานที่มอบหมาย";
+      if (!t.expected) return "ยังไม่มีงานที่เริ่มส่ง";
       if (!t.submitted) return "ยังไม่มีนักเรียนส่งงาน";
       return "ไม่พบข้อมูลตามตัวเลือกนี้";
     }
@@ -27021,12 +27173,13 @@
       if (!t.expected)
         return `<section class="dash-panel home-chart"><h2>ภาพรวมการส่งงาน</h2>${empty(dashboardEmptyMessage(t))}</section>`;
       const segments = [
-        { name: "ยังไม่ส่ง", n: t.missing, color: "#e9a0a0" },
-        { name: "รอตรวจ", n: t.pending, color: "#eca459" },
-        { name: "ตรวจแล้ว", n: t.graded, color: "#78b795" },
-        { name: "รอแก้ไข", n: t.returned || 0, color: "#e5c75e" },
+        { name: "ยังไม่ส่ง", n: t.missing, color: "#e0e0e0" },
+        { name: "รอตรวจ", n: t.pending, color: "#ffb74d" },
+        { name: "ตรวจแล้ว", n: t.graded, color: "#81c784" },
+        { name: "รอแก้ไข", n: t.returned || 0, color: "#e57373" },
       ];
       const total = segments.reduce((sum, s) => sum + s.n, 0);
+
       let offset = 0;
       const arcs = segments
         .filter((s) => s.n > 0)
@@ -27037,7 +27190,7 @@
           return svg;
         })
         .join("");
-      return `<section class="dash-panel home-chart"><h2>ภาพรวมการส่งงาน</h2><div class="home-donut-layout"><div class="home-donut"><svg viewBox="0 0 200 200" role="img" aria-label="${esc(segments.map((s) => s.name + " " + s.n + " รายการ").join(" · "))}"><circle cx="100" cy="100" r="73" fill="none" stroke="#edf0f3" stroke-width="20"/>${arcs}</svg><div><strong>${t.expected ? Math.round((t.submitted / t.expected) * 100) + "%" : "—"}</strong><span>ส่งงานแล้ว</span></div></div><div class="home-chart-key">${segments.map((s) => `<div><span><i style="background:${s.color}"></i>${s.name}</span><strong>${s.n}<small> รายการ</small></strong></div>`).join("")}</div></div></section>`;
+      return `<section class="dash-panel home-chart"><h2>ภาพรวมการส่งงาน</h2><div class="home-donut-layout"><div class="home-donut"><svg viewBox="0 0 200 200" role="img" aria-label="${esc(segments.map((s) => s.name + " " + s.n + " รายการ").join(" · "))}"><circle cx="100" cy="100" r="73" fill="none" stroke="#f5f5f5" stroke-width="20"/>${arcs}</svg><div><strong>${t.expected ? Math.round((t.submitted / t.expected) * 100) + "%" : "—"}</strong><span>ส่งงานแล้ว</span></div></div><div class="home-chart-key">${segments.map((s) => `<div><span><i style="background:${s.color}"></i>${s.name}</span><strong>${s.n}<small> รายการ</small></strong></div>`).join("")}</div></div></section>`;
     }
     function dashboardResult(s) {
       const t = s.totals,
@@ -27058,10 +27211,10 @@
           .join("")}</div>`;
       const scope = `${homeCourse ? db.Courses.find((c) => c.id === homeCourse)?.name || "รายวิชาที่เลือก" : "ทุกรายวิชาที่เปิดใช้งาน"} · ${selectedGroup ? groupName(selectedGroup) : "ทุกชั้นเรียนที่เปิดใช้งาน"}`;
       return `<div class="home-overview-metrics">${[
-        ["นักเรียนที่ลงทะเบียน", t.learners, "คน"],
-        ["งานที่ต้องส่ง", t.expected, "รายการ"],
+        ["ผู้เรียนตามตัวกรอง", t.learners, "คน"],
+        ["ภาระงานรวม", t.expected, "รายการ"],
         ["ส่งแล้ว", t.submitted, "รายการ"],
-        ["อัตราส่งงาน", rate === null ? "—" : rate, "%"],
+        ["อัตราส่งงาน", rate === null ? "—" : rate, rate === null ? "" : "%"],
       ]
         .map(
           ([title, n, unit]) =>
@@ -27154,7 +27307,7 @@
                   ? "metric-sent"
                   : /งาน/.test(title)
                     ? "metric-tasks"
-                    : /นักเรียน|เข้ารายวิชา|ยังไม่มีรายวิชาที่เข้าใช้งานได้/.test(title)
+                    : /นักเรียน|ผู้เรียน|เข้ารายวิชา|ยังไม่มีรายวิชาที่เข้าใช้งานได้/.test(title)
                       ? "go-students"
                       : /ชั้นเรียน/.test(title)
                         ? "go-groups"
@@ -27164,7 +27317,7 @@
     function summaryStrip(items) {
       return `<div class="workspace-summary${items.length === 4 ? " summary-four" : ""}">${items
         .map(([title, value, hint]) => {
-          const unit = /นักเรียน|เข้ารายวิชา|ยังไม่มีรายวิชาที่เข้าใช้งานได้/.test(title)
+          const unit = /นักเรียน|ผู้เรียน|เข้ารายวิชา|ยังไม่มีรายวิชาที่เข้าใช้งานได้/.test(title)
             ? "คน"
             : /ชั้นเรียน/.test(title)
               ? "ชั้นเรียน"
@@ -27309,7 +27462,7 @@
                 .filter(Boolean),
             );
             const courses = db.Courses.filter((c) => courseIds.has(c.id) && c.status === "active");
-            return `<article class="card room-card" data-search-kind="room" data-search-text="${esc(g.name)}"><div class="dash-section-head"><h3>${esc(g.name)}</h3>${badge(g.status === "inactive" ? "inactive" : "active")}</div><div class="room-count"><strong>${db.Students.filter((s) => s.groupId === g.id).length}</strong> คน</div><p class="subtle">รายวิชาที่ใช้: ${courses.length ? courses.map((c) => esc(c.name)).join(" · ") : "ยังไม่ได้เพิ่มเข้ารายวิชา"}</p><div class="actions">${button("ดูรายชื่อนักเรียน", "group-students", g.id, true)}<details class="more-menu"><summary>จัดการชั้นเรียน ▾</summary><div>${button("แก้ไขชั้นเรียน", "edit-group", g.id)}${g.status !== "inactive" ? button("อัพเดทรายชื่อนักเรียนใหม่", "replace-roster", g.id) : ""}${button(g.status === "inactive" ? "เปิดใช้งานชั้นเรียนนี้" : "ปิดใช้งานชั้นเรียนนี้", "toggle-group", g.id)}${button("ลบชั้นเรียนออก", "delete-group", g.id)}</div></details></div></article>`;
+            return `<article class="card room-card" data-search-kind="room" data-search-text="${esc(g.name)}"><div class="dash-section-head"><h3>${esc(g.name)}</h3>${badge(g.status === "inactive" ? "inactive" : "active")}</div><div class="room-count"><strong>${db.Students.filter((s) => s.groupId === g.id).length}</strong> คน</div><p class="subtle">รายวิชาที่ใช้: ${courses.length ? courses.map((c) => esc(c.name)).join(" · ") : "ยังไม่ได้เพิ่มเข้ารายวิชา"}</p><div class="actions">${button("ดูรายชื่อนักเรียน", "group-students", g.id, true)}<details class="more-menu"><summary>จัดการชั้นเรียน ▾</summary><div>${button("แก้ไขชั้นเรียน", "edit-group", g.id)}${g.status !== "inactive" ? button("อัปเดตรายชื่อนักเรียนใหม่", "replace-roster", g.id) : ""}${button(g.status === "inactive" ? "เปิดใช้งานชั้นเรียนนี้" : "ปิดใช้งานชั้นเรียนนี้", "toggle-group", g.id)}${button("ลบชั้นเรียนออก", "delete-group", g.id)}</div></details></div></article>`;
           })
           .join("");
       return (
@@ -27629,8 +27782,7 @@
       try {
         p = await api("studentProfile", { studentId: id });
       } catch (error) {
-        if (body.dataset.studentCard === id)
-          body.innerHTML = empty(friendlyError(error));
+        if (body.dataset.studentCard === id) body.innerHTML = empty(friendlyError(error));
         throw error;
       }
       if (body.dataset.studentCard !== id || !$("modal").open) return;
@@ -27689,17 +27841,16 @@
     function courseScoreCell(row, activity) {
       const work = row.works.get(activity.id),
         max = (activity.questions || []).reduce((n, q) => n + Number(q.points || 0), 0);
-      if (!work) return row.assignedIds.has(activity.id) ? '<span class="score-work-state missing">ยังไม่ส่ง</span>' : '<span class="score-work-state unassigned">ยังไม่มอบหมาย</span>';
+      if (!work)
+        return row.assignedIds.has(activity.id)
+          ? '<span class="score-work-state missing">ยังไม่ส่ง</span>'
+          : '<span class="score-work-state unassigned">ยังไม่เริ่มส่ง</span>';
       const scored = work.status === "graded";
       const score =
         work.bestScore !== "" && work.bestScore != null
           ? work.bestScore
           : (work.scores || []).reduce((n, v) => n + Number(v || 0), 0);
-      const label = scored
-        ? "ตรวจแล้ว"
-        : work.status === "returned"
-          ? "รอแก้ไข"
-          : "รอตรวจ";
+      const label = scored ? "ตรวจแล้ว" : work.status === "returned" ? "รอแก้ไข" : "รอตรวจ";
       return `<button type="button" class="score-work-state ${scored ? "graded" : work.status === "returned" ? "returned" : "pending"}" style="display:inline-flex!important;align-items:center!important;justify-content:center!important;margin-inline:auto!important;text-align:center!important" data-action="grade" data-id="${esc(work.id)}" title="${esc(activity.title + " · " + label)}">${label}${scored ? " · " + esc(score) + "/" + esc(work.maxScore ?? max) : ""}</button>`;
     }
     async function courseScoresView(force = false) {
@@ -27716,13 +27867,13 @@
       );
       const rows = result
         .flatMap(({ o, progress, submissions }) => {
-          const assignedIds = new Set(tasks.filter((a) => a.dueAt || submissions.some((w) => w.activityId === a.id)).map((a) => a.id));
           const submissionsByStudent = new Map();
           for (const work of submissions) {
             if (!submissionsByStudent.has(work.studentId)) submissionsByStudent.set(work.studentId, []);
             submissionsByStudent.get(work.studentId).push(work);
           }
           return progress.map((r) => {
+            const assignedIds = new Set(r.assignedIds || []);
             const works = new Map();
             for (const work of submissionsByStudent.get(r.studentId) || []) {
               const previous = works.get(work.activityId);
@@ -27766,8 +27917,22 @@
       );
       courseScoreSnapshots.set(courseId, { rows, tasks });
       const cards = [
-        ["ชิ้นงานทั้งหมด", (courseData.Activities || []).filter((a) => a.status !== "deleted").length, "งาน", "กิจกรรมทั้งหมดในรายวิชา", "▤", "all"],
-        ["ชิ้นงานที่ต้องส่ง", new Set(rows.flatMap((r) => [...r.assignedIds])).size, "งาน", "งานที่มอบหมายในรายวิชา", "▤", "tasks"],
+        [
+          "ชิ้นงานทั้งหมด",
+          (courseData.Activities || []).filter((a) => a.status !== "deleted").length,
+          "งาน",
+          "กิจกรรมทั้งหมดในรายวิชา",
+          "▤",
+          "all",
+        ],
+        [
+          "ภาระงานรวม",
+          rows.reduce((n, r) => n + r.expected, 0),
+          "รายการ",
+          "นับเฉพาะงานที่เริ่มส่งแล้วในแต่ละห้อง",
+          "▤",
+          "tasks",
+        ],
         [
           "ผู้เรียนที่ส่งงานแล้ว",
           [...byStudent.values()].filter((r) => r.sent).length,
@@ -27798,8 +27963,7 @@
         if (selectedCourse === course && host.isConnected) host.innerHTML = html;
       } catch (e) {
         if (host.isConnected)
-          host.innerHTML =
-            empty(friendlyError(e)) + button("ลองอีกครั้ง", "course-scores-refresh");
+          host.innerHTML = empty(friendlyError(e)) + button("ลองอีกครั้ง", "course-scores-refresh");
       }
     }
     async function courseStudentWork(id) {
@@ -27860,7 +28024,7 @@
       const filters = reviewAcross
         ? `<div class="follow-scope">${esc(homeCourse ? db.Courses.find((c) => c.id === homeCourse)?.name || "" : "ทุกรายวิชา")} · ${esc(selectedGroup ? groupName(selectedGroup) : "ทุกชั้นเรียน")} ${button("เลือกรายวิชา", "review-specific")}</div>`
         : offeringFilter();
-      if (!selectedOffering && !reviewAcross)
+      if (!selectedOffering && !reviewAcross && !relatedOfferings(selectedGroup).length)
         return intro + filters + empty("ยังไม่มีรายวิชาสำหรับตรวจงาน");
       const fields = {
         offeringId: reviewAcross ? "" : selectedOffering,
@@ -27928,7 +28092,7 @@
         );
     }
     function progressStudentState(r) {
-      if (!r.expected) return '<span class="follow-status neutral">ยังไม่มีงานที่ต้องส่ง</span>';
+      if (!r.expected) return '<span class="follow-status neutral">ยังไม่มีงานที่เริ่มส่ง</span>';
       if (r.missing) return '<span class="follow-status missing">ยังส่งไม่ครบ</span>';
       if (r.returned) return '<span class="follow-status returned">ครบ · มีงานรอแก้ไข</span>';
       if (r.pending) return '<span class="follow-status pending">ครบ · มีงานรอตรวจ</span>';
@@ -27937,7 +28101,8 @@
     async function progressView(forceRefresh = false) {
       const filters = offeringFilter(),
         intro = followIntro("ติดตามการเรียน", "ติดตามงานค้าง งานรอแก้ไข และคะแนนรายบุคคล");
-      if (!selectedOffering) return intro + filters + empty("ยังไม่มีรายวิชา");
+      if (!selectedOffering && !relatedOfferings(selectedGroup).length)
+        return intro + filters + empty("ยังไม่มีรายวิชา");
       const all = await cachedData(
         "progress",
         { offeringId: selectedOffering, groupId: selectedGroup },
@@ -27982,14 +28147,14 @@
             (id === "pending" && r.pending > 0) ||
             (id === "complete" && r.expected > 0 && r.submitted >= r.expected && !r.returned),
         ).length;
-      return `<div class="follow-page progress-workspace">${intro}<div class="follow-metrics">${followMetric("นักเรียนทั้งหมด", new Set(all.map((r) => r.studentId)).size, "คน", "ในรายวิชาและชั้นเรียนที่เลือก", "all")}${followMetric("งานที่ต้องส่ง", sums.expected, "งาน", "รวมจำนวนงานของนักเรียนทุกคน", "tasks")}${followMetric("ส่งแล้ว", sums.submitted, "งาน", "รวมงานรอตรวจและรอแก้ไข", "graded")}${followMetric("อัตราส่งงาน", rate, sums.expected ? "%" : "", sums.expected ? "ส่งแล้ว " + sums.submitted + " จาก " + sums.expected + " งาน" : "ยังไม่มีงานที่ต้องส่ง", "rate")}</div><section class="follow-filter"><h2>เลือกรายวิชาและชั้นเรียน</h2>${filters}</section><section class="follow-comparison"><div class="follow-list-heading"><div><h2>การส่งงานแต่ละชั้นเรียน</h2><span>${groups.length} ชั้นเรียน</span></div></div><div class="follow-class-list">${groups
-        .map((g) => {
-          const pct = g.expected
-            ? Math.min(100, Math.max(0, (g.submitted / g.expected) * 100))
-            : null;
-          return `<article class="follow-class"><div class="follow-class-title"><strong>${esc(groupName(g.id))}</strong><span>${g.list.length} คน</span><b>${pct === null ? "—" : pct.toFixed(1) + "%"}</b></div><div class="follow-track" role="img" aria-label="${esc(groupName(g.id))} ${pct === null ? "ยังไม่มีงานที่ต้องส่ง" : "ส่งแล้ว " + pct.toFixed(1) + " เปอร์เซ็นต์"}"><span style="width:${pct || 0}%"></span></div><div class="follow-class-caption"><span>${g.expected ? "ส่งแล้ว " + g.submitted + "/" + g.expected + " งาน" : "ยังไม่มีงานที่ต้องส่ง"}</span><span>ค้างส่ง ${g.expected - g.submitted} · รอแก้ไข ${g.returned}</span></div></article>`;
-        })
-        .join("") || empty("ยังไม่มีข้อมูลชั้นเรียน")
+      return `<div class="follow-page progress-workspace">${intro}<div class="follow-metrics">${followMetric("นักเรียนทั้งหมด", new Set(all.map((r) => r.studentId)).size, "คน", "ในรายวิชาและชั้นเรียนที่เลือก", "all")}${followMetric("ภาระงานรวม", sums.expected, "รายการ", "นับเฉพาะงานที่เริ่มส่งแล้วในแต่ละห้อง", "tasks")}${followMetric("ส่งแล้ว", sums.submitted, "รายการ", "รวมงานรอตรวจและรอแก้ไข", "graded")}${followMetric("อัตราส่งงาน", rate, sums.expected ? "%" : "", sums.expected ? "ส่งแล้ว " + sums.submitted + " จาก " + sums.expected + " รายการ" : "ยังไม่มีงานที่เริ่มส่ง", "rate")}</div><section class="follow-filter"><h2>เลือกรายวิชาและชั้นเรียน</h2>${filters}</section><section class="follow-comparison"><div class="follow-list-heading"><div><h2>การส่งงานแต่ละชั้นเรียน</h2><span>${groups.length} ชั้นเรียน</span></div></div><div class="follow-class-list">${groups
+          .map((g) => {
+            const pct = g.expected
+              ? Math.min(100, Math.max(0, (g.submitted / g.expected) * 100))
+              : null;
+            return `<article class="follow-class"><div class="follow-class-title"><strong>${esc(groupName(g.id))}</strong><span>${g.list.length} คน</span><b>${pct === null ? "—" : pct.toFixed(1) + "%"}</b></div><div class="follow-track" role="img" aria-label="${esc(groupName(g.id))} ${pct === null ? "ยังไม่มีงานที่เริ่มส่ง" : "ส่งแล้ว " + pct.toFixed(1) + " เปอร์เซ็นต์"}"><span style="width:${pct || 0}%"></span></div><div class="follow-class-caption"><span>${g.expected ? "ส่งแล้ว " + g.submitted + "/" + g.expected + " งาน" : "ยังไม่มีงานที่เริ่มส่ง"}</span><span>ค้างส่ง ${g.expected - g.submitted} · รอแก้ไข ${g.returned}</span></div></article>`;
+          })
+          .join("") || empty("ยังไม่มีข้อมูลชั้นเรียน")
         }</div></section><section class="follow-list-panel"><div class="follow-list-heading"><div><h2>ติดตามนักเรียนรายบุคคล</h2><span>แสดง ${rows.length} จาก ${all.length} คน · งานค้างมากก่อน</span></div>${button("ส่งออกรายงาน", "export-scores")}</div><div class="follow-status-filters" aria-label="กรองสถานะนักเรียน">${statusChoices.map(([id, name]) => `<button type="button" class="btn ${progressStatus === id ? "primary" : ""}" data-action="progress-status" data-id="${id}" aria-pressed="${progressStatus === id}">${name}<span>${countFor(id)}</span></button>`).join("")}</div><form class="toolbar follow-search" data-form="progress-filter"><label>ค้นหานักเรียน<input type="search" name="search" value="${esc(progressSearch)}" placeholder="ชื่อหรือนามสกุล"></label><input type="hidden" name="status" value="${esc(progressStatus)}"><button class="btn primary" type="submit">ค้นหา</button></form><div class="follow-table-wrap"><table class="follow-progress-table"><thead><tr><th>นักเรียน / ชั้นเรียน</th><th>สถานะการส่งงาน</th><th>การส่งงาน</th><th>ค้างส่ง</th><th>รอแก้ไข</th><th>รอตรวจ</th><th>คะแนนที่ตรวจแล้ว</th><th>งานนักเรียน</th></tr></thead><tbody>${rows.map((r) => `<tr><td data-label="นักเรียน / ชั้นเรียน"><div class="follow-student-cell">${studentIdentity(r.studentId, r.name)}<span class="follow-room">${esc(groupName(r.groupId))}</span></div></td><td data-label="สถานะการส่งงาน">${progressStudentState(r)}</td><td data-label="การส่งงาน"><div class="follow-submitted"><strong>${r.submitted}<small> / ${r.expected} งาน</small></strong><div class="follow-track"><span style="width:${r.expected ? Math.min(100, (r.submitted / r.expected) * 100) : 0}%"></span></div></div></td><td data-label="ค้างส่ง"><span class="follow-count ${r.missing ? "missing" : ""}">${r.missing || "—"}</span></td><td data-label="รอแก้ไข"><span class="follow-count ${r.returned ? "returned" : ""}">${r.returned || "—"}</span></td><td data-label="รอตรวจ"><span class="follow-count ${r.pending ? "pending" : ""}">${r.pending || "—"}</span></td><td data-label="คะแนนที่ตรวจแล้ว"><strong class="follow-score">${r.maxScore ? esc(r.score) + " / " + esc(r.maxScore) : "ยังไม่มีคะแนน"}</strong></td><td data-label="งานนักเรียน">${button("ดูงาน", "student-work", r.studentId)}</td></tr>`).join("")}</tbody></table>${rows.length ? "" : empty(all.length ? "ไม่พบนักเรียนตามตัวเลือกนี้" : "ยังไม่มีนักเรียนลงทะเบียนในรายวิชาที่เลือก")}</div></section></div>`;
     }
 
@@ -28151,7 +28316,7 @@
         ).join("");
         selectEl.disabled = false;
       } catch (error) {
-        if (selectEl.isConnected) toast(error.message);
+        if (selectEl.isConnected) toast(friendlyError(error));
       }
     });
     function adminManageForm(target) {
@@ -28218,7 +28383,7 @@
 
     function studentForm(id = "") {
       if (!db.Groups.length) {
-        toast("สร้างชั้นเรียนก่อนเพิ่มนักเรียน");
+        toast("กรุณาสร้างชั้นเรียนก่อนเพิ่มนักเรียน");
         return;
       }
       const s = db.Students.find((s) => s.id === id) || {};
@@ -28627,7 +28792,7 @@
       let preview = "";
       const safe = /^https:\/\//.test(m.url) || false;
       if (!safe) {
-        toast("ลิงก์ไม่ถูกต้อง");
+        toast("ลิงก์ไม่ถูกต้อง กรุณาตรวจสอบและกรอกลิงก์ใหม่");
         return;
       }
       const drive = m.fileId || (m.url.match(/drive\.google\.com\/file\/d\/([\w-]+)/) || [])[1];
@@ -28851,11 +29016,11 @@
       replacementGroup = groupId;
       replacementPayload = null;
       if (!db.Groups.length) {
-        toast("สร้างชั้นเรียนก่อนนำเข้า");
+        toast("กรุณาสร้างชั้นเรียนก่อนนำเข้ารายชื่อ");
         return;
       }
       modal(
-        groupId ? "อัพเดทรายชื่อนักเรียนใหม่ — ลบข้อมูลเดิม" : "นำเข้ารายชื่อด้วยการวางข้อความ",
+        groupId ? "อัปเดตรายชื่อนักเรียนใหม่ — ลบข้อมูลเดิม" : "นำเข้ารายชื่อด้วยการวางข้อความ",
         `<div class="form">${groupId ? `<input type="hidden" name="importGroup" value="${esc(groupId)}"><p class="notice">ห้อง ${esc(groupName(groupId))}: ลบนักเรียนเดิมพร้อมบัญชี การลงทะเบียน งาน คะแนน ประวัติส่งงาน ติดตามการเรียน รอบทำกิจกรรม โปรไฟล์ และเซสชันในทุกวิชา แล้วเพิ่มรายชื่อใหม่ ห้ามใช้รายชื่อซ้ำกับคนที่มีในระบบ หากเป็นเด็กเดิมให้ใช้ย้ายห้อง</p>` : select("เพิ่มนักเรียนเข้าชั้นเรียน", "importGroup", groupOptions(), selectedGroup)}${area("วางชื่อนักเรียน หนึ่งคนต่อหนึ่งบรรทัด", "rawNames", "", "นายภัทรพล รัตนสุนทร\nนางสาวพิมพ์ชนก ศรีวรินทร์\nเด็กชายณภัทร วัฒนกุล\nเด็กหญิงลลิตา พิชญานนท์")}${button("ตรวจสอบรายชื่อ", "parse-import", "", true)}<div id="importRows"></div></div>`,
       );
     }
@@ -28920,7 +29085,7 @@
         .split("\n")
         .filter((s) => s.trim());
       if (!names.length || names.length > 100) {
-        toast("วางรายชื่อ 1–100 คน");
+        toast("กรุณาวางรายชื่อ 1–100 คน โดยแยกหนึ่งคนต่อหนึ่งบรรทัด");
         return;
       }
       $("importRows").innerHTML =
@@ -29124,7 +29289,7 @@
         return n + (correct ? 1 : 0);
       }, 0);
       modal(
-        expired ? "หมดเวลา!" : "ผลการทดลอง",
+        expired ? "หมดเวลาทำกิจกรรม" : "ผลการทดลอง",
         ` ${p.a.mode === "game" ? gameResultCard(correctCount, p.a.questions.length) : ""}<h2 class="submission-result-heading">${p.a.mode === "game" && !p.a.countScore ? "" : manual ? "ส่งคำตอบแล้ว รอครูตรวจข้อเขียน" : score + " / " + p.a.questions.reduce((n, q) => n + q.points, 0) + " คะแนน"}</h2><p class="subtle">ไม่มีการส่งข้อมูลหรือคะแนนจริงจากการทดลองนี้</p>${p.a.showAnswers ? p.a.questions.map((q, i) => `<p>${i + 1}. ${esc(q.text)}<br><strong>${q.type === "text" ? "ครูตรวจคำตอบเขียน" : esc(q.type === "matching" ? q.prompts.map((v, n) => v + " → " + q.options[q.correct[n]]).join(" · ") : q.options[q.correct])}</strong></p>`).join("") : ""}${button("ปิด", "close")}`,
       );
     }
@@ -29444,14 +29609,14 @@
           number(row.materialCount ?? Math.max(0, number(row.total) - number(row.expected))),
         ]),
         metrics: [
-          { label: "ยังไม่ส่ง", value: sum("missing"), color: "F4B8B3" },
-          { label: "รอตรวจ", value: sum("pending"), color: "F4D486" },
-          { label: "รอแก้ไข", value: sum("returned"), color: "C8BEF0" },
+          { label: "ยังไม่ส่ง", value: sum("missing"), color: "E0E0E0" },
+          { label: "รอตรวจ", value: sum("pending"), color: "FFB74D" },
           {
             label: "ตรวจแล้ว",
             value: Math.max(0, sum("submitted") - sum("pending") - sum("returned")),
-            color: "9FDCC8",
+            color: "81C784",
           },
+          { label: "รอแก้ไข", value: sum("returned"), color: "E57373" },
         ],
         note: "",
       };
@@ -29531,7 +29696,7 @@
           metrics: ["pending", "returned", "graded"].map((status, index) => ({
             label: states[status],
             value: rows.filter((row) => row.status === status).length,
-            color: ["F4D486", "C8BEF0", "9FDCC8"][index],
+            color: ["FFB74D", "E57373", "81C784"][index],
           })),
           note: "รวมทุกหน้าที่ตรงกับตัวกรองตรวจงาน ณ เวลาส่งออก · งานที่ยังไม่ตรวจเว้นช่องคะแนนไว้",
         };
@@ -29558,9 +29723,8 @@
           row.missing,
           ...snapshot.tasks.map((task) => {
             const work = row.works.get(task.id);
-            if (!work) return "ยังไม่ส่ง";
-            if (work.status !== "graded")
-              return work.status === "returned" ? "รอแก้ไข" : "รอตรวจ";
+            if (!work) return row.assignedIds.has(task.id) ? "ยังไม่ส่ง" : "ยังไม่เริ่มส่ง";
+            if (work.status !== "graded") return work.status === "returned" ? "รอแก้ไข" : "รอตรวจ";
             const score =
               work.bestScore !== "" && work.bestScore != null
                 ? work.bestScore
@@ -29576,7 +29740,6 @@
           Number(row.maxScore || 0),
         ]);
       } else {
-        if (!offeringId) throw Error("เลือกรายวิชาในหน้าติดตามการเรียนก่อน");
         const search = progressSearch,
           status = progressStatus;
         const all = await cachedData("progress", { offeringId, groupId });
@@ -29651,7 +29814,8 @@
         reportLibraryRequest = Promise.resolve()
           .then(() => {
             const source = document.getElementById("reportExcelLibrary");
-            if (!source) throw Error("ไม่พบเครื่องมือสร้าง Excel");
+            if (!source)
+              throw Error("ไม่พบเครื่องมือส่งออกรายงาน Excel กรุณารีเฟรชหน้าเว็บแล้วลองอีกครั้ง");
             const bytes = Uint8Array.from(atob(source.textContent.trim()), (char) =>
               char.charCodeAt(0),
             );
@@ -29659,7 +29823,10 @@
             script.textContent = new TextDecoder().decode(bytes);
             document.head.append(script);
             script.remove();
-            if (!window.ExcelJS) throw Error("เปิดเครื่องมือสร้าง Excel ไม่สำเร็จ");
+            if (!window.ExcelJS)
+              throw Error(
+                "เปิดเครื่องมือส่งออกรายงาน Excel ไม่สำเร็จ กรุณารีเฟรชหน้าเว็บแล้วลองอีกครั้ง",
+              );
             return window.ExcelJS;
           })
           .catch((error) => {
@@ -29796,7 +29963,7 @@
     }
     function printLearningReport(report) {
       const popup = window.open("", "_blank");
-      if (!popup) throw Error("กรุณาอนุญาตหน้าต่างใหม่เพื่อพิมพ์รายงาน");
+      if (!popup) throw Error("กรุณาอนุญาตป๊อปอัปของเว็บไซต์ แล้วลองพิมพ์รายงานอีกครั้ง");
       popup.opener = null;
       const chart = reportChart(report),
         widths = reportColumnWidths(report);
@@ -29812,7 +29979,24 @@
                                                                                           .print-button{background:#ffd6b1;border:0;border-radius:12px;padding:12px 20px;cursor:pointer;font:inherit}.empty{text-align:center;padding:20px}
                                                                                           @page{size:A4 landscape;margin:12mm}@media print{html,body{background:white}body{margin:0;padding:0}.report-paper{zoom:1!important;width:100%!important;padding:0;border-radius:0}table{font-size:${printFont}px}th,td{padding:6px 3px}.scope,.note{font-size:${Math.min(12, printFont + 1)}px}.print-button{display:none}thead{display:table-header-group}tr{break-inside:avoid}.chart{width:100%;height:65mm;object-fit:contain}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 
-                                                                                    </style></head><body><main class="report-paper"><button type="button" class="print-button">พิมพ์ / บันทึก PDF</button><h1>${esc(report.title)}</h1><p class="scope">${esc(report.scope)}</p><p class="report-time">ข้อมูล ณ ${esc(report.createdAt.toLocaleString("th-TH"))} · ${report.rows.length} รายการ</p><img class="chart" src="${chart}" alt="จำนวนงานตามสถานะ">${report.note ? `<p class="note">${esc(report.note)}</p>` : ""}<table><colgroup>${widths.map((width) => `<col style="width:${(width / tableWidth) * 100}%">`).join("")}</colgroup><thead><tr>${report.headers.map((header) => `<th>${esc(header)}</th>`).join("")}</tr></thead><tbody>${report.rows.map((row) => `<tr>${row.map((value) => `<td>${esc(value)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${report.headers.length}" class="empty">ไม่มีข้อมูลตามตัวเลือกนี้</td></tr>`}</tbody></table></main><\/body><\/html>`);
+                                                                                    
+    
+    body .main #content .follow-track {
+      direction: ltr !important;
+      background: #f5f5f5 !important;
+    }
+    body .main #content .follow-track > span {
+      margin-left: 0 !important;
+      margin-right: auto !important;
+      background: linear-gradient(90deg, #81c784, #4caf50) !important;
+    }
+</style><style id="game-answer-button-style">
+body #modal .sandbox-choice { font:inherit; text-align:left; cursor:pointer; width:100%; border:1px solid #dfb98e; border-radius:10px; padding:8px 10px; background:#fffaf2; color:#61412d; }
+body #modal .sandbox-choice:disabled { opacity:1; cursor:default; }
+body #modal .sandbox-choice:not(:disabled):hover { background:#ffe8cb; border-color:#bd7332; }
+body #modal .sandbox-choice.picked { background:#ffe0ad; border:2px solid #b86d28; }
+body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px solid #b9793e; border-radius:10px; background:#fff1df; color:#825023; padding:10px 16px; cursor:pointer; }
+</style></head><body><main class="report-paper"><button type="button" class="print-button">พิมพ์ / บันทึก PDF</button><h1>${esc(report.title)}</h1><p class="scope">${esc(report.scope)}</p><p class="report-time">ข้อมูล ณ ${esc(report.createdAt.toLocaleString("th-TH"))} · ${report.rows.length} รายการ</p><img class="chart" src="${chart}" alt="จำนวนงานตามสถานะ">${report.note ? `<p class="note">${esc(report.note)}</p>` : ""}<table><colgroup>${widths.map((width) => `<col style="width:${(width / tableWidth) * 100}%">`).join("")}</colgroup><thead><tr>${report.headers.map((header) => `<th>${esc(header)}</th>`).join("")}</tr></thead><tbody>${report.rows.map((row) => `<tr>${row.map((value) => `<td>${esc(value)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${report.headers.length}" class="empty">ไม่มีข้อมูลตามตัวเลือกนี้</td></tr>`}</tbody></table></main><\/body><\/html>`);
       popup.document.close();
       const paper = popup.document.querySelector(".report-paper");
       const fitPreview = () => {
@@ -29942,7 +30126,7 @@
         return;
       }
       if (a === "report-print") {
-        if (!reportSnapshot) throw Error("เปิดรายงานก่อนพิมพ์");
+        if (!reportSnapshot) throw Error("กรุณาเปิดรายงานก่อนพิมพ์");
         printLearningReport(reportSnapshot);
         return;
       }
@@ -29959,8 +30143,7 @@
           await downloadLearningReport(report);
           if (status?.isConnected) status.textContent = "ดาวน์โหลดรายงานแล้ว";
         } catch (error) {
-          if (status?.isConnected)
-            status.textContent = error.message || "สร้างรายงานไม่สำเร็จ กรุณาลองอีกครั้ง";
+          if (status?.isConnected) status.textContent = friendlyError(error);
           throw error;
         } finally {
           reportExporting = false;
@@ -30116,7 +30299,7 @@
           } catch (error) {
             modal(
               "โหลดโปรไฟล์ไม่สำเร็จ",
-              `<p role="alert">${esc(error.message)}</p><div class="actions">${button("ลองอีกครั้ง", "my-profile", "", true)}${button("ปิด", "close")}</div>`,
+              `<p role="alert">${esc(friendlyError(error))}</p><div class="actions">${button("ลองอีกครั้ง", "my-profile", "", true)}${button("ปิด", "close")}</div>`,
             );
             return;
           }
@@ -30258,7 +30441,7 @@
           pageVersions.clear();
           await refreshBase(true);
           $("message").innerHTML = "";
-          if (!profileReady) void loadProfile().catch((error) => toast(error.message));
+          if (!profileReady) void loadProfile().catch((error) => toast(friendlyError(error)));
           if (version === navVersion) return navigate(page, true, true);
         } catch (e) {
           if (version === navVersion) {
@@ -30445,7 +30628,7 @@
       }
       if (a === "promote") {
         if (db.Groups.length < 2) {
-          toast("สร้างห้องปลายทางก่อน");
+          toast("กรุณาสร้างชั้นเรียนปลายทางก่อนย้ายนักเรียน");
           return;
         }
         return form(
@@ -30721,8 +30904,9 @@
       try {
         await handleAction(el);
       } catch (e) {
-        if ($("formError")) $("formError").innerHTML = e.action ? errorNotice(e) : esc(friendlyError(e));
-        toast(e.message);
+        if ($("formError"))
+          $("formError").innerHTML = e.action ? errorNotice(e) : esc(friendlyError(e));
+        toast(friendlyError(e));
       }
     });
     document.addEventListener("change", (event) => {
@@ -30733,16 +30917,20 @@
       }
       if (el.id === "avatarFile")
         prepareAvatar(el.files[0]).catch((e) => {
-          toast(e.message);
+          toast(friendlyError(e));
           if ($("avatarStatus")) $("avatarStatus").textContent = e.message;
         });
       if (el.id === "homeCourse") {
         homeCourse = el.value;
+        reconcileWorkFilters("course");
         return navigate("home");
       }
       if (el.id === "offeringFilter") {
         reviewAcross = false;
         selectedOffering = el.value;
+        reconcileWorkFilters("offering");
+        reviewActivity = "";
+        reviewStudent = "";
         reviewOffset = 0;
         navigate(currentPage);
       }
@@ -30778,6 +30966,11 @@
       }
       if (el.id === "groupFilter" || el.id === "studentGroup") {
         selectedGroup = el.value;
+        if (el.id === "groupFilter") {
+          reconcileWorkFilters("group");
+          reviewActivity = "";
+          reviewStudent = "";
+        }
         reviewOffset = 0;
         navigate(currentPage);
       }
@@ -31265,7 +31458,7 @@
           $("formError").innerHTML = e.action ? errorNotice(e) : esc(friendlyError(e));
           $("formError").className = "error-text";
         }
-        toast(e.message);
+        toast(friendlyError(e));
       } finally {
         if (savingActivity) hideOperation();
         if (fileForm) {
@@ -31294,31 +31487,64 @@
       sessionStorage.removeItem("userData");
       location.replace(CONFIG.LOGIN_PAGE);
     };
-    // Remember navigation only; data and permissions are loaded again on refresh.
+
     const teacherViewKey = "kruvandaTeacherView";
     function saveTeacherView() {
       try {
-        sessionStorage.setItem(teacherViewKey, JSON.stringify({
-          token: session.token, url: sessionStorage.getItem("kruvandaGasUrl"),
-          at: Date.now(), html: pageCache.get(pageCacheKey()) || "", courseData,
-          page: currentPage, selectedCourse, selectedOffering, selectedGroup,
-          courseTab, courseDetailTab, homeCourse, reviewAcross, reviewPending, reviewStudent,
-          reviewSearch, reviewActivity, reviewStatus, reviewOffset, progressSearch, progressStatus, adminTab, adminOffset, listOrder
-        }));
+        sessionStorage.setItem(
+          teacherViewKey,
+          JSON.stringify({
+            token: session.token,
+            url: sessionStorage.getItem("kruvandaGasUrl"),
+            at: Date.now(),
+            html: pageCache.get(pageCacheKey()) || "",
+            courseData,
+            page: currentPage,
+            selectedCourse,
+            selectedOffering,
+            selectedGroup,
+            courseTab,
+            courseDetailTab,
+            homeCourse,
+            reviewAcross,
+            reviewPending,
+            reviewStudent,
+            reviewSearch,
+            reviewActivity,
+            reviewStatus,
+            reviewOffset,
+            progressSearch,
+            progressStatus,
+            adminTab,
+            adminOffset,
+            listOrder,
+          }),
+        );
       } catch (_) { }
     }
     let restoredTeacherHTML = "";
     function restoreTeacherView() {
       try {
         const view = JSON.parse(sessionStorage.getItem(teacherViewKey) || "null");
-        if (!view || view.token !== session.token || view.url !== sessionStorage.getItem("kruvandaGasUrl")) return;
+        if (
+          !view ||
+          view.token !== session.token ||
+          view.url !== sessionStorage.getItem("kruvandaGasUrl")
+        )
+          return;
         if (![...Object.keys(labels), "course"].includes(view.page)) return;
         currentPage = view.page;
         if (Date.now() - view.at < 1800000 && typeof view.html === "string") {
           restoredTeacherHTML = view.html;
           if (view.courseData && typeof view.courseData === "object") courseData = view.courseData;
         }
-        for (const key of ["selectedCourse", "selectedOffering", "selectedGroup", "homeCourse", "reviewStudent"])
+        for (const key of [
+          "selectedCourse",
+          "selectedOffering",
+          "selectedGroup",
+          "homeCourse",
+          "reviewStudent",
+        ])
           if (typeof view[key] !== "string") view[key] = "";
         selectedCourse = view.selectedCourse;
         selectedOffering = view.selectedOffering;
@@ -31326,19 +31552,24 @@
         homeCourse = view.homeCourse;
         reviewStudent = view.reviewStudent;
         courseTab = view.courseTab === "hidden" ? "hidden" : "active";
-        courseDetailTab = ["lessons", "members", "scores"].includes(view.courseDetailTab) ? view.courseDetailTab : "lessons";
+        courseDetailTab = ["lessons", "members", "scores"].includes(view.courseDetailTab)
+          ? view.courseDetailTab
+          : "lessons";
         reviewAcross = view.reviewAcross === true;
         reviewPending = view.reviewPending !== false;
         reviewSearch = typeof view.reviewSearch === "string" ? view.reviewSearch : "";
         reviewActivity = typeof view.reviewActivity === "string" ? view.reviewActivity : "";
         reviewStatus = typeof view.reviewStatus === "string" ? view.reviewStatus : "pending";
-        reviewOffset = Number.isSafeInteger(view.reviewOffset) && view.reviewOffset >= 0 ? view.reviewOffset : 0;
+        reviewOffset =
+          Number.isSafeInteger(view.reviewOffset) && view.reviewOffset >= 0 ? view.reviewOffset : 0;
         progressSearch = typeof view.progressSearch === "string" ? view.progressSearch : "";
         progressStatus = typeof view.progressStatus === "string" ? view.progressStatus : "all";
         adminTab = typeof view.adminTab === "string" ? view.adminTab : "status";
-        adminOffset = Number.isSafeInteger(view.adminOffset) && view.adminOffset >= 0 ? view.adminOffset : 0;
+        adminOffset =
+          Number.isSafeInteger(view.adminOffset) && view.adminOffset >= 0 ? view.adminOffset : 0;
         for (const key of Object.keys(listOrder))
-          if (["newest", "oldest"].includes(view.listOrder?.[key])) listOrder[key] = view.listOrder[key];
+          if (["newest", "oldest"].includes(view.listOrder?.[key]))
+            listOrder[key] = view.listOrder[key];
       } catch (_) { }
     }
     window.addEventListener("pagehide", saveTeacherView);
@@ -31376,24 +31607,28 @@
       startupLoadingBase = true;
       const startupBase = refreshBase();
       startupBase.catch(() => { });
-      startupDashboard = currentPage === "home" ? {
-        key: homeCourse + ":" + selectedGroup,
-        epoch: dataEpoch,
-        promise: api("dashboard", {
-          courseId: homeCourse,
-          groupId: selectedGroup,
-          forceRefresh: false,
-        }).then(
-          (data) => ({ data }),
-          (error) => ({ error }),
-        ),
-      } : null;
+      startupDashboard =
+        currentPage === "home"
+          ? {
+            key: homeCourse + ":" + selectedGroup,
+            epoch: dataEpoch,
+            promise: api("dashboard", {
+              courseId: homeCourse,
+              groupId: selectedGroup,
+              forceRefresh: false,
+            }).then(
+              (data) => ({ data }),
+              (error) => ({ error }),
+            ),
+          }
+          : null;
       if (cached && restoredTeacherHTML) {
         pageCache.set(pageCacheKey(), restoredTeacherHTML);
         $("content").innerHTML = restoredTeacherHTML;
         $("title").textContent = labels[currentPage] || "รายวิชา";
-        document.querySelectorAll("[data-page]").forEach((b) =>
-          b.classList.toggle("active", b.dataset.page === currentPage));
+        document
+          .querySelectorAll("[data-page]")
+          .forEach((b) => b.classList.toggle("active", b.dataset.page === currentPage));
         readableTables();
       } else if (cached && currentPage !== "course") await navigate(currentPage);
       else {

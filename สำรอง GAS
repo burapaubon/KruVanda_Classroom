@@ -1,14 +1,32 @@
-// Public notices must describe the user's next step without exposing implementation details.
 function publicErrorMessage_(error) {
   const message = String(error.message || error || "");
   if (error.code === "AUTH_EXPIRED") return "หมดเวลาเข้าใช้งาน กรุณาเข้าสู่ระบบใหม่";
-  if (/ไม่พบชื่อผู้ใช้นี้ในชีท Users/.test(message)) return "ไม่พบชื่อผู้ใช้นี้ กรุณาตรวจชื่อผู้ใช้ หรือติดต่อครู";
+  if (/ไม่พบชื่อผู้ใช้นี้ในชีท Users/.test(message))
+    return "ไม่พบชื่อผู้ใช้นี้ กรุณาตรวจชื่อผู้ใช้ หรือติดต่อครู";
   if (/รหัสผ่านไม่ตรงกับบัญชีนี้/.test(message)) return "รหัสผ่านไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง";
   if (/กรุณาเข้าสู่ระบบจาก index\.html/.test(message)) return "กรุณาเข้าสู่ระบบก่อนใช้งาน";
   if (/updatesheet|Apps Script|resetTeacherLogin|หัวตาราง|พบชีทซ้ำ/.test(message))
     return "ระบบยังไม่พร้อมใช้งาน กรุณาแจ้งผู้ดูแลระบบ";
-  if (/GAS|bootstrap|\bAPI\b|deployment|Google Sheets|ชีท Users|Exception|TypeError|ReferenceError|SyntaxError|Service invoked|permission|spreadsheet|DriveApp|SpreadsheetApp|stack trace|index\.html/i.test(message))
+  if (
+    /GAS|bootstrap|\bAPI\b|deployment|Google Sheets|ชีท Users|Exception|TypeError|ReferenceError|SyntaxError|Service invoked|permission|spreadsheet|DriveApp|SpreadsheetApp|stack trace|index\.html/i.test(
+      message,
+    )
+  )
     return "ระบบยังดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง หากยังพบปัญหาให้แจ้งผู้ดูแลระบบ";
+  if (message === "บัญชีนี้ปิดใช้งาน") return "บัญชีนี้ปิดใช้งาน กรุณาติดต่อครูหรือผู้ดูแลระบบ";
+  if (message === "บัญชีนี้ยังไม่เปิดใช้งาน")
+    return "บัญชีนี้ยังไม่เปิดใช้งาน กรุณาติดต่อครูหรือผู้ดูแลระบบ";
+  if (message === "ระบบปิดให้นักเรียนเข้าใช้งานชั่วคราว")
+    return "ระบบปิดให้นักเรียนเข้าใช้งานชั่วคราว กรุณารอครูเปิดระบบแล้วเข้าสู่ระบบอีกครั้ง";
+  if (message === "รายวิชานี้ยังไม่เปิดใช้งาน") return "รายวิชานี้ยังไม่เปิดใช้งาน กรุณาติดต่อครู";
+  if (message === "ยังไม่ได้ลงทะเบียนวิชานี้") return "ยังไม่ได้ลงทะเบียนรายวิชานี้ กรุณาติดต่อครู";
+  if (message === "กิจกรรมยังไม่เปิด") return "กิจกรรมนี้ยังไม่เปิดใช้งาน กรุณาติดต่อครู";
+  if (message === "สื่อยังไม่เปิด") return "สื่อนี้ยังไม่เปิดใช้งาน กรุณาติดต่อครู";
+  if (message === "ส่งกิจกรรมนี้แล้ว") return "ส่งกิจกรรมนี้แล้ว สามารถเปิดดูงานและคะแนนได้";
+  if (message === "รอบทำกิจกรรมเปลี่ยนแล้ว")
+    return "รอบทำกิจกรรมมีการเปลี่ยนแปลง กรุณาเปิดกิจกรรมอีกครั้ง";
+  if (message === "หมดระยะกู้คืน 90 วันแล้ว")
+    return "หมดระยะกู้คืน 90 วันแล้ว กรุณาตรวจไฟล์สำรองที่มีอยู่";
   return message || "ดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง";
 }
 
@@ -91,7 +109,9 @@ const SCHEMA = {
     "submittedAt",
     "bestScore",
     "attemptKey",
+    "groupId",
   ],
+  Assignments: ["id", "courseId", "activityId", "groupId", "startedAt"],
   Progress: ["id", "materialId", "offeringId", "studentId", "updatedAt"],
   Runs: [
     "id",
@@ -254,6 +274,7 @@ function updatesheet() {
       });
     }
     migrateWorksheetMaterials_();
+    migrateWorkloadAssignments_();
     props.setProperty("KV_DATA_REVISION", Utilities.getUuid());
     installLmsCleanup();
     rows_("Courses")
@@ -506,16 +527,20 @@ function groupImpact_(q) {
 function deleteGroup_(q) {
   teacher_(q);
   enum_(q.mode, ["room", "room-students"]);
-  if (q.confirmText !== "ยืนยัน") throw Error("พิมพ์ ยืนยัน ก่อนลบถาวร");
+  if (q.confirmText !== "ยืนยัน") throw Error("กรุณาพิมพ์ “ยืนยัน” ก่อนลบถาวร");
   const impact = groupImpact_(q);
   if (impact.fingerprint !== q.fingerprint)
-    throw Error("ข้อมูลเปลี่ยนแล้ว กรุณาเปิดหน้าสรุปก่อนลบอีกครั้ง");
+    throw Error("ข้อมูลมีการเปลี่ยนแปลง กรุณาเปิดหน้าสรุปและตรวจสอบอีกครั้งก่อนลบ");
   const ids = new Set(
     rows_("Students")
       .filter((s) => s.groupId === q.id)
       .map((s) => s.id),
   );
   const backup = q.backupBeforeDelete === false ? null : backup_(q);
+  rewriteRows_(
+    "Assignments",
+    rows_("Assignments").filter((r) => r.groupId !== q.id),
+  );
   if (q.mode === "room-students") {
     const submissionIds = new Set(
       rows_("Submissions")
@@ -585,7 +610,8 @@ function login_(q) {
     throw Error("ระบบปิดให้นักเรียนเข้าใช้งานชั่วคราว");
   const token = Utilities.getUuid() + Utilities.getUuid();
 
-  const expiresAt = Date.now() + sessionIdleMs_(user.role);
+  const expiresAt =
+    user.role === "student" ? 8640000000000000 : Date.now() + sessionIdleMs_(user.role);
   const sessionLock = LockService.getScriptLock();
   if (!sessionLock.tryLock(5000))
     throw Error("ระบบกำลังบันทึกข้อมูลอื่น กรุณาลองเข้าสู่ระบบอีกครั้งในอีกสักครู่");
@@ -650,14 +676,18 @@ function sessionInfo_(q, touch) {
   const id = digest_(q.token);
   delete MEM.Sessions;
   const session = findRow_("Sessions", id);
-  if (!session || Number(session.expiresAt) <= Date.now())
+  if (
+    !session ||
+    Number(session.expiresAt) <= 0 ||
+    (user.role !== "student" && Number(session.expiresAt) <= Date.now())
+  )
     throw adminAuthError_(
       "ไม่มีการใช้งานนานหรือเซสชันถูกยกเลิก กรุณาเข้าสู่ระบบใหม่",
       "IDLE_EXPIRED",
     );
   let expiresAt = Number(session.expiresAt);
   if (touch) {
-    expiresAt = Date.now() + sessionIdleMs_(user.role);
+    expiresAt = user.role === "student" ? 8640000000000000 : Date.now() + sessionIdleMs_(user.role);
     const renewed = writeOne_("Sessions", {
       id,
       expiresAt,
@@ -689,9 +719,12 @@ function diagnosticOriginal_auth_(q, role) {
   }
   if (!session)
     throw adminAuthError_("ไม่พบเซสชันนี้หรือถูกยกเลิก กรุณาเข้าสู่ระบบใหม่", "SESSION_NOT_FOUND");
-  if (Number(session.expiresAt) <= Date.now())
-    throw adminAuthError_("ไม่มีการใช้งานนาน เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่", "IDLE_EXPIRED");
   const user = findRow_("Users", session.userId);
+  if (
+    Number(session.expiresAt) <= 0 ||
+    (user?.role !== "student" && Number(session.expiresAt) <= Date.now())
+  )
+    throw adminAuthError_("เซสชันหมดอายุหรือถูกยกเลิก กรุณาเข้าสู่ระบบใหม่", "IDLE_EXPIRED");
   if (!user)
     throw adminAuthError_("บัญชีนี้ถูกนำออกจากระบบแล้ว กรุณาติดต่อครู", "ACCOUNT_NOT_FOUND");
   if (
@@ -1125,6 +1158,10 @@ function replaceRoster_(q) {
       rows_(key).filter((r) => !ids.has(r.id)),
     );
   });
+  rewriteRows_(
+    "Assignments",
+    rows_("Assignments").filter((r) => r.groupId !== q.groupId),
+  );
   const result = importStudents_(
     Object.assign({}, q, {
       students: q.students.map((s) => Object.assign({}, s, { groupId: q.groupId })),
@@ -1519,6 +1556,10 @@ function deleteChapter_(q) {
   const changed = changeAttachmentTrash_(trashIds, true);
   try {
     rewriteRows_(
+      "Assignments",
+      rows_("Assignments").filter((r) => !aids.has(r.activityId)),
+    );
+    rewriteRows_(
       "History",
       rows_("History").filter((r) => !sids.has(r.submissionId)),
     );
@@ -1572,6 +1613,10 @@ function deleteActivity_(q) {
   rewriteRows_(
     "Runs",
     rows_("Runs").filter((s) => s.activityId !== a.id),
+  );
+  rewriteRows_(
+    "Assignments",
+    rows_("Assignments").filter((r) => r.activityId !== a.id),
   );
   write_("Activities", { id: a.id, status: "deleted" });
   return { deleted: true };
@@ -1915,7 +1960,8 @@ function saveActivity_(q) {
   const old = q.id ? get_("Activities", q.id) : null;
 
   const hasSubmissions = old && rows_("Submissions").some((s) => s.activityId === old.id);
-  const hasStartedRuns = old && rows_("Runs").some((r) => r.activityId === old.id && r.status === "started");
+  const hasStartedRuns =
+    old && rows_("Runs").some((r) => r.activityId === old.id && r.status === "started");
   const worksheet = q.kind === "worksheet";
   const submissionMode = worksheet
     ? enum_(q.submissionMode || (old && old.submissionMode) || "internal", ["internal", "file"])
@@ -1938,21 +1984,36 @@ function saveActivity_(q) {
     throw Error("ใช้ไฟล์ได้เฉพาะใบงานแนบไฟล์");
   if (hasSubmissions || hasStartedRuns) {
     const previousQuestions = questions_(json_(old.questions, []));
-    const instructionsOnly = old.kind === "worksheet" && (old.submissionMode || "internal") === "file" && submissionMode === "file";
-    const questionShape = (list) => list.map((x) => ({ ...x, text: instructionsOnly ? "" : x.text }));
-    const sameQuestions = JSON.stringify(questionShape(previousQuestions)) === JSON.stringify(questionShape(questions));
-    const protectedSettingsSame = old.kind === q.kind && old.mode === mode &&
-      Number(old.seconds || 0) === seconds && (old.submissionMode || "internal") === submissionMode &&
+    const instructionsOnly =
+      old.kind === "worksheet" &&
+      (old.submissionMode || "internal") === "file" &&
+      submissionMode === "file";
+    const questionShape = (list) =>
+      list.map((x) => ({ ...x, text: instructionsOnly ? "" : x.text }));
+    const sameQuestions =
+      JSON.stringify(questionShape(previousQuestions)) === JSON.stringify(questionShape(questions));
+    const protectedSettingsSame =
+      old.kind === q.kind &&
+      old.mode === mode &&
+      Number(old.seconds || 0) === seconds &&
+      (old.submissionMode || "internal") === submissionMode &&
       !!old.showAnswers === (worksheet ? false : !!q.showAnswers) &&
       !!old.allowEdit === (worksheet ? true : !!q.allowEdit) &&
       !!old.countScore === (worksheet || mode !== "game" ? true : q.countScore === true) &&
       !!old.unlimitedAttempts === (worksheet ? false : q.unlimitedAttempts === true) &&
       !!old.protectContent === (worksheet ? false : q.protectContent === true);
-    const existingIds = resourceFiles_(old, true).map((f) => f.fileId).sort();
+    const existingIds = resourceFiles_(old, true)
+      .map((f) => f.fileId)
+      .sort();
     const retainedIds = q.keepFileIds === undefined ? existingIds : q.keepFileIds.slice().sort();
-    const sameFiles = !q.resourceFile && !(q.uploadFileIds || []).length && JSON.stringify(existingIds) === JSON.stringify(retainedIds);
+    const sameFiles =
+      !q.resourceFile &&
+      !(q.uploadFileIds || []).length &&
+      JSON.stringify(existingIds) === JSON.stringify(retainedIds);
     if (!sameQuestions || !protectedSettingsSame || !sameFiles) {
-      const error = new Error("กิจกรรมนี้มีนักเรียนส่งงานหรือเริ่มทำแล้ว แก้ชื่อ คำชี้แจงใบงานแนบไฟล์ สถานะ และกำหนดส่งได้ แต่การเปลี่ยนโจทย์ ไฟล์ หรือเกณฑ์คะแนนต้องสร้างกิจกรรมใหม่");
+      const error = new Error(
+        "กิจกรรมนี้มีนักเรียนส่งงานหรือเริ่มทำแล้ว แก้ชื่อ คำชี้แจงใบงานแนบไฟล์ สถานะ และกำหนดส่งได้ แต่การเปลี่ยนโจทย์ ไฟล์ หรือเกณฑ์คะแนนต้องสร้างกิจกรรมใหม่",
+      );
       error.code = "ACTIVITY_LOCKED";
       error.mutationRejected = true;
       throw error;
@@ -2094,14 +2155,28 @@ function submissionsData_(q) {
       .filter((e) => offeringIds.has(e.offeringId))
       .map((e) => [e.offeringId + ":" + e.studentId, e.groupId]),
   );
-  const scoped = rows_("Submissions").filter(
+  const candidates = rows_("Submissions").filter(
     (s) =>
       offeringIds.has(s.offeringId) &&
+      ["pending", "graded", "returned"].includes(s.status) &&
       (!q.groupId ||
         ((students.get(s.studentId) || {}).groupId ||
           groups.get(s.offeringId + ":" + s.studentId)) === q.groupId) &&
       (!q.studentId || s.studentId === q.studentId),
   );
+  const latestScoped = new Map();
+  candidates.forEach((s) => {
+    const key = JSON.stringify([s.offeringId, s.activityId, s.studentId]),
+      old = latestScoped.get(key);
+    const time = (v) => new Date(v.updatedAt || v.submittedAt || 0).getTime() || 0;
+    if (
+      !old ||
+      time(s) > time(old) ||
+      (time(s) === time(old) && Number(s.revision || 0) >= Number(old.revision || 0))
+    )
+      latestScoped.set(key, s);
+  });
+  const scoped = Array.from(latestScoped.values());
   const counts = {
     total: scoped.length,
     pending: scoped.filter((s) => s.status === "pending").length,
@@ -2228,11 +2303,187 @@ function grade_(q) {
   return { score: scores.reduce((a, b) => a + b, 0) };
 }
 
+function workloadKey_(courseId, activityId, groupId) {
+  return JSON.stringify([courseId, activityId, groupId]);
+}
+function workloadContext_() {
+  if (MEM.workloadContext) return MEM.workloadContext;
+  const students = new Map(
+    rows_("Students")
+      .filter((s) => s.status === "active")
+      .map((s) => [s.id, s]),
+  );
+  const groups = new Set(
+    rows_("Groups")
+      .filter((g) => g.status === "active")
+      .map((g) => g.id),
+  );
+  const courses = new Set(
+    rows_("Courses")
+      .filter((c) => c.status === "active")
+      .map((c) => c.id),
+  );
+  const offerings = new Map(
+    rows_("Offerings")
+      .filter((o) => o.status === "active" && courses.has(o.courseId))
+      .map((o) => [o.id, o]),
+  );
+  const chapters = new Map(
+    rows_("Chapters")
+      .filter((c) => c.status === "active" && courses.has(c.courseId))
+      .map((c) => [c.id, c]),
+  );
+  const activities = new Map(
+    rows_("Activities")
+      .filter((a) => a.status === "active" && chapters.has(a.chapterId) && activityCountsScore_(a))
+      .map((a) => [a.id, a]),
+  );
+  const roster = new Set(
+    rows_("Enrollments")
+      .filter(
+        (e) =>
+          e.status === "active" &&
+          offerings.has(e.offeringId) &&
+          students.has(e.studentId) &&
+          groups.has(students.get(e.studentId).groupId),
+      )
+      .map((e) => JSON.stringify([e.offeringId, e.studentId])),
+  );
+  const started = new Set(
+    rows_("Assignments")
+      .filter(
+        (r) =>
+          activities.has(r.activityId) &&
+          chapters.get(activities.get(r.activityId).chapterId).courseId === r.courseId &&
+          groups.has(r.groupId),
+      )
+      .map((r) => workloadKey_(r.courseId, r.activityId, r.groupId)),
+  );
+  const latest = new Map();
+  rows_("Submissions").forEach((s) => {
+    if (
+      !["pending", "graded", "returned"].includes(s.status) ||
+      !roster.has(JSON.stringify([s.offeringId, s.studentId])) ||
+      !activities.has(s.activityId)
+    )
+      return;
+    const courseId = offerings.get(s.offeringId).courseId;
+    if (chapters.get(activities.get(s.activityId).chapterId).courseId !== courseId) return;
+    started.add(
+      workloadKey_(courseId, s.activityId, s.groupId || students.get(s.studentId).groupId),
+    );
+    const key = JSON.stringify([s.offeringId, s.activityId, s.studentId]),
+      old = latest.get(key);
+    const time = (v) => new Date(v.updatedAt || v.submittedAt || 0).getTime() || 0;
+    if (
+      !old ||
+      time(s) > time(old) ||
+      (time(s) === time(old) && Number(s.revision || 0) >= Number(old.revision || 0))
+    )
+      latest.set(key, s);
+  });
+  return (MEM.workloadContext = {
+    started,
+    latest,
+    students,
+    offerings,
+    activities,
+    chapters,
+    roster,
+  });
+}
+function rememberWorkload_(offeringId, activityId, studentId, startedAt, submittedGroupId) {
+  const student = rows_("Students").find((s) => s.id === studentId);
+  const offering = rows_("Offerings").find((o) => o.id === offeringId);
+  const activity = rows_("Activities").find((a) => a.id === activityId);
+  const chapter = activity && rows_("Chapters").find((c) => c.id === activity.chapterId);
+  if (
+    !student ||
+    !student.groupId ||
+    !offering ||
+    !chapter ||
+    chapter.courseId !== offering.courseId ||
+    !activityCountsScore_(activity)
+  )
+    return;
+  const groupId = submittedGroupId || student.groupId;
+  const id = workloadKey_(offering.courseId, activityId, groupId);
+  if (!rows_("Assignments").some((r) => r.id === id))
+    write_("Assignments", {
+      id,
+      courseId: offering.courseId,
+      activityId,
+      groupId,
+      startedAt: startedAt || new Date().toISOString(),
+    });
+  delete MEM.workloadContext;
+}
+function migrateWorkloadAssignments_() {
+  const students = new Map(rows_("Students").map((s) => [s.id, s]));
+  rows_("Submissions")
+    .filter((s) => ["pending", "graded", "returned"].includes(s.status))
+    .forEach((s) => {
+      const groupId = s.groupId || students.get(s.studentId)?.groupId;
+      if (!groupId) return;
+      if (!s.groupId) write_("Submissions", { id: s.id, groupId });
+      rememberWorkload_(
+        s.offeringId,
+        s.activityId,
+        s.studentId,
+        s.submittedAt || s.updatedAt,
+        groupId,
+      );
+    });
+}
+
 function progress_(q) {
   teacher_(q);
   return summaryCache_("progress", q, () => progressData_(q));
 }
 function progressData_(q) {
+  if (!q.offeringId) {
+    const courses = new Set(
+      rows_("Courses")
+        .filter((c) => c.status === "active" && (!q.courseId || c.id === q.courseId))
+        .map((c) => c.id),
+    );
+    const combined = new Map();
+    rows_("Offerings")
+      .filter((o) => o.status === "active" && courses.has(o.courseId))
+      .forEach((o) => {
+        progressData_({ ...q, offeringId: o.id }).forEach((r) => {
+          const key = JSON.stringify([r.studentId, r.groupId]);
+          if (!combined.has(key))
+            combined.set(key, { ...r, offeringIds: [o.id], assignedIds: [...r.assignedIds] });
+          else {
+            const row = combined.get(key);
+            for (const field of [
+              "expected",
+              "submitted",
+              "returned",
+              "graded",
+              "missing",
+              "readCount",
+              "materialCount",
+              "done",
+              "total",
+              "learningDone",
+              "learningTotal",
+              "pending",
+              "score",
+              "maxScore",
+            ])
+              row[field] += Number(r[field] || 0);
+            row.assignedIds.push(...r.assignedIds);
+            row.offeringIds.push(o.id);
+          }
+        });
+      });
+    return Array.from(combined.values()).map((r) => ({
+      ...r,
+      percent: r.expected ? Math.round((r.submitted * 100) / r.expected) : null,
+    }));
+  }
   const o = get_("Offerings", q.offeringId);
   const chapters = new Set(
     rows_("Chapters")
@@ -2247,7 +2498,8 @@ function progressData_(q) {
   );
   const aids = new Set(activities.map((a) => a.id)),
     mids = new Set(materials.map((m) => m.id));
-  const submissions = rows_("Submissions").filter(
+  const workload = workloadContext_();
+  const submissions = Array.from(workload.latest.values()).filter(
     (s) => s.offeringId === q.offeringId && aids.has(s.activityId),
   );
   const reads = rows_("Progress").filter(
@@ -2268,17 +2520,29 @@ function progressData_(q) {
     if (!readsByStudent.has(r.studentId)) readsByStudent.set(r.studentId, []);
     readsByStudent.get(r.studentId).push(r);
   });
+  const seenMembers = new Set();
   return rows_("Enrollments")
     .filter(
       (e) =>
         e.offeringId === q.offeringId &&
         e.status === "active" &&
+        workload.roster.has(JSON.stringify([e.offeringId, e.studentId])) &&
         (!q.groupId || ((students.get(e.studentId) || {}).groupId || e.groupId) === q.groupId),
     )
+    .filter((e) => {
+      if (seenMembers.has(e.studentId)) return false;
+      seenMembers.add(e.studentId);
+      return true;
+    })
     .map((e) => {
       const work = workByStudent.get(e.studentId) || [],
         read = readsByStudent.get(e.studentId) || [];
-      const submittedIds = new Set(work.map((w) => w.activityId));
+      const roomId = (students.get(e.studentId) || {}).groupId || e.groupId;
+      const assignedIds = activities
+        .filter((a) => workload.started.has(workloadKey_(o.courseId, a.id, roomId)))
+        .map((a) => a.id);
+      const countedWork = work.filter((w) => assignedIds.includes(w.activityId));
+      const submittedIds = new Set(countedWork.map((w) => w.activityId));
       const done = submittedIds.size + new Set(read.map((r) => r.materialId)).size;
       const graded = work.filter(
         (s) =>
@@ -2289,17 +2553,22 @@ function progressData_(q) {
         studentId: e.studentId,
         name: (students.get(e.studentId) || {}).fullName || e.studentId,
         groupId: (students.get(e.studentId) || {}).groupId || e.groupId,
-        expected: activities.length,
+        assignedIds,
+        expected: assignedIds.length,
         submitted: submittedIds.size,
-        returned: work.filter((s) => s.status === "returned").length,
-        graded: work.filter((s) => s.status === "graded").length,
-        missing: activities.filter((a) => !submittedIds.has(a.id)).length,
+        returned: countedWork.filter((s) => s.status === "returned").length,
+        graded: countedWork.filter((s) => s.status === "graded").length,
+        missing: assignedIds.filter((id) => !submittedIds.has(id)).length,
         readCount: new Set(read.map((r) => r.materialId)).size,
         materialCount: materials.length,
-        done,
-        total,
-        percent: total ? Math.round((done / total) * 100) : 0,
-        pending: work.filter((s) => s.status === "pending").length,
+        done: submittedIds.size,
+        total: assignedIds.length,
+        percent: assignedIds.length
+          ? Math.round((submittedIds.size * 100) / assignedIds.length)
+          : null,
+        learningDone: done,
+        learningTotal: total,
+        pending: countedWork.filter((s) => s.status === "pending").length,
         score: graded.reduce(
           (n, s) =>
             n +
@@ -2314,6 +2583,160 @@ function progressData_(q) {
         ),
       };
     });
+}
+
+function studentDashboard_(q) {
+  const u = auth_(q, "student");
+  const students = rows_("Students"),
+    me = students.find((s) => s.id === u.id);
+  if (!me || me.status !== "active") throw Error("บัญชีนี้ปิดใช้งาน");
+  const group = rows_("Groups").find((g) => g.id === me.groupId && g.status === "active");
+  if (!group) throw Error("ห้องเรียนนี้ยังไม่เปิดใช้งาน กรุณาติดต่อครู");
+  const courses = new Map(
+    rows_("Courses")
+      .filter((c) => c.status === "active")
+      .map((c) => [c.id, c]),
+  );
+  const enrollments = rows_("Enrollments").filter((e) => e.status === "active");
+  const ownIds = new Set(enrollments.filter((e) => e.studentId === u.id).map((e) => e.offeringId));
+  const offerings = rows_("Offerings").filter(
+    (o) => ownIds.has(o.id) && o.status === "active" && courses.has(o.courseId),
+  );
+  const chapters = new Map(
+    rows_("Chapters")
+      .filter((c) => c.status === "active")
+      .map((c) => [c.id, c]),
+  );
+  const activities = rows_("Activities").filter(
+    (a) => a.status === "active" && chapters.has(a.chapterId),
+  );
+  const roomStudents = new Map(
+    students.filter((s) => s.status === "active" && s.groupId === me.groupId).map((s) => [s.id, s]),
+  );
+  const ownOfferingIds = new Set(offerings.map((o) => o.id));
+  const workload = workloadContext_();
+  const latest = new Map();
+
+  rows_("Submissions")
+    .filter(
+      (s) =>
+        ["pending", "graded", "returned"].includes(s.status) &&
+        ownOfferingIds.has(s.offeringId) &&
+        roomStudents.has(s.studentId),
+    )
+    .forEach((s) => {
+      const key = JSON.stringify([s.offeringId, s.activityId, s.studentId]);
+      const prior = latest.get(key);
+      const time = (v) => new Date(v.updatedAt || v.submittedAt || 0).getTime() || 0;
+      if (
+        !prior ||
+        time(s) > time(prior) ||
+        (time(s) === time(prior) && Number(s.revision || 0) >= Number(prior.revision || 0))
+      )
+        latest.set(key, s);
+    });
+  const counts = {
+    courses: offerings.length,
+    expected: 0,
+    passed: 0,
+    missing: 0,
+    pending: 0,
+    returned: 0,
+    submitted: 0,
+  };
+  const results = offerings.map((o) => {
+    const course = courses.get(o.courseId);
+    const rosterIds = new Set(
+      enrollments
+        .filter((e) => e.offeringId === o.id && roomStudents.has(e.studentId))
+        .map((e) => e.studentId),
+    );
+    const courseActivities = activities.filter(
+      (a) => chapters.get(a.chapterId).courseId === o.courseId,
+    );
+    const workActivities = courseActivities.filter(activityCountsScore_);
+    const activated = new Set(
+      workActivities
+        .filter((a) => workload.started.has(workloadKey_(o.courseId, a.id, me.groupId)))
+        .map((a) => a.id),
+    );
+    const roster = Array.from(rosterIds)
+      .map((id) => {
+        const submitted = Array.from(activated).filter((aid) =>
+          latest.has(JSON.stringify([o.id, aid, id])),
+        ).length;
+        return {
+          name: roomStudents.get(id).fullName || "นักเรียน",
+          isMe: id === u.id,
+          submitted,
+          expected: activated.size,
+          percent: activated.size ? Math.round((submitted * 100) / activated.size) : null,
+        };
+      })
+      .sort((a, b) => Number(b.isMe) - Number(a.isMe) || a.name.localeCompare(b.name, "th"));
+    const rows = courseActivities.map((a) => {
+      const s = latest.get(JSON.stringify([o.id, a.id, u.id]));
+      const counted = activated.has(a.id);
+      const category = !activityCountsScore_(a)
+        ? "practice"
+        : !counted
+          ? "not-started"
+          : !s
+            ? "missing"
+            : s.status === "graded"
+              ? "passed"
+              : s.status === "returned"
+                ? "returned"
+                : "pending";
+      if (counted) {
+        counts.expected++;
+        counts[category]++;
+        if (s) counts.submitted++;
+      }
+      const scores = s && s.status === "graded" ? json_(s.scores, []) : [];
+      return {
+        activity: {
+          id: a.id,
+          title: a.title,
+          kind: a.kind,
+          mode: a.mode,
+          countScore: activityCountsScore_(a),
+        },
+        counted,
+        category,
+        submission: s
+          ? {
+            status: s.status,
+            bestScore: s.bestScore === "" || s.bestScore == null ? null : Number(s.bestScore),
+            scores,
+          }
+          : null,
+      };
+    });
+    const roomSubmitted = roster.reduce((sum, s) => sum + s.submitted, 0),
+      roomExpected = activated.size * roster.length;
+    return {
+      offeringId: o.id,
+      courseName: course.name,
+      code: course.code,
+      rows,
+      room: {
+        name: group.name,
+        expected: activated.size,
+        students: roster.length,
+        submitted: roomSubmitted,
+        total: roomExpected,
+        percent: roomExpected ? Math.round((roomSubmitted * 100) / roomExpected) : null,
+        roster,
+      },
+    };
+  });
+  return {
+    counts: { ...counts, graded: counts.passed },
+    groupName: group.name,
+    courses: results,
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 function studentHome_(q) {
@@ -2346,6 +2769,11 @@ function studentCourse_(q) {
     .map(clean_),
     ids = new Set(Chapters.map((c) => c.id));
   let returnedActivities;
+  const ownSubmissions = new Map(
+    rows_("Submissions")
+      .filter((s) => s.studentId === u.id && s.offeringId === q.offeringId)
+      .map((s) => [s.activityId, s]),
+  );
   function hasReturnedWork(activityId) {
     if (!returnedActivities)
       returnedActivities = new Set(
@@ -2382,6 +2810,8 @@ function studentCourse_(q) {
         resourceFiles: resourceFiles_(a, true),
         unlimitedAttempts: a.unlimitedAttempts === true,
         protectContent: a.protectContent === true,
+        submissionStatus: ownSubmissions.get(a.id)?.status || "",
+        needsRevision: hasReturnedWork(a.id),
         allowEdit: a.kind === "worksheet" || a.allowEdit || hasReturnedWork(a.id),
       })),
   };
@@ -2417,20 +2847,23 @@ function startActivity_(q) {
     a = activityAccess_(u.id, q),
     id = digest_(u.id + ":" + q.offeringId + ":" + a.id),
     old = rows_("Submissions").find((s) => s.id === id);
-  if (a.kind !== "worksheet" && old && old.status !== "returned" && !a.unlimitedAttempts)
-    throw Error("ส่งกิจกรรมนี้แล้ว");
+  if (old && old.status !== "returned" && !a.unlimitedAttempts) throw Error("ส่งกิจกรรมนี้แล้ว");
   if (a.unlimitedAttempts && old && old.status === "pending")
     throw Error("รอครูตรวจข้อเขียนรอบนี้ก่อนทำรอบใหม่");
   let run = rows_("Runs").find((r) => r.id === id);
-  if (!run || run.status !== "started") {
+
+  const revisionAt = old && old.status === "returned" ? new Date(old.updatedAt).getTime() : 0;
+  const staleRevisionRun = run && revisionAt && Number(run.startedAt) <= revisionAt;
+  if (!run || run.status !== "started" || staleRevisionRun) {
+    const startedAt = Date.now();
     run = {
       id,
       activityId: a.id,
       offeringId: q.offeringId,
       studentId: u.id,
-      startedAt: Date.now(),
+      startedAt,
       expiresAt:
-        a.kind !== "worksheet" && Number(a.seconds) ? Date.now() + Number(a.seconds) * 1000 : 0,
+        a.kind !== "worksheet" && Number(a.seconds) > 0 ? startedAt + Number(a.seconds) * 1000 : 0,
       status: "started",
       questionSnapshot: a.questions,
       attemptKey: id_("TRY"),
@@ -2537,8 +2970,7 @@ function submitActivity_(q) {
     throw Error("รอบนี้ส่งแล้วหรือเปลี่ยนรอบแล้ว กรุณาเปิดกิจกรรมใหม่");
   if (q.autoSubmit && !timedOut) throw Error("ยังไม่หมดเวลา");
   const old = rows_("Submissions").find((s) => s.id === id);
-  if (old && a.kind !== "worksheet" && old.status !== "returned" && !a.unlimitedAttempts)
-    throw Error("ส่งกิจกรรมนี้แล้ว");
+  if (old && old.status !== "returned" && !a.unlimitedAttempts) throw Error("ส่งกิจกรรมนี้แล้ว");
   const questions = json_(run.questionSnapshot || a.questions, []);
   if (!Array.isArray(q.answers)) throw Error("คำตอบไม่ถูกต้อง");
   const fileWorksheet = a.kind === "worksheet" && a.submissionMode === "file";
@@ -2606,8 +3038,10 @@ function submitActivity_(q) {
       submittedAt: new Date().toISOString(),
       bestScore,
       attemptKey: run.attemptKey || "",
+      groupId: get_("Students", u.id).groupId,
     });
     committed = true;
+    rememberWorkload_(q.offeringId, a.id, u.id);
     commitFiles_(workFiles);
     write_("Runs", { id, status: "submitted" });
     return {
@@ -2949,38 +3383,28 @@ function dashboardData_(q) {
     "mode",
     "seconds",
     "showAnswers",
+    "countScore",
     "status",
     "dueAt",
-  ]).filter((a) => a.status === "active" && chapters.has(a.chapterId));
+  ]).filter((a) => a.status === "active" && chapters.has(a.chapterId) && activityCountsScore_(a));
   const tasksByCourse = new Map();
   activities.forEach((a) => {
     const courseId = chapters.get(a.chapterId);
     if (!tasksByCourse.has(courseId)) tasksByCourse.set(courseId, []);
     tasksByCourse.get(courseId).push(a);
   });
-  const latest = new Map();
-  dashboardRows_("Submissions", [
-    "id",
-    "activityId",
-    "offeringId",
-    "studentId",
-    "status",
-    "revision",
-    "updatedAt",
-  ])
-    .filter(
-      (s) => offeringIds.has(s.offeringId) && ["pending", "graded", "returned"].includes(s.status),
-    )
-    .forEach((s) => {
-      const key = s.offeringId + ":" + s.studentId + ":" + s.activityId;
-      const old = latest.get(key);
-      if (!old || String(s.updatedAt) > String(old.updatedAt)) latest.set(key, s);
-    });
+  const workload = workloadContext_();
+  const latest = new Map(
+    Array.from(workload.latest.values())
+      .filter((s) => offeringIds.has(s.offeringId))
+      .map((s) => [s.offeringId + ":" + s.studentId + ":" + s.activityId, s]),
+  );
   const members = rows_("Enrollments").filter(
     (e) =>
       e.status === "active" &&
       offeringIds.has(e.offeringId) &&
       students.has(e.studentId) &&
+      workload.roster.has(JSON.stringify([e.offeringId, e.studentId])) &&
       (!q.groupId || students.get(e.studentId).groupId === q.groupId),
   );
   const distinct = new Set(),
@@ -3003,7 +3427,9 @@ function dashboardData_(q) {
     const key = e.offeringId + ":" + e.studentId;
     if (distinct.has(key)) return;
     distinct.add(key);
-    const tasks = tasksByCourse.get(courseId) || [];
+    const tasks = (tasksByCourse.get(courseId) || []).filter((a) =>
+      workload.started.has(workloadKey_(courseId, a.id, student.groupId)),
+    );
     let done = 0,
       pendingCount = 0,
       missing = 0,
@@ -3107,12 +3533,7 @@ function dashboardData_(q) {
   const buckets = Array.from(breakdown.values()).map((b) =>
     Object.assign({}, b, { students: b.students.size }),
   );
-  const begun = new Set(
-    buckets.filter((b) => b.submitted > 0).map((b) => b.courseId + ":" + b.groupId),
-  );
-  const startedWaiting = waiting.filter((w) =>
-    begun.has(courseByOffering.get(w.offeringId) + ":" + w.groupId),
-  );
+  const startedWaiting = waiting;
   return {
     progress,
     pending: { total: pending.total, items: pending.items.slice(0, 50) },
@@ -3148,6 +3569,7 @@ const ADMIN_TABLES = [
   "Materials",
   "Activities",
   "Submissions",
+  "Assignments",
   "Progress",
   "Runs",
   "History",
@@ -3218,6 +3640,7 @@ function adminKeys_(q) {
       "Materials",
       "Activities",
       "Submissions",
+      "Assignments",
       "History",
       "Progress",
       "Runs",
@@ -3231,6 +3654,7 @@ function adminKeys_(q) {
       "Users",
       "Enrollments",
       "Submissions",
+      "Assignments",
       "Progress",
       "Runs",
       "History",
@@ -3250,12 +3674,13 @@ function adminKeys_(q) {
       "Materials",
       "Activities",
       "Submissions",
+      "Assignments",
       "History",
       "Progress",
       "Runs",
     ],
     moveResource: ["Materials", "Activities"],
-    deleteActivity: ["Activities", "Submissions", "Runs", "History"],
+    deleteActivity: ["Activities", "Submissions", "Assignments", "Runs", "History"],
     saveMaterial: ["Materials"],
     deleteMaterial: ["Materials"],
     saveActivity: ["Activities"],
@@ -3270,6 +3695,7 @@ function adminKeys_(q) {
       "Users",
       "Enrollments",
       "Submissions",
+      "Assignments",
       "History",
       "Progress",
       "Runs",
@@ -3287,6 +3713,7 @@ function adminKeys_(q) {
         "Materials",
         "Activities",
         "Submissions",
+        "Assignments",
         "History",
         "Progress",
         "Runs",
@@ -3296,6 +3723,7 @@ function adminKeys_(q) {
         "Users",
         "Enrollments",
         "Submissions",
+        "Assignments",
         "History",
         "Progress",
         "Runs",
@@ -3606,6 +4034,7 @@ function adminDependencyConflicts_(patches) {
       offeringId: "Offerings",
       groupId: "Groups",
     },
+    Assignments: { courseId: "Courses", activityId: "Activities", groupId: "Groups" },
     Chapters: { courseId: "Courses" },
     Materials: { chapterId: "Chapters" },
     Activities: { chapterId: "Chapters" },
@@ -3759,7 +4188,7 @@ function adminRestoreKeys_(scope) {
     all: ADMIN_TABLES,
     content: ["Courses", "Offerings", "Chapters", "Materials", "Activities"],
     roster: ["Groups", "Students", "Users", "Enrollments", "Profiles"],
-    work: ["Submissions", "History", "Progress", "Runs"],
+    work: ["Submissions", "History", "Progress", "Runs", "Assignments"],
   };
   return choices[enum_(scope || "all", Object.keys(choices))];
 }
@@ -3768,6 +4197,7 @@ function adminRestoreState_(saved, before, keys) {
     ids = new Set(teachers.map((u) => u.id)),
     versions = new Map(before.Users.map((u) => [u.id, Number(u.version || 0)]));
   const desired = {};
+  if (!Array.isArray(saved.Assignments)) saved.Assignments = [];
   ADMIN_TABLES.forEach((k) => (desired[k] = keys.includes(k) ? saved[k] : before[k]));
   if (keys.includes("Users"))
     desired.Users = teachers.concat(
@@ -3791,6 +4221,7 @@ function adminRestorePreview_(q) {
     scope = q.scope || "all",
     keys = adminRestoreKeys_(scope);
   const saved = JSON.parse(DriveApp.getFileById(backup.snapshotFileId).getBlob().getDataAsString());
+  if (!Array.isArray(saved.Assignments)) saved.Assignments = [];
   if (!ADMIN_TABLES.every((k) => Array.isArray(saved[k])))
     throw Error("ไฟล์สำรองไม่ครบ ไม่สามารถกู้คืนได้");
   const current = adminState_(ADMIN_TABLES);
@@ -3870,6 +4301,7 @@ function adminRestore_(q) {
   return { updated: true, backupUrl: backup.url };
 }
 function validateRestore_(state) {
+  if (!Array.isArray(state.Assignments)) state.Assignments = [];
   const maps = {};
   ADMIN_TABLES.forEach((k) => {
     if (!Array.isArray(state[k])) throw Error("ไฟล์สำรองไม่ครบ: " + k);
@@ -3880,6 +4312,13 @@ function validateRestore_(state) {
       throw Error("ไฟล์สำรองมีรหัสข้อมูลไม่ถูกต้องหรือซ้ำ: " + k);
     maps[k] = new Set(state[k].map((r) => r.id));
   });
+  state.Assignments = state.Assignments.filter(
+    (r) =>
+      maps.Courses.has(r.courseId) &&
+      maps.Activities.has(r.activityId) &&
+      maps.Groups.has(r.groupId),
+  );
+  maps.Assignments = new Set(state.Assignments.map((r) => r.id));
   const names = new Set();
   state.Users.forEach((u) => {
     const n = name_(u.username);
@@ -3894,6 +4333,7 @@ function validateRestore_(state) {
       offeringId: "Offerings",
       groupId: "Groups",
     },
+    Assignments: { courseId: "Courses", activityId: "Activities", groupId: "Groups" },
     Chapters: { courseId: "Courses" },
     Materials: { chapterId: "Chapters" },
     Activities: { chapterId: "Chapters" },
@@ -4047,9 +4487,15 @@ function bulkManage_(q) {
         ),
       ),
     );
-    ["Submissions", "History", "Progress", "Runs", "Enrollments", "Students"].forEach((key) =>
-      rewriteRows_(key, []),
-    );
+    [
+      "Submissions",
+      "History",
+      "Progress",
+      "Runs",
+      "Enrollments",
+      "Students",
+      "Assignments",
+    ].forEach((key) => rewriteRows_(key, []));
     rewriteRows_(
       "Users",
       rows_("Users").filter((u) => u.role === "teacher"),
@@ -4187,6 +4633,11 @@ function deleteEntity_(q) {
       rows_(key).filter((r) => !affected(r)),
     ),
   );
+  if (!student)
+    rewriteRows_(
+      "Assignments",
+      rows_("Assignments").filter((r) => r.courseId !== q.id),
+    );
   if (student) {
     rows_("Sessions")
       .filter((s) => s.userId === q.id)
@@ -4261,9 +4712,19 @@ function installLmsCleanup() {
 }
 
 function pruneExpiredSessions_(now) {
-  const sessions = rows_("Sessions"),
-    live = sessions.filter((session) => Number(session.expiresAt) > now);
-  const expired = sessions.filter((session) => !(Number(session.expiresAt) > now));
+  const students = new Map(
+    rows_("Users")
+      .filter((u) => u.role === "student" && u.status === "active")
+      .map((u) => [u.id, u]),
+  );
+  const sessions = rows_("Sessions");
+  const isLive = (session) =>
+    Number(session.expiresAt) > 0 &&
+    ((students.has(session.userId) &&
+      Number(students.get(session.userId).version) === Number(session.version)) ||
+      Number(session.expiresAt) > now);
+  const live = sessions.filter(isLive);
+  const expired = sessions.filter((session) => !isLive(session));
   if (expired.length) {
     expired.forEach((session) => CacheService.getScriptCache().remove("kv_s_" + session.id));
     rewriteRows_("Sessions", live);
@@ -4388,6 +4849,7 @@ const ACTIONS = {
   submission: submission_,
   grade: grade_,
   progress: progress_,
+  studentDashboard: studentDashboard_,
   studentHome: studentHome_,
   studentCourse: studentCourse_,
   readMaterial: readMaterial_,
@@ -4420,6 +4882,7 @@ const READS = [
   "submissions",
   "submission",
   "progress",
+  "studentDashboard",
   "studentHome",
   "studentCourse",
   "mySubmission",
@@ -4636,9 +5099,10 @@ function apiCall(json) {
       authReason: err.authReason || "",
       action: diagnosticAction,
       traceId: diagnosticTrace,
-      diagnostics: MEM.$auth?.user?.role === "teacher"
-        ? { ...diagnostics, originalMessage: err.message || String(err) }
-        : { outcome: diagnostics.outcome },
+      diagnostics:
+        MEM.$auth?.user?.role === "teacher"
+          ? { ...diagnostics, originalMessage: err.message || String(err) }
+          : { outcome: diagnostics.outcome },
       serverMs: Date.now() - startedAt,
     });
     if (requestId && executed) {
@@ -4770,7 +5234,7 @@ function adminPlan_(q) {
           ? ["Students", "Users"]
           : [table]
         : target === "work"
-          ? ["Submissions", "History", "Progress", "Runs"]
+          ? ["Submissions", "History", "Progress", "Runs", "Assignments"]
           : target === "courses"
             ? [
               "Courses",
@@ -4780,6 +5244,7 @@ function adminPlan_(q) {
               "Materials",
               "Activities",
               "Submissions",
+              "Assignments",
               "History",
               "Progress",
               "Runs",
@@ -4790,6 +5255,7 @@ function adminPlan_(q) {
               "Users",
               "Enrollments",
               "Submissions",
+              "Assignments",
               "History",
               "Progress",
               "Runs",
@@ -4892,6 +5358,21 @@ function adminPlan_(q) {
         offerings.has(r.offeringId) ||
         activities.has(r.activityId) ||
         materials.has(r.materialId);
+    if (desired.Assignments)
+      desired.Assignments = before.Assignments.filter((r) => {
+        if (target === "work")
+          return (
+            !!q.studentId ||
+            !(
+              (!q.courseId || r.courseId === q.courseId) &&
+              (!q.groupId || r.groupId === q.groupId) &&
+              (!q.activityId || r.activityId === q.activityId)
+            )
+          );
+        if (target === "courses") return !selected.has(r.courseId);
+        if (target === "groups") return !selected.has(r.groupId);
+        return true;
+      });
     const work = new Set(before.Submissions.filter(affected).map((s) => s.id));
     desired.History = before.History.filter((r) => !work.has(r.submissionId));
     ["Submissions", "Progress", "Runs", "Enrollments"].forEach((k) => {
