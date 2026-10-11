@@ -29653,6 +29653,55 @@
             }
         }
     </style>
+    <style id="student-initial-loading-style">
+        body.student-layout #content>.student-initial-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            min-height: 220px;
+            padding: 24px 12px;
+            box-sizing: border-box;
+            color: #92613f;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        body.student-layout .student-initial-loading-track {
+            width: min(360px, 75%);
+            height: 6px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #fce4cc;
+        }
+
+        body.student-layout .student-initial-loading-track>span {
+            display: block;
+            width: 30%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #f5b65c, #e77a29);
+            animation: studentInitialLoadSlide 1.25s ease-in-out infinite alternate;
+        }
+
+        @keyframes studentInitialLoadSlide {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(233.333%);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body.student-layout .student-initial-loading-track>span {
+                animation: none;
+                transform: translateX(116.667%);
+            }
+        }
+    </style>
 </head>
 
 <body class="student-layout">
@@ -29701,8 +29750,9 @@
             <div id="message" role="status"></div>
 
             <section class="workspace" id="content" aria-live="polite">
-                <div class="centered-loading student-progress-loading" role="status">
-                    <div class="inline-load-indicator" aria-hidden="true"></div>
+                <div class="student-initial-loading" role="status" aria-label="กำลังโหลดข้อมูลนักเรียน">
+                    <div class="student-initial-loading-track" aria-hidden="true"><span></span></div>
+                    <span>กำลังโหลดข้อมูลนักเรียน…</span>
                 </div>
             </section>
         </main>
@@ -31274,7 +31324,7 @@
                         const course = overviewSnapshot?.courses.find((c) => c.offeringId === o.id);
                         const missing = course?.rows.filter((r) => r.category === "missing").length || 0;
                         const returned = course?.rows.filter((r) => r.category === "returned").length || 0;
-                        return `<article class="card course-card" data-course-status="active"><div class="toolbar course-card-header"><span class="course-code">${esc(o.code)}</span>${activeBadge()}</div><div class="course-emblem student-classroom-art"><svg viewBox="0 0 160 100" fill="none" aria-hidden="true" focusable="false"><ellipse cx="80" cy="91" rx="66" ry="5" fill="#D6955D" opacity=".16"/><path d="m40 78-5 12m83-12 5 12" stroke="#AD693A" stroke-width="5" stroke-linecap="round"/><rect x="22" y="8" width="116" height="72" rx="10" fill="#CF8B51"/><rect x="28" y="14" width="104" height="58" rx="6" fill="#36685A"/><path d="m52 34-9 8 9 8m56-16 9 8-9 8m-30-21-7 25" stroke="#FFF4D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M35 63h31" stroke="#A4CABC" stroke-width="3" stroke-linecap="round"/><rect x="106" y="67" width="17" height="4" rx="2" fill="#FFE3AA"/><path d="M54 71c10-4 18-4 26 1 8-5 16-5 26-1v20c-10-4-18-4-26 1-8-5-16-5-26-1V71Z" fill="#FFF9EC" stroke="#BC7644" stroke-width="2" stroke-linejoin="round"/><path d="M80 73v18m-19-13 11 1m-11 5 11 1m17-7 11-1m-11 7 11-1" stroke="#DFB38D" stroke-width="2" stroke-linecap="round"/><path d="m127 79 11-21 6 3-11 21-6 3v-6Z" fill="#F1B44E" stroke="#B77A36" stroke-width="1.5"/><path d="m14 27 2-5 2 5 5 2-5 2-2 5-2-5-5-2 5-2Zm129-12 2-4 2 4 4 2-4 2-2 4-2-4-4-2 4-2Z" fill="#E8AB4D"/></svg></div><span class="student-classroom-label">ห้องเรียนครูแวนด้า</span><h3>${esc(o.courseName)}</h3><div class="student-course-workload">${course ? `<span>ยังไม่ส่ง <b>${missing}</b> งาน</span><span>ต้องแก้ไข <b>${returned}</b> งาน</span>` : '<span class="inline-load-indicator" role="status" aria-label="กำลังโหลดสถานะงาน"></span>'}</div><div class="actions"><button type="button" class="btn primary" data-course="${esc(o.id)}">เข้าสู่รายวิชา</button></div></article>`;
+                        return `<article class="card course-card" data-course-status="active"><div class="toolbar course-card-header"><span class="course-code">${esc(o.code)}</span>${activeBadge()}</div><div class="course-emblem student-classroom-art"><svg viewBox="0 0 160 100" fill="none" aria-hidden="true" focusable="false"><ellipse cx="80" cy="91" rx="66" ry="5" fill="#D6955D" opacity=".16"/><path d="m40 78-5 12m83-12 5 12" stroke="#AD693A" stroke-width="5" stroke-linecap="round"/><rect x="22" y="8" width="116" height="72" rx="10" fill="#CF8B51"/><rect x="28" y="14" width="104" height="58" rx="6" fill="#36685A"/><path d="m52 34-9 8 9 8m56-16 9 8-9 8m-30-21-7 25" stroke="#FFF4D9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M35 63h31" stroke="#A4CABC" stroke-width="3" stroke-linecap="round"/><rect x="106" y="67" width="17" height="4" rx="2" fill="#FFE3AA"/><path d="M54 71c10-4 18-4 26 1 8-5 16-5 26-1v20c-10-4-18-4-26 1-8-5-16-5-26-1V71Z" fill="#FFF9EC" stroke="#BC7644" stroke-width="2" stroke-linejoin="round"/><path d="M80 73v18m-19-13 11 1m-11 5 11 1m17-7 11-1m-11 7 11-1" stroke="#DFB38D" stroke-width="2" stroke-linecap="round"/><path d="m127 79 11-21 6 3-11 21-6 3v-6Z" fill="#F1B44E" stroke="#B77A36" stroke-width="1.5"/><path d="m14 27 2-5 2 5 5 2-5 2-2 5-2-5-5-2 5-2Zm129-12 2-4 2 4 4 2-4 2-2 4-2-4-4-2 4-2Z" fill="#E8AB4D"/></svg></div><span class="student-classroom-label">ห้องเรียนออนไลน์</span><h3>${esc(o.courseName)}</h3><div class="student-course-workload">${course ? `<span>ยังไม่ส่ง <b>${missing}</b> งาน</span><span>ต้องแก้ไข <b>${returned}</b> งาน</span>` : '<span class="inline-load-indicator" role="status" aria-label="กำลังโหลดสถานะงาน"></span>'}</div><div class="actions"><button type="button" class="btn primary" data-course="${esc(o.id)}">เข้าสู่รายวิชา</button></div></article>`;
                     })
                     .join("") || '<div class="empty">ยังไม่มีรายวิชาที่เปิดให้เข้าเรียน</div>'
                     }</div>`;
