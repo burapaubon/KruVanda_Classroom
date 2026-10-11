@@ -25123,6 +25123,7 @@
         const keydown = (e) => {
           if (
             !scene.isConnected ||
+            document.querySelector(".system-confirm-dialog[open]") ||
             !arena.closest("dialog")?.open ||
             e.target.matches("input,textarea,select")
           )
@@ -25206,6 +25207,12 @@
         function draw(now) {
           if (destroyed || !scene.isConnected || !arena.closest("dialog")?.open) {
             destroy();
+            return;
+          }
+          if (document.querySelector(".system-confirm-dialog[open]")) {
+            release();
+            last = now;
+            frame = requestAnimationFrame(draw);
             return;
           }
           const dt = Math.min((now - last) / 1000 || 0.016, 0.033);
@@ -28148,13 +28155,13 @@
             (id === "complete" && r.expected > 0 && r.submitted >= r.expected && !r.returned),
         ).length;
       return `<div class="follow-page progress-workspace">${intro}<div class="follow-metrics">${followMetric("นักเรียนทั้งหมด", new Set(all.map((r) => r.studentId)).size, "คน", "ในรายวิชาและชั้นเรียนที่เลือก", "all")}${followMetric("ภาระงานรวม", sums.expected, "รายการ", "นับเฉพาะงานที่เริ่มส่งแล้วในแต่ละห้อง", "tasks")}${followMetric("ส่งแล้ว", sums.submitted, "รายการ", "รวมงานรอตรวจและรอแก้ไข", "graded")}${followMetric("อัตราส่งงาน", rate, sums.expected ? "%" : "", sums.expected ? "ส่งแล้ว " + sums.submitted + " จาก " + sums.expected + " รายการ" : "ยังไม่มีงานที่เริ่มส่ง", "rate")}</div><section class="follow-filter"><h2>เลือกรายวิชาและชั้นเรียน</h2>${filters}</section><section class="follow-comparison"><div class="follow-list-heading"><div><h2>การส่งงานแต่ละชั้นเรียน</h2><span>${groups.length} ชั้นเรียน</span></div></div><div class="follow-class-list">${groups
-          .map((g) => {
-            const pct = g.expected
-              ? Math.min(100, Math.max(0, (g.submitted / g.expected) * 100))
-              : null;
-            return `<article class="follow-class"><div class="follow-class-title"><strong>${esc(groupName(g.id))}</strong><span>${g.list.length} คน</span><b>${pct === null ? "—" : pct.toFixed(1) + "%"}</b></div><div class="follow-track" role="img" aria-label="${esc(groupName(g.id))} ${pct === null ? "ยังไม่มีงานที่เริ่มส่ง" : "ส่งแล้ว " + pct.toFixed(1) + " เปอร์เซ็นต์"}"><span style="width:${pct || 0}%"></span></div><div class="follow-class-caption"><span>${g.expected ? "ส่งแล้ว " + g.submitted + "/" + g.expected + " งาน" : "ยังไม่มีงานที่เริ่มส่ง"}</span><span>ค้างส่ง ${g.expected - g.submitted} · รอแก้ไข ${g.returned}</span></div></article>`;
-          })
-          .join("") || empty("ยังไม่มีข้อมูลชั้นเรียน")
+        .map((g) => {
+          const pct = g.expected
+            ? Math.min(100, Math.max(0, (g.submitted / g.expected) * 100))
+            : null;
+          return `<article class="follow-class"><div class="follow-class-title"><strong>${esc(groupName(g.id))}</strong><span>${g.list.length} คน</span><b>${pct === null ? "—" : pct.toFixed(1) + "%"}</b></div><div class="follow-track" role="img" aria-label="${esc(groupName(g.id))} ${pct === null ? "ยังไม่มีงานที่เริ่มส่ง" : "ส่งแล้ว " + pct.toFixed(1) + " เปอร์เซ็นต์"}"><span style="width:${pct || 0}%"></span></div><div class="follow-class-caption"><span>${g.expected ? "ส่งแล้ว " + g.submitted + "/" + g.expected + " งาน" : "ยังไม่มีงานที่เริ่มส่ง"}</span><span>ค้างส่ง ${g.expected - g.submitted} · รอแก้ไข ${g.returned}</span></div></article>`;
+        })
+        .join("") || empty("ยังไม่มีข้อมูลชั้นเรียน")
         }</div></section><section class="follow-list-panel"><div class="follow-list-heading"><div><h2>ติดตามนักเรียนรายบุคคล</h2><span>แสดง ${rows.length} จาก ${all.length} คน · งานค้างมากก่อน</span></div>${button("ส่งออกรายงาน", "export-scores")}</div><div class="follow-status-filters" aria-label="กรองสถานะนักเรียน">${statusChoices.map(([id, name]) => `<button type="button" class="btn ${progressStatus === id ? "primary" : ""}" data-action="progress-status" data-id="${id}" aria-pressed="${progressStatus === id}">${name}<span>${countFor(id)}</span></button>`).join("")}</div><form class="toolbar follow-search" data-form="progress-filter"><label>ค้นหานักเรียน<input type="search" name="search" value="${esc(progressSearch)}" placeholder="ชื่อหรือนามสกุล"></label><input type="hidden" name="status" value="${esc(progressStatus)}"><button class="btn primary" type="submit">ค้นหา</button></form><div class="follow-table-wrap"><table class="follow-progress-table"><thead><tr><th>นักเรียน / ชั้นเรียน</th><th>สถานะการส่งงาน</th><th>การส่งงาน</th><th>ค้างส่ง</th><th>รอแก้ไข</th><th>รอตรวจ</th><th>คะแนนที่ตรวจแล้ว</th><th>งานนักเรียน</th></tr></thead><tbody>${rows.map((r) => `<tr><td data-label="นักเรียน / ชั้นเรียน"><div class="follow-student-cell">${studentIdentity(r.studentId, r.name)}<span class="follow-room">${esc(groupName(r.groupId))}</span></div></td><td data-label="สถานะการส่งงาน">${progressStudentState(r)}</td><td data-label="การส่งงาน"><div class="follow-submitted"><strong>${r.submitted}<small> / ${r.expected} งาน</small></strong><div class="follow-track"><span style="width:${r.expected ? Math.min(100, (r.submitted / r.expected) * 100) : 0}%"></span></div></div></td><td data-label="ค้างส่ง"><span class="follow-count ${r.missing ? "missing" : ""}">${r.missing || "—"}</span></td><td data-label="รอแก้ไข"><span class="follow-count ${r.returned ? "returned" : ""}">${r.returned || "—"}</span></td><td data-label="รอตรวจ"><span class="follow-count ${r.pending ? "pending" : ""}">${r.pending || "—"}</span></td><td data-label="คะแนนที่ตรวจแล้ว"><strong class="follow-score">${r.maxScore ? esc(r.score) + " / " + esc(r.maxScore) : "ยังไม่มีคะแนน"}</strong></td><td data-label="งานนักเรียน">${button("ดูงาน", "student-work", r.studentId)}</td></tr>`).join("")}</tbody></table>${rows.length ? "" : empty(all.length ? "ไม่พบนักเรียนตามตัวเลือกนี้" : "ยังไม่มีนักเรียนลงทะเบียนในรายวิชาที่เลือก")}</div></section></div>`;
     }
 
@@ -30415,8 +30422,10 @@ body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px s
       }
       if (a === "close") {
         if (!(await discardModalChanges())) return;
-        $("modal").close();
+        window.KVSandboxGame?.stop();
         clearInterval(playTimer);
+        playTimer = null;
+        $("modal").close();
         return;
       }
       if (a === "retry-dashboard") {
@@ -31469,8 +31478,10 @@ body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px s
     });
     $("closeModal").onclick = async () => {
       if (await discardModalChanges()) {
-        $("modal").close();
+        window.KVSandboxGame?.stop();
         clearInterval(playTimer);
+        playTimer = null;
+        $("modal").close();
       }
     };
     $("modal").addEventListener("cancel", async (e) => {

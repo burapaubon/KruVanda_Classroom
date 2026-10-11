@@ -30124,6 +30124,7 @@
                 const keydown = (e) => {
                     if (
                         !scene.isConnected ||
+                        document.querySelector(".system-confirm-dialog[open]") ||
                         !arena.closest("dialog")?.open ||
                         e.target.matches("input,textarea,select")
                     )
@@ -30231,6 +30232,12 @@
                 function draw(now) {
                     if (destroyed || !scene.isConnected || !arena.closest("dialog")?.open) {
                         destroy();
+                        return;
+                    }
+                    if (document.querySelector(".system-confirm-dialog[open]")) {
+                        release();
+                        last = now;
+                        frame = requestAnimationFrame(draw);
                         return;
                     }
                     const dt = Math.min((now - last) / 1000 || 0.016, 0.033);
@@ -31192,6 +31199,7 @@
                         resolve(v);
                     };
                     d.onclick = (e) => {
+                        e.stopPropagation();
                         const b = e.target.closest("[data-result]");
                         if (b) finish(b.dataset.result === "yes");
                     };
@@ -32764,11 +32772,25 @@
                     return;
                 }
                 if (current && !(await confirmStudent("ต้องการออกจากกิจกรรมนี้หรือไม่?"))) return;
-                if (current) collect();
-                current = null;
-                endFocus();
-                clearInterval(timer);
-                document.getElementById("modal").close();
+                if (saving) {
+                    toast("กำลังส่งคำตอบ กรุณารอสักครู่");
+                    return;
+                }
+                try {
+                    if (current) collect();
+                } catch (error) {
+                    console.warn("LMS draft could not be saved before leaving", error);
+                    toast("ออกจากกิจกรรมแล้ว แต่บันทึกคำตอบล่าสุดบนอุปกรณ์ไม่สำเร็จ");
+                } finally {
+                    window.KVSandboxGame?.stop();
+                    current = null;
+                    clearInterval(timer);
+                    timer = null;
+                    endFocus();
+                    document.getElementById("modal").close();
+                    document.body.classList.remove("learning-open");
+                    document.querySelector(".app").inert = false;
+                }
             }
 
             document.getElementById("studentLogout").onclick = () => {
