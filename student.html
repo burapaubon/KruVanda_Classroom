@@ -29785,7 +29785,6 @@
                 };
             }
             dialog.addEventListener("close", () => {
-                // A delayed close event can belong to a dialog already reopened.
                 if (dialog.open) return;
                 dialog.hidden = true;
                 const game = body?.querySelector(".minigame-arena");
@@ -32855,7 +32854,6 @@
                     current = null;
                     clearInterval(timer);
                     timer = null;
-                    // Close the workspace even if optional game cleanup fails.
                     document.getElementById("modal").close();
                     document.body.classList.remove("learning-open");
                     document.querySelector(".app").inert = false;
