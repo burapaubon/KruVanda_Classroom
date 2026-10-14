@@ -24580,6 +24580,21 @@
       display: none !important;
     }
   </style>
+  <style id="desktop-course-title-sizing">
+    body .main #content .course-card>h3 {
+      white-space: nowrap !important;
+      overflow-wrap: normal;
+      word-break: normal;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    @media (min-width: 901px) {
+      body .main #content .course-card>h3 {
+        font-size: 20.68px;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -32359,6 +32374,11 @@ body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px s
           if (!width) return null;
           const base = parseFloat(getComputedStyle(el).fontSize),
             scroll = el.scrollWidth;
+          // Fit each course name independently without wrapping or truncating.
+          if (el.matches(".course-card > h3")) {
+            const available = Math.max(1, width - 1);
+            return scroll > available ? Math.max(0.1, base * available / scroll - 0.2) : null;
+          }
           return scroll > width
             ? Math.max(
               el.matches(".student-access-hint") && window.matchMedia("(max-width:600px)").matches
