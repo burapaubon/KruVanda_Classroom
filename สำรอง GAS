@@ -2847,12 +2847,13 @@ function startActivity_(q) {
     a = activityAccess_(u.id, q),
     id = digest_(u.id + ":" + q.offeringId + ":" + a.id),
     old = rows_("Submissions").find((s) => s.id === id);
-  if (old && old.status !== "returned" && !a.unlimitedAttempts) throw Error("ส่งกิจกรรมนี้แล้ว");
-  if (a.unlimitedAttempts && old && old.status === "pending")
-    throw Error("รอครูตรวจข้อเขียนรอบนี้ก่อนทำรอบใหม่");
+  if (old && !["pending", "returned"].includes(old.status) && !a.unlimitedAttempts)
+    throw Error("ส่งกิจกรรมนี้แล้ว");
   let run = rows_("Runs").find((r) => r.id === id);
 
-  const revisionAt = old && old.status === "returned" ? new Date(old.updatedAt).getTime() : 0;
+  const editingPending = !!old && old.status === "pending";
+  const revisionAt = old && ["pending", "returned"].includes(old.status)
+    ? new Date(old.updatedAt).getTime() : 0;
   const staleRevisionRun = run && revisionAt && Number(run.startedAt) <= revisionAt;
   if (!run || run.status !== "started" || staleRevisionRun) {
     const startedAt = Date.now();
@@ -2865,14 +2866,15 @@ function startActivity_(q) {
       expiresAt:
         a.kind !== "worksheet" && Number(a.seconds) > 0 ? startedAt + Number(a.seconds) * 1000 : 0,
       status: "started",
-      questionSnapshot: a.questions,
+      questionSnapshot: editingPending ? (old.questionSnapshot || a.questions) : a.questions,
       attemptKey: id_("TRY"),
-      draftAnswers: "[]",
+      draftAnswers: editingPending ? JSON.stringify(json_(old.answers, [])) : "[]",
     };
     write_("Runs", run);
   }
   return {
     runId: run.attemptKey || id,
+    editingPending,
     attemptKey: run.attemptKey || "",
     expiresAt: a.kind === "worksheet" ? 0 : run.expiresAt,
     serverNow: Date.now(),
@@ -2970,7 +2972,8 @@ function submitActivity_(q) {
     throw Error("รอบนี้ส่งแล้วหรือเปลี่ยนรอบแล้ว กรุณาเปิดกิจกรรมใหม่");
   if (q.autoSubmit && !timedOut) throw Error("ยังไม่หมดเวลา");
   const old = rows_("Submissions").find((s) => s.id === id);
-  if (old && old.status !== "returned" && !a.unlimitedAttempts) throw Error("ส่งกิจกรรมนี้แล้ว");
+  if (old && !["pending", "returned"].includes(old.status) && !a.unlimitedAttempts)
+    throw Error("ส่งกิจกรรมนี้แล้ว");
   const questions = json_(run.questionSnapshot || a.questions, []);
   if (!Array.isArray(q.answers)) throw Error("คำตอบไม่ถูกต้อง");
   const fileWorksheet = a.kind === "worksheet" && a.submissionMode === "file";

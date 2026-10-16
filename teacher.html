@@ -171,7 +171,7 @@
     }
 
     .app {
-      min-height: 100vh;
+      min-height: calc(100 * var(--kv-vh, 1vh));
       display: flex;
       padding: 16.92px;
       gap: 16.92px;
@@ -380,7 +380,7 @@
     .workspace {
       position: relative;
       flex: 1;
-      min-height: calc(100vh - 122.2px);
+      min-height: calc(calc(100 * var(--kv-vh, 1vh)) - 122.2px);
       padding: 30.08px;
       border-radius: 28.2px;
       background: rgba(255, 255, 255, 0.7);
@@ -648,7 +648,10 @@
       box-shadow: 0 12.22px 28.2px rgba(255, 138, 0, 0.34);
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .app {
         padding: 11.28px;
       }
@@ -666,7 +669,10 @@
       }
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 760px) and (hover: none),
+    (max-width: 760px) and (pointer: coarse),
+    (max-width: 760px) and (pointer: none),
+    (max-width: 608px) and (hover: hover) and (pointer: fine) {
       .app {
         flex-direction: column;
       }
@@ -699,7 +705,10 @@
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       .app {
         padding: 7.52px;
       }
@@ -726,7 +735,7 @@
     }
 
     .dashboard-header h2 {
-      font-size: clamp(20.68px, 3vw, 28.2px);
+      font-size: clamp(20.68px, calc(3 * var(--kv-vw, 1vw)), 28.2px);
       line-height: 1.4;
     }
 
@@ -766,7 +775,7 @@
 
     .stat-value {
       display: block;
-      font-size: clamp(28.2px, 4vw, 35.72px);
+      font-size: clamp(28.2px, calc(4 * var(--kv-vw, 1vw)), 35.72px);
       line-height: 1.25;
       margin: 4.7px 0;
       color: var(--deep);
@@ -848,7 +857,10 @@
       font-size: 15.04px;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       .stats {
         grid-template-columns: 1fr;
       }
@@ -871,7 +883,10 @@
       }
     }
 
-    @media (max-width: 380px) {
+    @media (max-width: 380px) and (hover: none),
+    (max-width: 380px) and (pointer: coarse),
+    (max-width: 380px) and (pointer: none),
+    (max-width: 304px) and (hover: hover) and (pointer: fine) {
       .quick-grid {
         grid-template-columns: 1fr;
       }
@@ -1087,7 +1102,10 @@
       font-size: 14.1px;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       .grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1105,7 +1123,10 @@
       }
     }
 
-    @media (max-width: 380px) {
+    @media (max-width: 380px) and (hover: none),
+    (max-width: 380px) and (pointer: coarse),
+    (max-width: 380px) and (pointer: none),
+    (max-width: 304px) and (hover: hover) and (pointer: fine) {
       .grid {
         grid-template-columns: 1fr;
       }
@@ -1133,7 +1154,7 @@
 
     .section-intro h2 {
       margin: 0 0 3.76px;
-      font-size: clamp(19.74px, 3vw, 26.32px);
+      font-size: clamp(19.74px, calc(3 * var(--kv-vw, 1vw)), 26.32px);
     }
 
     .section-intro p {
@@ -1258,7 +1279,10 @@
       line-height: 1.6;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .section-intro {
         display: block;
       }
@@ -1311,13 +1335,19 @@
       line-height: 1.35;
     }
 
-    @media (max-width: 680px) {
+    @media (max-width: 680px) and (hover: none),
+    (max-width: 680px) and (pointer: coarse),
+    (max-width: 680px) and (pointer: none),
+    (max-width: 544px) and (hover: hover) and (pointer: fine) {
       .workflow-steps {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 390px) {
+    @media (max-width: 390px) and (hover: none),
+    (max-width: 390px) and (pointer: coarse),
+    (max-width: 390px) and (pointer: none),
+    (max-width: 312px) and (hover: hover) and (pointer: fine) {
       .workflow-steps {
         grid-template-columns: 1fr;
       }
@@ -1327,7 +1357,7 @@
       position: sticky;
       top: 16.92px;
       align-self: flex-start;
-      min-height: calc(100vh - 33.84px);
+      min-height: calc(calc(100 * var(--kv-vh, 1vh)) - 33.84px);
     }
 
     .main {
@@ -1418,7 +1448,7 @@
       border-radius: 20.68px;
       padding: 22.56px;
       width: min(770.8px, calc(100% - 22.56px));
-      max-height: 90vh;
+      max-height: calc(90 * var(--kv-vh, 1vh));
       color: #352413;
       box-shadow: 0 23.5px 94px #40200640;
     }
@@ -1551,7 +1581,7 @@
       position: fixed;
       bottom: 20.68px;
       right: 20.68px;
-      max-width: min(413.6px, 90vw);
+      max-width: min(413.6px, calc(90 * var(--kv-vw, 1vw)));
       background: #49301c;
       color: white;
       padding: 14.1px 18.8px;
@@ -1573,7 +1603,10 @@
       min-height: 61.1px;
     }
 
-    @media (max-width: 800px) {
+    @media (max-width: 800px) and (hover: none),
+    (max-width: 800px) and (pointer: coarse),
+    (max-width: 800px) and (pointer: none),
+    (max-width: 640px) and (hover: hover) and (pointer: fine) {
       .sidebar {
         position: static;
         min-height: 0;
@@ -1598,7 +1631,10 @@
       }
     }
 
-    @media (max-width: 800px) {
+    @media (max-width: 800px) and (hover: none),
+    (max-width: 800px) and (pointer: coarse),
+    (max-width: 800px) and (pointer: none),
+    (max-width: 640px) and (hover: hover) and (pointer: fine) {
       .sidebar .menu {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -1663,8 +1699,8 @@
     }
 
     .app {
-      height: 100vh;
-      height: 100dvh;
+      height: calc(100 * var(--kv-vh, 1vh));
+      height: calc(100 * var(--kv-dvh, 1dvh));
       min-height: 0;
       display: flex;
       flex-direction: row;
@@ -1783,7 +1819,10 @@
       height: 41.36px;
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .sidebar {
         flex-basis: 197.4px;
         width: 197.4px;
@@ -1795,7 +1834,10 @@
       }
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       .app {
         padding: 0 5.64px;
         gap: 7.52px;
@@ -1917,7 +1959,10 @@
       }
     }
 
-    @media (max-height: 580px) {
+    @media (max-height: 580px) and (hover: none),
+    (max-height: 580px) and (pointer: coarse),
+    (max-height: 580px) and (pointer: none),
+    (max-height: 464px) and (hover: hover) and (pointer: fine) {
       .sidebar .logo {
         padding-bottom: 7.52px;
         margin-bottom: 5.64px;
@@ -1989,7 +2034,10 @@
       font-size: 12.22px;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
 
       .sidebar .menu button,
       .sidebar .logout button {
@@ -2073,7 +2121,10 @@
       gap: 9.4px;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       .dashboard-columns {
         grid-template-columns: 1fr;
       }
@@ -2088,7 +2139,10 @@
       }
     }
 
-    @media (max-width: 500px) {
+    @media (max-width: 500px) and (hover: none),
+    (max-width: 500px) and (pointer: coarse),
+    (max-width: 500px) and (pointer: none),
+    (max-width: 400px) and (hover: hover) and (pointer: fine) {
 
       .dashboard-metrics,
       .dashboard-shortcuts {
@@ -2109,7 +2163,7 @@
 
     .app {
       height: auto;
-      min-height: 100dvh;
+      min-height: calc(100 * var(--kv-dvh, 1dvh));
       overflow: visible;
       align-items: flex-start;
     }
@@ -2118,16 +2172,16 @@
       position: sticky;
       top: 16.92px;
       align-self: flex-start;
-      height: calc(100dvh - 33.84px);
+      height: calc(calc(100 * var(--kv-dvh, 1dvh)) - 33.84px);
       min-height: 0;
-      max-height: calc(100dvh - 33.84px);
+      max-height: calc(calc(100 * var(--kv-dvh, 1dvh)) - 33.84px);
       margin-top: 16.92px;
       margin-bottom: 16.92px;
     }
 
     .main {
       height: auto;
-      min-height: 100dvh;
+      min-height: calc(100 * var(--kv-dvh, 1dvh));
       overflow: visible;
       flex: 1 1 0;
       min-width: 0;
@@ -2247,13 +2301,19 @@
       padding: 18.8px 0;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1100px) and (hover: none),
+    (max-width: 1100px) and (pointer: coarse),
+    (max-width: 1100px) and (pointer: none),
+    (max-width: 880px) and (hover: hover) and (pointer: fine) {
       .course-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 800px) {
+    @media (max-width: 800px) and (hover: none),
+    (max-width: 800px) and (pointer: coarse),
+    (max-width: 800px) and (pointer: none),
+    (max-width: 640px) and (hover: hover) and (pointer: fine) {
       .dashboard-columns {
         grid-template-columns: 1fr;
       }
@@ -2263,7 +2323,10 @@
       }
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       .workspace {
         padding: 7.52px 0 22.56px !important;
       }
@@ -2354,7 +2417,7 @@
     }
 
     .dashboard-hero h2 {
-      font-size: clamp(20.68px, 2.3vw, 28.2px);
+      font-size: clamp(20.68px, calc(2.3 * var(--kv-vw, 1vw)), 28.2px);
       line-height: 1.5;
       margin-top: 9.4px;
     }
@@ -2652,7 +2715,10 @@
       width: 80%;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1100px) and (hover: none),
+    (max-width: 1100px) and (pointer: coarse),
+    (max-width: 1100px) and (pointer: none),
+    (max-width: 880px) and (hover: hover) and (pointer: fine) {
 
       .stat-grid,
       .loading-grid {
@@ -2660,13 +2726,19 @@
       }
     }
 
-    @media (max-width: 800px) {
+    @media (max-width: 800px) and (hover: none),
+    (max-width: 800px) and (pointer: coarse),
+    (max-width: 800px) and (pointer: none),
+    (max-width: 640px) and (hover: hover) and (pointer: fine) {
       .loading-columns {
         grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
 
       #content>.panel,
       .dashboard-columns>.panel {
@@ -2705,7 +2777,10 @@
       }
     }
 
-    @media (max-width: 380px) {
+    @media (max-width: 380px) and (hover: none),
+    (max-width: 380px) and (pointer: coarse),
+    (max-width: 380px) and (pointer: none),
+    (max-width: 304px) and (hover: hover) and (pointer: fine) {
 
       .stat-grid,
       .loading-grid {
@@ -2751,7 +2826,7 @@
 
     .main .page-heading h1 {
       color: #292e34;
-      font-size: clamp(22.56px, 2.6vw, 30.08px);
+      font-size: clamp(22.56px, calc(2.6 * var(--kv-vw, 1vw)), 30.08px);
       line-height: 1.35;
     }
 
@@ -2813,7 +2888,7 @@
 
     .main .dashboard-hero h2 {
       margin: 11.28px 0 6.58px;
-      font-size: clamp(21.62px, 2.4vw, 29.14px);
+      font-size: clamp(21.62px, calc(2.4 * var(--kv-vw, 1vw)), 29.14px);
       font-weight: 600;
     }
 
@@ -3412,7 +3487,10 @@
       border-radius: 4.7px;
     }
 
-    @media (min-width: 1450px) {
+    @media (min-width: 1450px) and (hover: none),
+    (min-width: 1450px) and (pointer: coarse),
+    (min-width: 1450px) and (pointer: none),
+    (min-width: 1160px) and (hover: hover) and (pointer: fine) {
 
       .main .workspace,
       .main .topbar,
@@ -3423,7 +3501,10 @@
       }
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1100px) and (hover: none),
+    (max-width: 1100px) and (pointer: coarse),
+    (max-width: 1100px) and (pointer: none),
+    (max-width: 880px) and (hover: hover) and (pointer: fine) {
       .main .grid.stat-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -3433,7 +3514,10 @@
       }
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       .main .dashboard-hero {
         align-items: flex-start;
       }
@@ -3447,7 +3531,10 @@
       }
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       .main {
         padding: 16.92px 2px 30.08px 0;
       }
@@ -3532,7 +3619,10 @@
       }
     }
 
-    @media (max-width: 420px) {
+    @media (max-width: 420px) and (hover: none),
+    (max-width: 420px) and (pointer: coarse),
+    (max-width: 420px) and (pointer: none),
+    (max-width: 336px) and (hover: hover) and (pointer: fine) {
 
       .main .grid.stat-grid,
       .main .dashboard-shortcuts {
@@ -3652,7 +3742,7 @@
 
     .main .dashboard-hero h2 {
       color: #523315;
-      font-size: clamp(23.5px, 2.5vw, 31.96px);
+      font-size: clamp(23.5px, calc(2.5 * var(--kv-vw, 1vw)), 31.96px);
       font-weight: 600;
     }
 
@@ -4049,13 +4139,19 @@
       background-size: 200% 100%;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1100px) and (hover: none),
+    (max-width: 1100px) and (pointer: coarse),
+    (max-width: 1100px) and (pointer: none),
+    (max-width: 880px) and (hover: hover) and (pointer: fine) {
       .main .dashboard-stat .stat {
         font-size: 35.72px;
       }
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       .main .page-heading h1 {
         font-size: 21.62px;
       }
@@ -4101,7 +4197,10 @@
       }
     }
 
-    @media (max-width: 420px) {
+    @media (max-width: 420px) and (hover: none),
+    (max-width: 420px) and (pointer: coarse),
+    (max-width: 420px) and (pointer: none),
+    (max-width: 336px) and (hover: hover) and (pointer: fine) {
       .main .dashboard-stat {
         min-height: 0;
       }
@@ -4833,7 +4932,10 @@
       }
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .sidebar {
         flex-basis: 63.92px;
         width: 63.92px;
@@ -4865,7 +4967,10 @@
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       .sidebar {
         flex-basis: 50.76px;
         width: 50.76px;
@@ -5235,9 +5340,9 @@
     }
 
     .app {
-      height: 100dvh;
+      height: calc(100 * var(--kv-dvh, 1dvh));
       min-height: 0;
-      max-height: 100dvh;
+      max-height: calc(100 * var(--kv-dvh, 1dvh));
       overflow: hidden;
       align-items: stretch;
     }
@@ -5262,14 +5367,14 @@
     .sidebar .menu {
       flex: 1 1 auto;
       min-height: 0;
-      gap: clamp(3.76px, 1.2vh, 9.4px);
+      gap: clamp(3.76px, calc(1.2 * var(--kv-vh, 1vh)), 9.4px);
       overflow: hidden;
     }
 
     .sidebar .menu button {
       flex: 0 1 41.36px;
       min-height: 26.32px;
-      padding-block: clamp(3.76px, 1vh, 9.4px);
+      padding-block: clamp(3.76px, calc(1 * var(--kv-vh, 1vh)), 9.4px);
       transform: none;
     }
 
@@ -5298,7 +5403,10 @@
       overflow: visible;
     }
 
-    @media (max-height: 620px) {
+    @media (max-height: 620px) and (hover: none),
+    (max-height: 620px) and (pointer: coarse),
+    (max-height: 620px) and (pointer: none),
+    (max-height: 496px) and (hover: hover) and (pointer: fine) {
       .sidebar {
         padding-top: 9.4px;
         padding-bottom: 9.4px;
@@ -5319,7 +5427,10 @@
       }
     }
 
-    @media (max-height: 420px) {
+    @media (max-height: 420px) and (hover: none),
+    (max-height: 420px) and (pointer: coarse),
+    (max-height: 420px) and (pointer: none),
+    (max-height: 336px) and (hover: hover) and (pointer: fine) {
       .sidebar .wordmark {
         padding-bottom: 5.64px;
         margin-bottom: 5.64px;
@@ -5379,7 +5490,7 @@
 
     .app {
       padding-block: 16.92px;
-      height: 100dvh;
+      height: calc(100 * var(--kv-dvh, 1dvh));
       box-sizing: border-box;
     }
 
@@ -5394,13 +5505,19 @@
       box-sizing: border-box;
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .app {
         padding-block: 11.28px;
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       .app {
         padding-block: 5.64px;
       }
@@ -5445,7 +5562,7 @@
     }
 
     .main .dashboard-hero h2 {
-      font-size: clamp(20.68px, 2.2vw, 28.2px);
+      font-size: clamp(20.68px, calc(2.2 * var(--kv-vw, 1vw)), 28.2px);
     }
 
     .main .welcome-art {
@@ -5560,8 +5677,8 @@
     }
 
     #modal {
-      width: min(902.4px, calc(100vw - 30.08px));
-      max-height: 90dvh;
+      width: min(902.4px, calc(calc(100 * var(--kv-vw, 1vw)) - 30.08px));
+      max-height: calc(90 * var(--kv-dvh, 1dvh));
     }
 
     #modal .question-row {
@@ -5579,7 +5696,10 @@
       overflow-wrap: anywhere;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       .main {
         padding: 16.92px 13.16px 28.2px;
       }
@@ -5594,7 +5714,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
 
       .main .stat-grid,
       .main .course-grid {
@@ -5760,13 +5883,13 @@
     }
 
     #modal.account-dialog {
-      width: min(676.8px, calc(100vw - 30.08px));
+      width: min(676.8px, calc(calc(100 * var(--kv-vw, 1vw)) - 30.08px));
       padding: 0;
       border: 1px solid #eadfd5;
       border-radius: 22.56px;
       background: #fff;
       box-shadow: 0 22.56px 84.6px #34211330;
-      max-height: 90dvh;
+      max-height: calc(90 * var(--kv-dvh, 1dvh));
       overflow: auto;
     }
 
@@ -5998,7 +6121,10 @@
       padding-bottom: 24.44px;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .main .profile-role {
         display: none;
       }
@@ -6057,7 +6183,10 @@
       overflow: visible;
     }
 
-    @media (max-height: 420px) {
+    @media (max-height: 420px) and (hover: none),
+    (max-height: 420px) and (pointer: coarse),
+    (max-height: 420px) and (pointer: none),
+    (max-height: 336px) and (hover: hover) and (pointer: fine) {
       .sidebar .menu .nav-icon {
         width: 15.98px;
         height: 15.98px;
@@ -6450,7 +6579,10 @@
       color: var(--muted);
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1100px) and (hover: none),
+    (max-width: 1100px) and (pointer: coarse),
+    (max-width: 1100px) and (pointer: none),
+    (max-width: 880px) and (hover: hover) and (pointer: fine) {
       .main {
         padding: 22.56px 18.8px 33.84px;
       }
@@ -6464,7 +6596,10 @@
       }
     }
 
-    @media (max-width: 800px) {
+    @media (max-width: 800px) and (hover: none),
+    (max-width: 800px) and (pointer: coarse),
+    (max-width: 800px) and (pointer: none),
+    (max-width: 640px) and (hover: hover) and (pointer: fine) {
       .main .dashboard-columns {
         grid-template-columns: 1fr;
       }
@@ -6478,7 +6613,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .main {
         padding: 16.92px 11.28px 26.32px;
       }
@@ -6508,7 +6646,7 @@
     .app {
       padding-top: 26.32px;
       padding-bottom: 26.32px;
-      height: 100dvh;
+      height: calc(100 * var(--kv-dvh, 1dvh));
       box-sizing: border-box;
     }
 
@@ -6520,21 +6658,30 @@
       align-self: stretch;
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .app {
         padding-top: max(20.68px, env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px));
         padding-bottom: max(20.68px, env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px));
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       .app {
         padding-top: max(22.56px, env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px));
         padding-bottom: max(22.56px, env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px));
       }
     }
 
-    @media (max-height: 520px) {
+    @media (max-height: 520px) and (hover: none),
+    (max-height: 520px) and (pointer: coarse),
+    (max-height: 520px) and (pointer: none),
+    (max-height: 416px) and (hover: hover) and (pointer: fine) {
       .app {
         padding-top: max(11.28px, env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px));
         padding-bottom: max(11.28px, env(safe-area-inset-top, 0px), env(safe-area-inset-bottom, 0px));
@@ -6550,7 +6697,7 @@
 
     .main .page-heading h1 {
       display: inline-block;
-      font-size: clamp(22.56px, 2.5vw, 31.96px);
+      font-size: clamp(22.56px, calc(2.5 * var(--kv-vw, 1vw)), 31.96px);
       font-weight: 700;
       letter-spacing: -0.6px;
       line-height: 1.5;
@@ -6587,7 +6734,7 @@
     }
 
     .main .dashboard-hero h2 {
-      font-size: clamp(22.56px, 2.7vw, 32.9px);
+      font-size: clamp(22.56px, calc(2.7 * var(--kv-vw, 1vw)), 32.9px);
       font-weight: 600;
       line-height: 1.5;
       margin-top: 11.28px;
@@ -6707,7 +6854,10 @@
       height: 20.68px;
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .sidebar #logout {
         gap: 0;
         padding-inline: 0;
@@ -6718,7 +6868,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .main .dashboard-hero {
         padding: 22.56px;
         min-height: 0;
@@ -6848,7 +7001,7 @@
 
     .main .dashboard-hero h2 {
       color: #482a18;
-      font-size: clamp(22.56px, 2.5vw, 31.96px);
+      font-size: clamp(22.56px, calc(2.5 * var(--kv-vw, 1vw)), 31.96px);
       font-weight: 700;
       line-height: 1.5;
       letter-spacing: -0.025em;
@@ -7206,13 +7359,19 @@
       border-color: #d8b18c;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1100px) and (hover: none),
+    (max-width: 1100px) and (pointer: coarse),
+    (max-width: 1100px) and (pointer: none),
+    (max-width: 880px) and (hover: hover) and (pointer: fine) {
       .main .stat-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 760px) and (hover: none),
+    (max-width: 760px) and (pointer: coarse),
+    (max-width: 760px) and (pointer: none),
+    (max-width: 608px) and (hover: hover) and (pointer: fine) {
       .main .hero-v2.dashboard-hero {
         grid-template-columns: minmax(0, 1fr) 103.4px;
         padding: 20.68px;
@@ -7236,7 +7395,10 @@
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       .main .hero-v2.dashboard-hero {
         grid-template-columns: 1fr;
       }
@@ -7299,7 +7461,7 @@
     }
 
     .main .dash-welcome h2 {
-      font-size: clamp(19.74px, 2.4vw, 30.08px);
+      font-size: clamp(19.74px, calc(2.4 * var(--kv-vw, 1vw)), 30.08px);
       line-height: 1.5;
       margin: 7.52px 0;
       color: #4b2d1d;
@@ -7618,16 +7780,19 @@
     }
 
     #toast {
-      max-width: calc(100vw - 30.08px);
+      max-width: calc(calc(100 * var(--kv-vw, 1vw)) - 30.08px);
       z-index: 9999;
     }
 
     dialog {
-      max-width: calc(100vw - 22.56px);
-      max-height: calc(100dvh - 24px);
+      max-width: calc(calc(100 * var(--kv-vw, 1vw)) - 22.56px);
+      max-height: calc(calc(100 * var(--kv-dvh, 1dvh)) - 24px);
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       .dash-two {
         grid-template-columns: 1fr;
       }
@@ -7641,7 +7806,10 @@
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
 
       html,
       body {
@@ -7651,7 +7819,7 @@
 
       .app {
         display: block !important;
-        min-height: 100dvh;
+        min-height: calc(100 * var(--kv-dvh, 1dvh));
         height: auto !important;
         padding: 0 !important;
         width: 100% !important;
@@ -7860,7 +8028,7 @@
       }
 
       dialog {
-        width: calc(100vw - 22.56px) !important;
+        width: calc(calc(100 * var(--kv-vw, 1vw)) - 22.56px) !important;
         padding: 0 !important;
       }
 
@@ -7917,7 +8085,10 @@
       color: #b2441c;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       .admin-tabs {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -8126,7 +8297,10 @@
       padding: 7px 12px;
     }
 
-    @media (max-width: 1150px) {
+    @media (max-width: 1150px) and (hover: none),
+    (max-width: 1150px) and (pointer: coarse),
+    (max-width: 1150px) and (pointer: none),
+    (max-width: 920px) and (hover: hover) and (pointer: fine) {
       .overview-donut-layout {
         grid-template-columns: 1fr;
       }
@@ -8138,7 +8312,10 @@
       }
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       .overview-metrics {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -8152,7 +8329,10 @@
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       .overview-scope {
         align-items: flex-start;
         flex-direction: column;
@@ -8226,7 +8406,7 @@
     }
 
     .main h2 {
-      font-size: clamp(17.86px, 2vw, 22.56px);
+      font-size: clamp(17.86px, calc(2 * var(--kv-vw, 1vw)), 22.56px);
       line-height: 1.5;
     }
 
@@ -8652,7 +8832,7 @@
     }
 
     .main .dash-welcome h2 {
-      font-size: clamp(20.68px, 2.3vw, 28.2px);
+      font-size: clamp(20.68px, calc(2.3 * var(--kv-vw, 1vw)), 28.2px);
     }
 
     .main .dash-stat-grid {
@@ -8880,7 +9060,10 @@
       display: none !important;
     }
 
-    @media (min-width: 901px) and (max-width: 1200px) {
+    @media (min-width: 901px) and (max-width: 1200px) and (hover: none),
+    (min-width: 901px) and (max-width: 1200px) and (pointer: coarse),
+    (min-width: 901px) and (max-width: 1200px) and (pointer: none),
+    (min-width: 720.8px) and (max-width: 960px) and (hover: hover) and (pointer: fine) {
       .main .course-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -8890,7 +9073,10 @@
       }
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       .main {
         padding: 18.8px 15.04px !important;
       }
@@ -8965,7 +9151,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .main .topbar {
         margin-bottom: 16.92px;
         gap: 9.4px;
@@ -9181,7 +9370,7 @@
     }
 
     .main .page-heading h1 {
-      font-size: clamp(28.2px, 3vw, 41.36px) !important;
+      font-size: clamp(28.2px, calc(3 * var(--kv-vw, 1vw)), 41.36px) !important;
       color: #3e2a17;
       font-weight: 700;
       line-height: 1.25;
@@ -9200,7 +9389,7 @@
 
     .main .workspace-intro h2,
     .main .dash-welcome h2 {
-      font-size: clamp(23.5px, 3vw, 32.9px);
+      font-size: clamp(23.5px, calc(3 * var(--kv-vw, 1vw)), 32.9px);
       font-weight: 700;
       line-height: 1.4;
       color: #392b22;
@@ -9763,7 +9952,10 @@
       background: #c38442;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       .main {
         padding: 21.62px 16.92px !important;
       }
@@ -9909,7 +10101,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .main {
         padding: 18.8px 13.16px !important;
       }
@@ -10029,7 +10224,10 @@
       }
     }
 
-    @media (min-width: 641px) and (max-width: 1000px) {
+    @media (min-width: 641px) and (max-width: 1000px) and (hover: none),
+    (min-width: 641px) and (max-width: 1000px) and (pointer: coarse),
+    (min-width: 641px) and (max-width: 1000px) and (pointer: none),
+    (min-width: 512.8px) and (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .sidebar {
         padding-bottom: max(18.8px, env(safe-area-inset-bottom, 0px)) !important;
       }
@@ -10040,7 +10238,10 @@
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       .sidebar {
         align-items: center !important;
         padding-block: 11.28px !important;
@@ -10070,7 +10271,10 @@
       accent-color: #a84d20;
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .main .workspace-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -10260,7 +10464,10 @@
       overflow-wrap: anywhere;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       .main .btn {
         font-size: 13.16px;
       }
@@ -10504,7 +10711,10 @@
       margin: 18.8px 0;
     }
 
-    @media (max-width: 800px) {
+    @media (max-width: 800px) and (hover: none),
+    (max-width: 800px) and (pointer: coarse),
+    (max-width: 800px) and (pointer: none),
+    (max-width: 640px) and (hover: hover) and (pointer: fine) {
 
       .main .dash-stat-grid,
       .main .review-metrics {
@@ -10517,7 +10727,10 @@
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       .main .class-grid {
         grid-template-columns: minmax(0, 1fr);
       }
@@ -10533,7 +10746,7 @@
 
     .main .page-heading h1,
     #title {
-      font-size: clamp(28.2px, 3vw, 41.36px);
+      font-size: clamp(28.2px, calc(3 * var(--kv-vw, 1vw)), 41.36px);
       font-weight: 700;
       line-height: 1.25;
       letter-spacing: -0.6px;
@@ -10782,9 +10995,9 @@
       border-radius: 22.56px;
       padding: 0;
       background: #fffdf9;
-      width: min(714.4px, calc(100vw - 30.08px));
+      width: min(714.4px, calc(calc(100 * var(--kv-vw, 1vw)) - 30.08px));
       max-width: 714.4px;
-      max-height: 90dvh;
+      max-height: calc(90 * var(--kv-dvh, 1dvh));
       box-shadow: 0 26.32px 94px #35210e40;
     }
 
@@ -10858,7 +11071,10 @@
       overflow-wrap: anywhere;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       .home-chart-grid {
         grid-template-columns: minmax(0, 1fr);
       }
@@ -10868,7 +11084,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .main .topbar {
         align-items: flex-start;
         flex-wrap: wrap;
@@ -10965,7 +11184,10 @@
       white-space: nowrap;
     }
 
-    @media (min-width: 901px) {
+    @media (min-width: 901px) and (hover: none),
+    (min-width: 901px) and (pointer: coarse),
+    (min-width: 901px) and (pointer: none),
+    (min-width: 720.8px) and (hover: hover) and (pointer: fine) {
       .main .dash-welcome {
         justify-content: center;
         text-align: center;
@@ -10981,7 +11203,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .main .teacher-info {
         min-width: 0 !important;
         max-width: 100% !important;
@@ -11161,7 +11386,10 @@
       background: #fff5f2;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       .main .course-card>.toolbar {
         gap: 7.52px;
       }
@@ -11178,7 +11406,7 @@
       margin: 0 !important;
       box-sizing: border-box;
       width: max-content;
-      max-width: calc(100vw - 22.56px);
+      max-width: calc(calc(100 * var(--kv-vw, 1vw)) - 22.56px);
       overflow: auto;
       z-index: 10000;
       box-shadow: 0 11.28px 30.08px rgba(55, 40, 25, 0.18);
@@ -11208,7 +11436,7 @@
       flex-wrap: wrap;
       align-items: baseline;
       gap: 7.52px;
-      font-size: clamp(25.38px, 3vw, 33.84px);
+      font-size: clamp(25.38px, calc(3 * var(--kv-vw, 1vw)), 33.84px);
       color: #3c342c;
     }
 
@@ -11456,7 +11684,10 @@
       border-radius: inherit;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .main .teacher-info.profile-trigger {
         min-width: 0 !important;
       }
@@ -11677,7 +11908,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .main .dash-stat {
         min-height: 150.4px;
         padding: 16.92px 11.28px;
@@ -11965,14 +12199,20 @@
       background: linear-gradient(145deg, #fff9f0, #ffe8cb);
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       #content :is(.dash-stat-grid, .workspace-summary, .review-metrics, .home-overview-metrics) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 13.16px;
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       #content :is(.dash-stat-grid, .workspace-summary, .review-metrics, .home-overview-metrics) {
         grid-template-columns: minmax(0, 1fr);
       }
@@ -11982,7 +12222,10 @@
       }
     }
 
-    @media (min-width: 901px) {
+    @media (min-width: 901px) and (hover: none),
+    (min-width: 901px) and (pointer: coarse),
+    (min-width: 901px) and (pointer: none),
+    (min-width: 720.8px) and (hover: hover) and (pointer: fine) {
 
       #content .review-metrics,
       #content .workspace-summary.summary-four {
@@ -12043,13 +12286,19 @@
       font-size: 11.28px;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 900px) and (hover: none),
+    (max-width: 900px) and (pointer: coarse),
+    (max-width: 900px) and (pointer: none),
+    (max-width: 720px) and (hover: hover) and (pointer: fine) {
       #content .home-overview-metrics {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       #content .home-overview-metrics {
         gap: 9.4px;
       }
@@ -12105,7 +12354,7 @@
     }
 
     #content .centered-loading {
-      min-height: clamp(225.6px, 45vh, 394.8px);
+      min-height: clamp(225.6px, calc(45 * var(--kv-vh, 1vh)), 394.8px);
       width: 100%;
       padding: 30.08px 18.8px;
       display: flex;
@@ -12182,7 +12431,10 @@
       flex-shrink: 0;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 760px) and (hover: none),
+    (max-width: 760px) and (pointer: coarse),
+    (max-width: 760px) and (pointer: none),
+    (max-width: 608px) and (hover: hover) and (pointer: fine) {
       .main #content .student-table {
         overflow: visible;
         padding: 0;
@@ -12349,7 +12601,10 @@
       margin: 0;
     }
 
-    @media (min-width: 641px) {
+    @media (min-width: 641px) and (hover: none),
+    (min-width: 641px) and (pointer: coarse),
+    (min-width: 641px) and (pointer: none),
+    (min-width: 512.8px) and (hover: hover) and (pointer: fine) {
       .sidebar .menu {
         flex: 1 1 0 !important;
         min-height: 0 !important;
@@ -12384,7 +12639,10 @@
       }
     }
 
-    @media (min-width: 641px) and (max-height: 650px) {
+    @media (min-width: 641px) and (max-height: 650px) and (hover: none),
+    (min-width: 641px) and (max-height: 650px) and (pointer: coarse),
+    (min-width: 641px) and (max-height: 650px) and (pointer: none),
+    (min-width: 512.8px) and (max-height: 520px) and (hover: hover) and (pointer: fine) {
       .sidebar .menu {
         gap: 4.7px !important;
         padding: 7.52px 0 !important;
@@ -12397,7 +12655,10 @@
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       #content .workspace-intro.compact-intro {
         flex-wrap: wrap;
         gap: 11.28px;
@@ -12459,7 +12720,10 @@
       border-top-style: solid;
     }
 
-    @media (min-width: 641px) {
+    @media (min-width: 641px) and (hover: none),
+    (min-width: 641px) and (pointer: coarse),
+    (min-width: 641px) and (pointer: none),
+    (min-width: 512.8px) and (hover: hover) and (pointer: fine) {
       .sidebar .menu>button {
         flex: 0 1 41.36px !important;
         height: 41.36px !important;
@@ -12475,7 +12739,10 @@
       }
     }
 
-    @media (min-width: 641px) and (max-height: 650px) {
+    @media (min-width: 641px) and (max-height: 650px) and (hover: none),
+    (min-width: 641px) and (max-height: 650px) and (pointer: coarse),
+    (min-width: 641px) and (max-height: 650px) and (pointer: none),
+    (min-width: 512.8px) and (max-height: 520px) and (hover: hover) and (pointer: fine) {
       .sidebar .menu>button {
         flex-basis: 33.84px !important;
         height: 33.84px !important;
@@ -12489,7 +12756,10 @@
       }
     }
 
-    @media (min-width: 641px) {
+    @media (min-width: 641px) and (hover: none),
+    (min-width: 641px) and (pointer: coarse),
+    (min-width: 641px) and (pointer: none),
+    (min-width: 512.8px) and (hover: hover) and (pointer: fine) {
       .sidebar .menu {
         justify-content: flex-start !important;
         gap: 13.16px !important;
@@ -12501,7 +12771,10 @@
       }
     }
 
-    @media (min-width: 641px) and (max-height: 700px) {
+    @media (min-width: 641px) and (max-height: 700px) and (hover: none),
+    (min-width: 641px) and (max-height: 700px) and (pointer: coarse),
+    (min-width: 641px) and (max-height: 700px) and (pointer: none),
+    (min-width: 512.8px) and (max-height: 560px) and (hover: hover) and (pointer: fine) {
       .sidebar .menu {
         gap: 7.52px !important;
         padding: 11.28px 0 !important;
@@ -12514,7 +12787,10 @@
       }
     }
 
-    @media (min-width: 641px) and (max-width: 1100px) {
+    @media (min-width: 641px) and (max-width: 1100px) and (hover: none),
+    (min-width: 641px) and (max-width: 1100px) and (pointer: coarse),
+    (min-width: 641px) and (max-width: 1100px) and (pointer: none),
+    (min-width: 512.8px) and (max-width: 880px) and (hover: hover) and (pointer: fine) {
       #content :is(.dash-stat, .workspace-summary > div, .review-metric) {
         height: 174.84px;
         min-height: 174.84px;
@@ -12581,7 +12857,10 @@
       border-bottom: 0;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       .main #content .dash-welcome {
         min-height: 141px;
         padding: 22.56px 15.04px;
@@ -12811,7 +13090,10 @@
       background: linear-gradient(#efa444, #c56821);
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
 
       .main #content .toolbar:not(.course-card-header),
       .main #content .workspace-search {
@@ -13056,7 +13338,10 @@
       }
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .main #content .welcome-hero {
         padding: 30.08px 131.6px;
       }
@@ -13068,7 +13353,10 @@
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       .main #content .welcome-hero {
         padding: 23.5px 16.92px 94px;
         min-height: 244.4px;
@@ -13137,7 +13425,10 @@
       height: 45.12px;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       .main #content .workspace-search.centered-search {
         padding: 18.8px 16.92px !important;
         border-radius: 16.92px !important;
@@ -13175,7 +13466,7 @@
       display: block;
       min-width: 0;
       flex: 1;
-      font-size: clamp(11.28px, 1.15vw, 13.16px);
+      font-size: clamp(11.28px, calc(1.15 * var(--kv-vw, 1vw)), 13.16px);
       line-height: 1.6;
       white-space: nowrap;
       overflow: hidden;
@@ -13188,7 +13479,10 @@
       white-space: nowrap;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1100px) and (hover: none),
+    (max-width: 1100px) and (pointer: coarse),
+    (max-width: 1100px) and (pointer: none),
+    (max-width: 880px) and (hover: hover) and (pointer: fine) {
       .main #content .student-table td:last-child>.actions {
         display: flex;
         flex-direction: column;
@@ -13212,7 +13506,10 @@
       }
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 760px) and (hover: none),
+    (max-width: 760px) and (pointer: coarse),
+    (max-width: 760px) and (pointer: none),
+    (max-width: 608px) and (hover: hover) and (pointer: fine) {
       .main #content .student-table .student-name-cell strong {
         font-size: 13.16px;
       }
@@ -13304,7 +13601,10 @@
       width: fit-content;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       .class-compare-heading {
         gap: 7.52px;
       }
@@ -13470,7 +13770,10 @@
       background: #faf0e2;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       .main .topbar {
         min-height: 73.32px;
       }
@@ -13561,7 +13864,10 @@
       height: 100%;
     }
 
-    @media (min-width: 641px) and (max-width: 1100px) {
+    @media (min-width: 641px) and (max-width: 1100px) and (hover: none),
+    (min-width: 641px) and (max-width: 1100px) and (pointer: coarse),
+    (min-width: 641px) and (max-width: 1100px) and (pointer: none),
+    (min-width: 512.8px) and (max-width: 880px) and (hover: hover) and (pointer: fine) {
       .main #content :is(.dash-stat, .workspace-summary > div, .review-metric)>span:not(.stat-symbol) {
         font-size: 15.04px;
       }
@@ -13571,7 +13877,10 @@
       }
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .main #content .welcome-hero {
         padding: 28.2px 141px;
       }
@@ -13591,7 +13900,10 @@
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       .main #content .welcome-hero {
         padding: 26.32px 16.92px 117.5px;
         min-height: 267.9px;
@@ -13664,7 +13976,10 @@
       bottom: 31.96px;
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
 
       .main #content .welcome-hero>.welcome-computer-scene,
       .main #content .welcome-hero>.welcome-learning-scene {
@@ -13672,7 +13987,10 @@
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
 
       .main #content .welcome-hero>.welcome-computer-scene,
       .main #content .welcome-hero>.welcome-learning-scene {
@@ -13703,7 +14021,7 @@
     }
 
     .main #content .welcome-hero h2 {
-      font-size: clamp(25.38px, 2.6vw, 36.66px);
+      font-size: clamp(25.38px, calc(2.6 * var(--kv-vw, 1vw)), 36.66px);
       font-weight: 800;
       letter-spacing: -0.5px;
       line-height: 1.55;
@@ -13810,7 +14128,10 @@
       }
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .welcome-orbit {
         width: 117.5px;
         height: 117.5px;
@@ -13835,7 +14156,10 @@
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       .main #content .welcome-hero {
         min-height: 296.1px;
         padding: 26.32px 16.92px 126.9px;
@@ -13949,7 +14273,7 @@
     .admin-clear-actions .btn {
       min-width: 0;
       width: 100%;
-      font-size: clamp(11px, 1vw, 14px);
+      font-size: clamp(11px, calc(1 * var(--kv-vw, 1vw)), 14px);
       padding: 10px 8px;
     }
 
@@ -13969,13 +14293,19 @@
       font-weight: 700;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1100px) and (hover: none),
+    (max-width: 1100px) and (pointer: coarse),
+    (max-width: 1100px) and (pointer: none),
+    (max-width: 880px) and (hover: hover) and (pointer: fine) {
       .admin-clear-actions {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 420px) {
+    @media (max-width: 420px) and (hover: none),
+    (max-width: 420px) and (pointer: coarse),
+    (max-width: 420px) and (pointer: none),
+    (max-width: 336px) and (hover: hover) and (pointer: fine) {
       .admin-clear-actions .btn {
         font-size: 12px;
         white-space: normal;
@@ -14070,7 +14400,7 @@
       width: 100%;
       max-width: none;
       margin: 10px 0;
-      font-size: clamp(22px, 2.2vw, 32px);
+      font-size: clamp(22px, calc(2.2 * var(--kv-vw, 1vw)), 32px);
       line-height: 1.5;
       white-space: nowrap;
       letter-spacing: -0.3px;
@@ -14089,14 +14419,20 @@
       opacity: 0.65;
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       .main #content .welcome-hero {
         min-height: 220px;
         padding: 24px 24px 64px;
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       .main #content :is(.dash-stat, .workspace-summary > div, .review-metric) {
         padding: 14px;
         min-height: 98px;
@@ -14116,7 +14452,10 @@
       }
     }
 
-    @media screen and (max-width: 700px) {
+    @media screen and (max-width: 700px) and (hover: none),
+    screen and (max-width: 700px) and (pointer: coarse),
+    screen and (max-width: 700px) and (pointer: none),
+    screen and (max-width: 560px) and (hover: hover) and (pointer: fine) {
 
       html,
       body {
@@ -14129,7 +14468,7 @@
         flex-direction: row !important;
         align-items: stretch !important;
         width: 100%;
-        height: 100dvh !important;
+        height: calc(100 * var(--kv-dvh, 1dvh)) !important;
         min-height: 0 !important;
         padding: 6px !important;
         gap: 8px !important;
@@ -14248,7 +14587,10 @@
       }
     }
 
-    @media screen and (max-width: 700px) {
+    @media screen and (max-width: 700px) and (hover: none),
+    screen and (max-width: 700px) and (pointer: coarse),
+    screen and (max-width: 700px) and (pointer: none),
+    screen and (max-width: 560px) and (hover: hover) and (pointer: fine) {
 
       body .main #content :is(.dash-stat-grid,
         .workspace-summary,
@@ -14372,7 +14714,10 @@
       }
     }
 
-    @media screen and (max-width: 700px) {
+    @media screen and (max-width: 700px) and (hover: none),
+    screen and (max-width: 700px) and (pointer: coarse),
+    screen and (max-width: 700px) and (pointer: none),
+    screen and (max-width: 560px) and (hover: hover) and (pointer: fine) {
       body .main .topbar {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -14504,7 +14849,10 @@
       }
     }
 
-    @media screen and (min-width: 701px) and (max-width: 1100px) {
+    @media screen and (min-width: 701px) and (max-width: 1100px) and (hover: none),
+    screen and (min-width: 701px) and (max-width: 1100px) and (pointer: coarse),
+    screen and (min-width: 701px) and (max-width: 1100px) and (pointer: none),
+    screen and (min-width: 560.8px) and (max-width: 880px) and (hover: hover) and (pointer: fine) {
 
       body .main #content :is(.dash-stat-grid,
         .workspace-summary,
@@ -14603,7 +14951,10 @@
       margin-bottom: 20px !important;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       body .main #content .list-order-bar {
         gap: 6px 8px;
       }
@@ -14685,7 +15036,10 @@
       display: none;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .app>.sidebar {
         display: none !important;
       }
@@ -14696,7 +15050,7 @@
         gap: 0 !important;
         padding: 8px 10px 0 !important;
         width: 100% !important;
-        height: 100dvh !important;
+        height: calc(100 * var(--kv-dvh, 1dvh)) !important;
       }
 
       body .app>.main {
@@ -14791,7 +15145,7 @@
         margin: 0 !important;
         padding: 0 !important;
         text-align: center !important;
-        font-size: clamp(24px, 6.5vw, 28px) !important;
+        font-size: clamp(24px, calc(6.5 * var(--kv-vw, 1vw)), 28px) !important;
         font-weight: 800 !important;
         line-height: 1.35 !important;
         white-space: normal !important;
@@ -14893,7 +15247,10 @@
       display: contents;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main .topbar .topbar-account-actions {
         position: absolute !important;
         right: 0 !important;
@@ -14944,8 +15301,8 @@
 
     body #mobileMenuDialog {
       box-sizing: border-box !important;
-      width: min(420px, calc(100vw - 32px)) !important;
-      max-width: calc(100vw - 32px) !important;
+      width: min(420px, calc(calc(100 * var(--kv-vw, 1vw)) - 32px)) !important;
+      max-width: calc(calc(100 * var(--kv-vw, 1vw)) - 32px) !important;
       padding: 18px !important;
       margin: auto !important;
       overflow-x: hidden !important;
@@ -14988,7 +15345,10 @@
       padding: 0 !important;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .mobile-bottom-nav .mobile-home-tab svg {
         width: 24px;
         height: 24px;
@@ -15052,7 +15412,10 @@
       margin: 0 !important;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .table-wrap table {
         font-size: 12px !important;
       }
@@ -15107,7 +15470,10 @@
       min-width: 120px !important;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       body .main #content .student-table {
         display: block !important;
         overflow-x: auto !important;
@@ -15248,7 +15614,7 @@
     }
 
     body #modal .batch-confirm-list {
-      max-height: 40dvh;
+      max-height: calc(40 * var(--kv-dvh, 1dvh));
       overflow-y: auto;
       padding: 12px 12px 12px 36px;
       border: 1px solid #e8d4be;
@@ -15267,7 +15633,10 @@
       font-weight: 700;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       body .main #content .table-wrap:not(.student-table) .responsive-table tbody tr {
         background: #fff1df !important;
         border: 1px solid #ecd2b4 !important;
@@ -15303,7 +15672,7 @@
       top: 18px;
       right: 18px;
       z-index: 500;
-      max-width: min(420px, calc(100vw - 32px));
+      max-width: min(420px, calc(calc(100 * var(--kv-vw, 1vw)) - 32px));
       padding: 12px 16px;
       border: 1px solid #8bc9a9;
       border-radius: 14px;
@@ -15316,7 +15685,10 @@
       pointer-events: none;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body #selectionToast {
         top: auto;
         bottom: calc(82px + env(safe-area-inset-bottom, 0px));
@@ -15327,7 +15699,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .selection-toolbar {
         display: flex !important;
         flex-direction: row !important;
@@ -15378,11 +15753,14 @@
       body .main #content .selection-toolbar #batchStudentMenu>div {
         left: auto !important;
         right: 0 !important;
-        max-width: calc(100vw - 32px) !important;
+        max-width: calc(calc(100 * var(--kv-vw, 1vw)) - 32px) !important;
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .list-order-bar:has(.student-order-note) {
         display: flex !important;
         flex-wrap: wrap !important;
@@ -15398,12 +15776,15 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body #selectionToast {
         left: auto !important;
         right: 12px !important;
         width: max-content !important;
-        max-width: calc(100vw - 24px) !important;
+        max-width: calc(calc(100 * var(--kv-vw, 1vw)) - 24px) !important;
         padding: 7px 12px !important;
         font-size: 12px !important;
         line-height: 1.4 !important;
@@ -15416,7 +15797,10 @@
       }
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       body .main #content .table-wrap:not(.student-table) .responsive-table tbody td:has(> [data-action="student-work"]) {
         display: flex !important;
         flex-direction: column !important;
@@ -15445,7 +15829,7 @@
     }
 
     body #modal .confirm-items {
-      max-height: 30dvh;
+      max-height: calc(30 * var(--kv-dvh, 1dvh));
       overflow-y: auto;
       padding: 10px 14px;
       border: 1px solid #ecd8c4;
@@ -15485,7 +15869,10 @@
       outline-offset: 2px;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body #selectionToast {
         gap: 6px;
         padding: 5px 7px 5px 12px !important;
@@ -15495,7 +15882,7 @@
     body .more-menu>div {
       width: max-content !important;
       min-width: 0 !important;
-      max-width: calc(100vw - 24px) !important;
+      max-width: calc(calc(100 * var(--kv-vw, 1vw)) - 24px) !important;
     }
 
     body .more-menu>div .btn {
@@ -15550,7 +15937,7 @@
     body .main #content .student-table .more-menu>div {
       width: max-content !important;
       min-width: 0 !important;
-      max-width: calc(100vw - 24px) !important;
+      max-width: calc(calc(100 * var(--kv-vw, 1vw)) - 24px) !important;
       align-items: stretch !important;
     }
 
@@ -15636,7 +16023,7 @@
     }
 
     .admin-history-detail {
-      max-height: 55vh;
+      max-height: calc(55 * var(--kv-vh, 1vh));
       overflow: auto;
     }
 
@@ -15654,7 +16041,10 @@
       overflow: auto;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .admin-hub-grid {
         grid-template-columns: 1fr;
       }
@@ -15971,7 +16361,7 @@
       overflow-wrap: anywhere;
       word-break: normal;
       line-height: 1.5;
-      font-size: clamp(16px, 1.3vw, 20px);
+      font-size: clamp(16px, calc(1.3 * var(--kv-vw, 1vw)), 20px);
     }
 
     body .main #content .settings-workspace .admin-history-list>.dash-section-head {
@@ -16021,7 +16411,10 @@
       margin-top: 8px;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 760px) and (hover: none),
+    (max-width: 760px) and (pointer: coarse),
+    (max-width: 760px) and (pointer: none),
+    (max-width: 608px) and (hover: hover) and (pointer: fine) {
       body .main #content .settings-workspace .admin-history-list .dash-entry {
         grid-template-columns: minmax(0, 1fr) !important;
       }
@@ -16199,7 +16592,10 @@
       text-align: left;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .history-meta {
         grid-template-columns: minmax(0, 1fr);
         gap: 10px;
@@ -16325,7 +16721,7 @@
     }
 
     body .main #content .course-detail-hero h2 {
-      font-size: clamp(22px, 2.5vw, 32px);
+      font-size: clamp(22px, calc(2.5 * var(--kv-vw, 1vw)), 32px);
       line-height: 1.45;
       color: #482a18;
       margin: 16px 0 20px;
@@ -16360,7 +16756,10 @@
       min-width: 0;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-detail-hero {
         padding: 24px 18px;
       }
@@ -16381,7 +16780,7 @@
 
     body .main #content .course-detail-hero h2 {
       margin: 0 0 10px;
-      font-size: clamp(24px, 2.6vw, 34px);
+      font-size: clamp(24px, calc(2.6 * var(--kv-vw, 1vw)), 34px);
       font-weight: 700;
     }
 
@@ -16531,7 +16930,10 @@
       margin-top: 16px;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-detail-hero {
         padding: 54px 18px 24px;
       }
@@ -16611,8 +17013,8 @@
 
     .system-confirm-dialog {
       box-sizing: border-box;
-      width: min(460px, calc(100vw - 32px));
-      max-height: calc(100dvh - 40px);
+      width: min(460px, calc(calc(100 * var(--kv-vw, 1vw)) - 32px));
+      max-height: calc(calc(100 * var(--kv-dvh, 1dvh)) - 40px);
       overflow: auto;
       padding: 26px;
       border: 1px solid #ead1b9;
@@ -16717,7 +17119,10 @@
       margin: 12px 0;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .unit-add-actions {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -16909,7 +17314,10 @@
       color: #747b82;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 760px) and (hover: none),
+    (max-width: 760px) and (pointer: coarse),
+    (max-width: 760px) and (pointer: none),
+    (max-width: 608px) and (hover: hover) and (pointer: fine) {
       body .main #content details.learning-unit>.unit-heading {
         grid-template-columns: 40px minmax(0, 1fr);
         padding: 16px !important;
@@ -17016,7 +17424,10 @@
       opacity: 0.2;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 760px) and (hover: none),
+    (max-width: 760px) and (pointer: coarse),
+    (max-width: 760px) and (pointer: none),
+    (max-width: 608px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-detail-hero {
         min-height: 210px !important;
         padding: 50px 20px 28px !important;
@@ -17057,7 +17468,10 @@
       opacity: 0.3;
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 760px) and (hover: none),
+    (max-width: 760px) and (pointer: coarse),
+    (max-width: 760px) and (pointer: none),
+    (max-width: 608px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-detail-hero>.course-learning-art {
         opacity: 0.35;
       }
@@ -17171,7 +17585,10 @@
       opacity: 0.22;
     }
 
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px) and (hover: none),
+    (max-width: 1000px) and (pointer: coarse),
+    (max-width: 1000px) and (pointer: none),
+    (max-width: 800px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-detail-hero {
         padding: 62px 90px !important;
       }
@@ -17193,7 +17610,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-detail-hero {
         padding: 84px 22px 80px !important;
         min-height: 280px !important;
@@ -17236,7 +17656,7 @@
       }
 
       body .main #content .course-detail-hero h2 {
-        font-size: clamp(18px, 5vw, 24px) !important;
+        font-size: clamp(18px, calc(5 * var(--kv-vw, 1vw)), 24px) !important;
       }
     }
 
@@ -17305,7 +17725,10 @@
       align-items: center;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       #modal #modalBody {
         padding: 14px 16px 18px;
       }
@@ -17327,11 +17750,11 @@
       position: fixed !important;
       inset: 0 !important;
       margin: auto !important;
-      width: min(360px, calc(100vw - 36px)) !important;
+      width: min(360px, calc(calc(100 * var(--kv-vw, 1vw)) - 36px)) !important;
       max-width: 360px !important;
       height: fit-content !important;
       min-height: 0 !important;
-      max-height: calc(100dvh - 40px) !important;
+      max-height: calc(calc(100 * var(--kv-dvh, 1dvh)) - 40px) !important;
       padding: 22px !important;
       display: block !important;
       border: 1px solid #ead1b9;
@@ -17428,7 +17851,10 @@
       align-self: start;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 480px) and (hover: none),
+    (max-width: 480px) and (pointer: coarse),
+    (max-width: 480px) and (pointer: none),
+    (max-width: 384px) and (hover: hover) and (pointer: fine) {
       .schedule-fields {
         grid-template-columns: 1fr;
       }
@@ -17676,7 +18102,7 @@
     .form .activity-option-card .option-check {
       margin: 0 !important;
       cursor: pointer;
-      font-size: clamp(12px, 1.3vw, 14px);
+      font-size: clamp(12px, calc(1.3 * var(--kv-vw, 1vw)), 14px);
       line-height: 1.5;
     }
 
@@ -17726,7 +18152,10 @@
       display: block;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .form .activity-options {
         grid-template-columns: 1fr;
       }
@@ -17856,7 +18285,7 @@
     }
 
     .form .activity-option-card .option-check {
-      font-size: clamp(10px, 1.2vw, 14px);
+      font-size: clamp(10px, calc(1.2 * var(--kv-vw, 1vw)), 14px);
       gap: 6px;
     }
 
@@ -17895,13 +18324,16 @@
       right: auto;
       top: 50%;
       transform: translate(-50%, -50%);
-      width: min(320px, calc(100vw - 36px));
+      width: min(320px, calc(calc(100 * var(--kv-vw, 1vw)) - 36px));
       white-space: pre-line;
       pointer-events: none;
       text-align: center !important;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .form .activity-option-card .option-check {
         font-size: 11px;
       }
@@ -17921,9 +18353,9 @@
       position: fixed !important;
       inset: 0 !important;
       margin: auto !important;
-      width: min(350px, calc(100vw - 36px)) !important;
+      width: min(350px, calc(calc(100 * var(--kv-vw, 1vw)) - 36px)) !important;
       height: fit-content !important;
-      max-height: 80dvh !important;
+      max-height: calc(80 * var(--kv-dvh, 1dvh)) !important;
       padding: 26px !important;
       border: 1px solid #ead4bc;
       border-radius: 20px;
@@ -17971,7 +18403,7 @@
       top: 50% !important;
       left: 50% !important;
       transform: translate(-50%, -50%) !important;
-      max-width: calc(100vw - 32px) !important;
+      max-width: calc(calc(100 * var(--kv-vw, 1vw)) - 32px) !important;
       z-index: 10000 !important;
       padding: 16px 24px !important;
       border: 1px solid #e0bb95 !important;
@@ -18077,7 +18509,10 @@
       min-width: 0;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1100px) and (hover: none),
+    (max-width: 1100px) and (pointer: coarse),
+    (max-width: 1100px) and (pointer: none),
+    (max-width: 880px) and (hover: hover) and (pointer: fine) {
       body .main #content .learning-unit .unit-heading {
         grid-template-columns: 42px minmax(0, 1fr) !important;
       }
@@ -18094,7 +18529,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .resource-row.resource-compact {
         grid-template-columns: 18px minmax(0, 1fr) auto auto 24px auto !important;
         gap: 4px !important;
@@ -18132,7 +18570,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .learning-unit .unit-heading-status {
         gap: 5px !important;
       }
@@ -18206,7 +18647,7 @@
       display: flex !important;
       align-items: center;
       gap: 16px;
-      min-width: min(330px, calc(100vw - 32px));
+      min-width: min(330px, calc(calc(100 * var(--kv-vw, 1vw)) - 32px));
       padding: 22px 26px !important;
       background: linear-gradient(135deg, #fffdf8, #fff0d9) !important;
       border: 1px solid #e6c294 !important;
@@ -18469,7 +18910,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .resource-row.resource-compact {
         grid-template-columns: 18px minmax(0, 1fr) auto 24px auto !important;
       }
@@ -18563,7 +19007,10 @@
       margin: 18px auto;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .resource-row.resource-compact {
         grid-template-columns: 18px minmax(0, 1fr) 66px 24px auto !important;
       }
@@ -18731,7 +19178,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body #modal .game-victory {
         padding: 20px 12px;
       }
@@ -18816,7 +19266,7 @@
 
     body #modal:has(.members-manager),
     body #modal:has([data-form="enroll"]) {
-      width: min(960px, 94vw) !important;
+      width: min(960px, calc(94 * var(--kv-vw, 1vw))) !important;
       max-width: 960px !important;
     }
 
@@ -18864,7 +19314,10 @@
       min-width: 160px;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .review-filter-panel {
         padding: 14px;
       }
@@ -18917,26 +19370,26 @@
     }
 
     body .student-table :is(th, td) {
-      font-size: clamp(10px, 1.05vw, 14px);
+      font-size: clamp(10px, calc(1.05 * var(--kv-vw, 1vw)), 14px);
     }
 
     body .student-name-cell strong {
       white-space: nowrap !important;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-size: clamp(11px, 1.15vw, 14px);
+      font-size: clamp(11px, calc(1.15 * var(--kv-vw, 1vw)), 14px);
     }
 
     body .student-course-tag,
     body .access-badge {
-      font-size: clamp(10px, 1vw, 12px);
+      font-size: clamp(10px, calc(1 * var(--kv-vw, 1vw)), 12px);
     }
 
     body .actions .btn,
     body .system-confirm-actions button {
       white-space: nowrap !important;
       max-width: 100%;
-      font-size: clamp(10px, 1.05vw, 14px);
+      font-size: clamp(10px, calc(1.05 * var(--kv-vw, 1vw)), 14px);
     }
 
     body .course-room-buttons .btn,
@@ -18951,7 +19404,10 @@
       min-width: 0;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .student-table td:before {
         white-space: nowrap !important;
       }
@@ -19014,13 +19470,16 @@
     }
 
     body .main #content .course-member-controls>.toolbar>.btn {
-      width: clamp(160px, 22vw, 260px) !important;
+      width: clamp(160px, calc(22 * var(--kv-vw, 1vw)), 260px) !important;
       justify-content: center !important;
       text-align: center !important;
       min-height: 42px;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-member-controls>.toolbar {
         gap: 8px !important;
       }
@@ -19167,7 +19626,10 @@
       transform: translateY(-2px);
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body #modal .account-login {
         display: flex !important;
         flex-direction: row !important;
@@ -19195,12 +19657,12 @@
 
       body #modal .external-preview-note p {
         white-space: nowrap;
-        font-size: clamp(8px, 2.65vw, 13px);
+        font-size: clamp(8px, calc(2.65 * var(--kv-vw, 1vw)), 13px);
       }
 
       body #modal .worksheet-file-note {
         white-space: nowrap !important;
-        font-size: clamp(6px, 2.05vw, 11px) !important;
+        font-size: clamp(6px, calc(2.05 * var(--kv-vw, 1vw)), 11px) !important;
         padding: 10px 4px;
         text-align: center;
       }
@@ -19213,7 +19675,7 @@
       body #modal .activity-option-card span {
         min-width: 0;
         white-space: nowrap;
-        font-size: clamp(9px, 2.6vw, 12px);
+        font-size: clamp(9px, calc(2.6 * var(--kv-vw, 1vw)), 12px);
       }
 
       body .course-score-summary {
@@ -19279,7 +19741,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .workspace-summary>div:has(.student-access-hint) {
         min-width: 0;
       }
@@ -19369,7 +19834,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body #modal .minigame-arena .question-row {
         padding: 14px;
       }
@@ -19699,7 +20167,7 @@
       display: block;
       width: 100%;
       height: auto;
-      max-height: 48vh;
+      max-height: calc(48 * var(--kv-vh, 1vh));
       aspect-ratio: 13/9;
       object-fit: contain;
       border-radius: 12px;
@@ -19815,7 +20283,10 @@
       display: none !important;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 700px) and (hover: none),
+    (max-width: 700px) and (pointer: coarse),
+    (max-width: 700px) and (pointer: none),
+    (max-width: 560px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-score-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
@@ -19860,7 +20331,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .section-intro:has([data-action="new-chapter"]) {
         margin-block: 16px !important;
         padding-block: 16px !important;
@@ -20191,7 +20665,10 @@
       display: none;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .student-id-card {
         padding: 16px;
         border-radius: 18px;
@@ -20257,7 +20734,10 @@
       object-fit: cover;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .student-card-fields>div {
         grid-template-columns: minmax(0, 1fr);
         gap: 4px;
@@ -20667,7 +21147,10 @@
       color: #977153;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .section-intro:has([data-action="new-chapter"]) h2 {
         font-size: 12px !important;
       }
@@ -21147,7 +21630,10 @@
       margin: 12px 0 0 !important;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body #modal .minigame-arena {
         padding: 12px !important;
         border-radius: 20px !important;
@@ -21204,20 +21690,20 @@
       }
 
       body .classroom-platformer .platform-controls {
-        grid-template-columns: calc(3 * clamp(32px, 10vw, 40px)) minmax(75px, 95px) !important;
-        gap: clamp(10px, 4vw, 18px) !important;
+        grid-template-columns: calc(3 * clamp(32px, calc(10 * var(--kv-vw, 1vw)), 40px)) minmax(75px, 95px) !important;
+        gap: clamp(10px, calc(4 * var(--kv-vw, 1vw)), 18px) !important;
         margin-top: 14px !important;
       }
 
       body .platform-controls>.platform-dpad {
-        grid-template-columns: repeat(3, clamp(32px, 10vw, 40px)) !important;
-        grid-template-rows: repeat(3, clamp(32px, 10vw, 40px)) !important;
+        grid-template-columns: repeat(3, clamp(32px, calc(10 * var(--kv-vw, 1vw)), 40px)) !important;
+        grid-template-rows: repeat(3, clamp(32px, calc(10 * var(--kv-vw, 1vw)), 40px)) !important;
       }
 
       body .platform-dpad button,
       body .platform-dpad .pad-center {
-        width: clamp(32px, 10vw, 40px) !important;
-        height: clamp(32px, 10vw, 40px) !important;
+        width: clamp(32px, calc(10 * var(--kv-vw, 1vw)), 40px) !important;
+        height: clamp(32px, calc(10 * var(--kv-vw, 1vw)), 40px) !important;
         font-size: 19px !important;
       }
 
@@ -21249,11 +21735,14 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body #modal:has(.classroom-platformer) {
-        width: calc(100vw - 16px) !important;
-        max-width: calc(100vw - 16px) !important;
-        max-height: calc(100dvh - 16px) !important;
+        width: calc(calc(100 * var(--kv-vw, 1vw)) - 16px) !important;
+        max-width: calc(calc(100 * var(--kv-vw, 1vw)) - 16px) !important;
+        max-height: calc(calc(100 * var(--kv-dvh, 1dvh)) - 16px) !important;
         margin: auto !important;
       }
 
@@ -21268,7 +21757,7 @@
 
       body #modal:has(.classroom-platformer) #modalBody {
         padding: 12px !important;
-        max-height: calc(100dvh - 80px) !important;
+        max-height: calc(calc(100 * var(--kv-dvh, 1dvh)) - 80px) !important;
       }
 
       body #modalBody:has(.classroom-platformer)>.preview-note {
@@ -21414,7 +21903,10 @@
       white-space: nowrap;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .sandbox-map-label {
         font-size: 10px;
         margin-bottom: 3px;
@@ -21959,7 +22451,7 @@
     }
 
     body #modal:has(.follow-grade) {
-      width: min(900px, 94vw) !important;
+      width: min(900px, calc(94 * var(--kv-vw, 1vw))) !important;
       max-width: 900px !important;
     }
 
@@ -22108,7 +22600,10 @@
       padding: 10px 13px !important;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1100px) and (hover: none),
+    (max-width: 1100px) and (pointer: coarse),
+    (max-width: 1100px) and (pointer: none),
+    (max-width: 880px) and (hover: hover) and (pointer: fine) {
       body .main #content .follow-metric {
         padding: 13px !important;
       }
@@ -22127,7 +22622,10 @@
       }
     }
 
-    @media (max-width: 760px) {
+    @media (max-width: 760px) and (hover: none),
+    (max-width: 760px) and (pointer: coarse),
+    (max-width: 760px) and (pointer: none),
+    (max-width: 608px) and (hover: hover) and (pointer: fine) {
       body .main #content .follow-metrics {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
       }
@@ -22154,7 +22652,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .follow-page {
         gap: 12px;
       }
@@ -22355,7 +22856,10 @@
       }
     }
 
-    @media (max-width: 390px) {
+    @media (max-width: 390px) and (hover: none),
+    (max-width: 390px) and (pointer: coarse),
+    (max-width: 390px) and (pointer: none),
+    (max-width: 312px) and (hover: hover) and (pointer: fine) {
       body .main #content .follow-work-result {
         grid-template-columns: auto 1fr;
       }
@@ -22491,7 +22995,10 @@
       }
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 640px) and (hover: none),
+    (max-width: 640px) and (pointer: coarse),
+    (max-width: 640px) and (pointer: none),
+    (max-width: 512px) and (hover: hover) and (pointer: fine) {
       body .main #content .follow-intro {
         grid-template-columns: minmax(0, 1fr);
         align-items: start;
@@ -22854,9 +23361,12 @@
       display: none !important;
     }
 
-    @media (min-width: 850px) {
+    @media (min-width: 850px) and (hover: none),
+    (min-width: 850px) and (pointer: coarse),
+    (min-width: 850px) and (pointer: none),
+    (min-width: 680px) and (hover: hover) and (pointer: fine) {
       body #modal:has(.minigame-arena) {
-        width: min(1040px, calc(100vw - 48px)) !important;
+        width: min(1040px, calc(calc(100 * var(--kv-vw, 1vw)) - 48px)) !important;
         max-width: 1040px !important;
       }
 
@@ -22884,7 +23394,10 @@
       }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       .report-format-grid {
         grid-template-columns: 1fr;
       }
@@ -23365,7 +23878,10 @@
       gap: 10px;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body #modal.account-dialog .account-photo-copy>.actions {
         justify-content: center !important;
       }
@@ -23707,9 +24223,9 @@
     }
 
     body #modal:has(.minigame-arena) {
-      width: min(1120px, calc(100vw - 20px)) !important;
+      width: min(1120px, calc(calc(100 * var(--kv-vw, 1vw)) - 20px)) !important;
       max-width: 1120px !important;
-      max-height: calc(100dvh - 16px) !important;
+      max-height: calc(calc(100 * var(--kv-dvh, 1dvh)) - 16px) !important;
       padding: 12px !important;
       overflow: hidden !important;
     }
@@ -23765,7 +24281,7 @@
     }
 
     body #modal .classroom-platformer canvas {
-      max-height: min(34dvh, 300px) !important;
+      max-height: min(calc(34 * var(--kv-dvh, 1dvh)), 300px) !important;
       width: 100% !important;
       object-fit: contain !important;
     }
@@ -23822,13 +24338,19 @@
       gap: 12px !important;
     }
 
-    @media (min-width: 850px) {
+    @media (min-width: 850px) and (hover: none),
+    (min-width: 850px) and (pointer: coarse),
+    (min-width: 850px) and (pointer: none),
+    (min-width: 680px) and (hover: hover) and (pointer: fine) {
       body #modal .classroom-platformer .sandbox-answer-legend {
         grid-template-columns: 1fr !important;
       }
     }
 
-    @media (min-width: 600px) and (max-height: 500px) {
+    @media (min-width: 600px) and (max-height: 500px) and (hover: none),
+    (min-width: 600px) and (max-height: 500px) and (pointer: coarse),
+    (min-width: 600px) and (max-height: 500px) and (pointer: none),
+    (min-width: 480px) and (max-height: 400px) and (hover: hover) and (pointer: fine) {
       body #modal .minigame-header {
         display: none !important;
       }
@@ -23883,7 +24405,7 @@
     }
 
     body .backup-choice-dialog {
-      width: min(560px, calc(100vw - 32px));
+      width: min(560px, calc(calc(100 * var(--kv-vw, 1vw)) - 32px));
       border: 1px solid #efd2bb;
       border-radius: 24px;
       padding: 24px;
@@ -23982,7 +24504,10 @@
       margin: 0 !important;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
 
       body .main #content :is(.dash-stat,
         .follow-metric,
@@ -24016,7 +24541,7 @@
       justify-content: center !important;
       align-items: center !important;
       text-align: center !important;
-      width: min(420px, calc(100vw - 32px)) !important;
+      width: min(420px, calc(calc(100 * var(--kv-vw, 1vw)) - 32px)) !important;
       min-width: 0 !important;
       min-height: 172px !important;
       padding: 26px 30px !important;
@@ -24062,7 +24587,7 @@
       justify-content: center !important;
       align-items: center !important;
       text-align: center !important;
-      width: min(420px, calc(100vw - 32px)) !important;
+      width: min(420px, calc(calc(100 * var(--kv-vw, 1vw)) - 32px)) !important;
       min-width: 0 !important;
       min-height: 172px !important;
       padding: 26px 30px !important;
@@ -24212,7 +24737,7 @@
       max-width: 100%;
       min-width: 0 !important;
       box-sizing: border-box;
-      font-size: clamp(10px, 1vw, 11px) !important;
+      font-size: clamp(10px, calc(1 * var(--kv-vw, 1vw)), 11px) !important;
       padding: 6px !important;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -24238,7 +24763,10 @@
       margin: 0 !important;
     }
 
-    @media (max-width:600px) {
+    @media (max-width:600px) and (hover: none),
+    (max-width:600px) and (pointer: coarse),
+    (max-width:600px) and (pointer: none),
+    (max-width:480px) and (hover: hover) and (pointer: fine) {
       body .main #content .resource-row.resource-compact {
         grid-template-columns: 18px minmax(0, 1fr) 66px 24px auto !important;
         padding-inline: 10px !important;
@@ -24329,7 +24857,10 @@
       margin: 12px 0 16px auto;
     }
 
-    @media (max-width:1100px) {
+    @media (max-width:1100px) and (hover: none),
+    (max-width:1100px) and (pointer: coarse),
+    (max-width:1100px) and (pointer: none),
+    (max-width:880px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-score-summary {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
       }
@@ -24339,7 +24870,10 @@
       }
     }
 
-    @media (max-width:600px) {
+    @media (max-width:600px) and (hover: none),
+    (max-width:600px) and (pointer: coarse),
+    (max-width:600px) and (pointer: none),
+    (max-width:480px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-score-summary {
         gap: 8px !important;
       }
@@ -24386,7 +24920,10 @@
       margin: 10px 0 12px auto !important;
     }
 
-    @media (max-width:600px) {
+    @media (max-width:600px) and (hover: none),
+    (max-width:600px) and (pointer: coarse),
+    (max-width:600px) and (pointer: none),
+    (max-width:480px) and (hover: hover) and (pointer: fine) {
       body .main #content .review-workspace .follow-list-heading {
         grid-template-columns: minmax(0, 1fr) !important;
       }
@@ -24412,7 +24949,10 @@
       margin-inline: auto !important;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 600px) and (hover: none),
+    (max-width: 600px) and (pointer: coarse),
+    (max-width: 600px) and (pointer: none),
+    (max-width: 480px) and (hover: hover) and (pointer: fine) {
       body .main #content .progress-workspace .follow-progress-table tbody tr {
         grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
         gap: 8px !important;
@@ -24490,7 +25030,10 @@
       }
     }
 
-    @media (min-width: 601px) {
+    @media (min-width: 601px) and (hover: none),
+    (min-width: 601px) and (pointer: coarse),
+    (min-width: 601px) and (pointer: none),
+    (min-width: 480.8px) and (hover: hover) and (pointer: fine) {
       body .main #content .progress-workspace .follow-student-cell {
         position: relative;
         width: 100%;
@@ -24524,7 +25067,10 @@
       }
     }
 
-    @media (min-width: 1101px) {
+    @media (min-width: 1101px) and (hover: none),
+    (min-width: 1101px) and (pointer: coarse),
+    (min-width: 1101px) and (pointer: none),
+    (min-width: 880.8px) and (hover: hover) and (pointer: fine) {
       body .main #content .progress-workspace .follow-student-cell .student-list-avatar {
         left: 10px !important;
       }
@@ -24589,9 +25135,26 @@
       max-width: 100%;
     }
 
-    @media (min-width: 901px) {
+    @media (min-width: 901px) and (hover: none),
+    (min-width: 901px) and (pointer: coarse),
+    (min-width: 901px) and (pointer: none),
+    (min-width: 720.8px) and (hover: hover) and (pointer: fine) {
       body .main #content .course-card>h3 {
         font-size: 20.68px;
+      }
+    }
+  </style>
+
+  <style id="desktop-scale-80">
+    /* Match browser zoom geometry, including responsive breakpoints and viewport units. */
+    @media screen and (hover: hover) and (pointer: fine) {
+      html {
+        zoom: .8;
+        --kv-vh: 1.25vh;
+        --kv-dvh: 1.25dvh;
+        --kv-svh: 1.25svh;
+        --kv-lvh: 1.25lvh;
+        --kv-vw: 1.25vw;
       }
     }
   </style>
