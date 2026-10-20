@@ -25222,6 +25222,104 @@
       }
     }
   </style>
+
+  <style id="kv-loading-refinement">
+    .kv-load-slot {
+      min-height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box
+    }
+
+    .kv-load-track {
+      display: block;
+      width: min(180px, 65%);
+      height: 4px;
+      border-radius: 99px;
+      overflow: hidden;
+      background: #ffe9d9
+    }
+
+    .kv-load-track::after {
+      content: "";
+      display: block;
+      width: 40%;
+      height: 100%;
+      border-radius: inherit;
+      background: #ff8a00;
+      animation: kv-load-slide 1.2s ease-in-out infinite alternate
+    }
+
+    .kv-load-wheel {
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      border: 3px solid #ffe3cc;
+      border-top-color: #ff8a00;
+      border-radius: 50%;
+      animation: kv-load-spin .8s linear infinite;
+      box-sizing: border-box
+    }
+
+    button.kv-button-loading::before {
+      content: "";
+      display: inline-block;
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      margin-inline-end: 7px;
+      vertical-align: -2px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: kv-load-spin .8s linear infinite
+    }
+
+    @keyframes kv-load-slide {
+      from {
+        transform: translateX(-100%)
+      }
+
+      to {
+        transform: translateX(250%)
+      }
+    }
+
+    @keyframes kv-load-spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+
+      .kv-load-track::after,
+      .kv-load-wheel,
+      button.kv-button-loading::before {
+        animation: none
+      }
+
+      .kv-load-track::after {
+        width: 100%
+      }
+    }
+  </style>
+  <script>
+    window.kvLoadingSlot = function (kind = 'bar', label = 'กำลังโหลดข้อมูล') {
+      const node = document.createElement('div');
+      node.className = 'kv-load-slot'; node.setAttribute('role', 'status'); node.setAttribute('aria-label', label);
+      const visual = document.createElement('span'); visual.className = kind === 'wheel' ? 'kv-load-wheel' : 'kv-load-track'; visual.setAttribute('aria-hidden', 'true'); node.appendChild(visual);
+      return node.outerHTML;
+    };
+    window.kvButtonLoading = function (button, loading) {
+      if (!button) return;
+      button.classList.toggle('kv-button-loading', loading);
+      if (loading) button.setAttribute('aria-busy', 'true');
+      else button.removeAttribute('aria-busy');
+    };
+  </script>
 </head>
 
 <body>
@@ -25338,13 +25436,8 @@
       <div id="message" role="status"></div>
 
       <section class="workspace" id="content">
-        <div class="loading-layout" role="status" aria-label="กำลังโหลดข้อมูล">
-          <div class="loading-surface">
-            <div class="skeleton-bar long"></div>
-            <div class="skeleton-bar medium"></div>
-            <div class="skeleton-bar long"></div>
-          </div>
-        </div>
+        <div class="kv-load-slot" role="status" aria-label="กำลังโหลดข้อมูล"><span class="kv-load-track"
+            aria-hidden="true"></span></div>
       </section>
     </main>
   </div>
@@ -26551,6 +26644,8 @@
       )
         throw Error("รหัสใหม่ต้องมีอย่างน้อย 8 ตัวอักษร และยืนยันให้ตรงกัน");
       busy = true;
+      const accountSubmit = f.querySelector("button[type=submit]");
+      window.kvButtonLoading(accountSubmit, true);
       const accountButtons = [...f.querySelectorAll("button")].map((button) => [
         button,
         button.disabled,
@@ -26586,6 +26681,7 @@
         }
       } finally {
         busy = false;
+        window.kvButtonLoading(accountSubmit, false);
         accountButtons.forEach(([button, disabled]) => {
           button.disabled = disabled;
         });
@@ -27468,10 +27564,7 @@
       return `<div class="toolbar"><label>รายวิชา <select id="offeringFilter" ${offers.length ? "" : "disabled"}>${offers.length ? '<option value="">ทุกรายวิชาที่เกี่ยวข้อง</option>' + offers.map((o) => `<option value="${esc(o.id)}" ${o.id === selectedOffering ? "selected" : ""}>${esc(offeringName(o))}</option>`).join("") : '<option value="">ไม่มีรายวิชาที่เปิดใช้</option>'}</select></label><label>ชั้นเรียน <select id="groupFilter" ${groups.length ? "" : "disabled"}><option value="">ทุกชั้นเรียนที่เกี่ยวข้อง</option>${groups.map((g) => `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}</option>`).join("")}</select></label></div>`;
     }
     function loadingView(page = "home") {
-      const bar = (type = "") => `<div class="skeleton-bar ${type}"></div>`;
-      const summary = `<div class="loading-grid">${Array.from({ length: 4 }, () => `<div class="loading-surface">${bar("sk-wide")}${bar("sk-number")}${bar("sk-short")}</div>`).join("")}</div>`;
-      const rows = `<div class="loading-surface">${bar("sk-title")}${Array.from({ length: 3 }, () => bar("sk-row")).join("")}</div>`;
-      return `<div class="loading-layout" role="status" aria-label="กำลังโหลดข้อมูล"><span class="sr-only">กำลังโหลดข้อมูล</span><div aria-hidden="true"><div class="loading-surface loading-hero">${bar("sk-short")}${bar("sk-title")}${bar("sk-wide")}</div>${page === "home" || page === "progress" ? summary : ""}${page === "home" || page === "courses" || page === "groups" ? `<div class="loading-columns">${rows}${rows}</div>` : rows}</div></div>`;
+      return openingView(page);
     }
 
     let baseStale = false,
@@ -27584,18 +27677,9 @@
     }
     const pageVersions = new Map();
     function centeredLoading(page = "home") {
-      const detail = {
-        home: "กำลังโหลดภาพรวมการเรียนและการส่งงาน",
-        courses: "กำลังโหลดรายวิชาและบทเรียน",
-        groups: "กำลังโหลดชั้นเรียนและจำนวนนักเรียน",
-        students: "กำลังโหลดรายชื่อและข้อมูลนักเรียน",
-        course: "กำลังโหลดบทเรียนและกิจกรรมในรายวิชา",
-        review: "กำลังดึงงานที่นักเรียนส่งเพื่อรอการตรวจ",
-        progress: "กำลังโหลดข้อมูลการส่งงานและคะแนน",
-        settings: "กำลังโหลดข้อมูลการตั้งค่าและสถานะระบบ",
-      };
-      return `<div class="centered-loading" role="status" aria-live="polite"><span>กำลังโหลดข้อมูล</span><div class="inline-load-indicator" aria-hidden="true"></div><small>${esc(detail[page] || "กำลังดึงข้อมูลสำหรับหน้านี้")}</small></div>`;
+      return window.kvLoadingSlot('bar', 'กำลังโหลด' + (labels[page] || 'ข้อมูล'));
     }
+
     function openingView(page) {
       return pageIntro(labels[page] || "รายวิชา", "") + centeredLoading(page);
     }
@@ -27872,7 +27956,7 @@
               `<option value="${esc(g.id)}" ${g.id === selectedGroup ? "selected" : ""}>${esc(g.name)}</option>`,
           )
           .join("")}</select></label>${button("อัปเดตข้อมูล", "refresh")}</div>`;
-      return `<section class="dash-welcome welcome-hero">${welcomeIllustration()}<div><span class="dash-eyebrow">KruVanda Classroom</span><h2>ยินดีต้อนรับ <span id="welcomeName">${esc(myProfile.fullName || session.fullName || "บัญชีครู")}</span></h2><p>ภาพรวมการเรียนรู้และการส่งงานของนักเรียน</p></div></section><div class="dash-stat-grid">${counts.map(([title, n, unit, action]) => `<button class="dash-stat" data-action="${action}"><span class="stat-symbol" aria-hidden="true">${shortcutIcon(action)}</span><span>${title}</span><strong>${n}<em class="stat-unit">${unit}</em></strong></button>`).join("")}</div><div class="dash-update-slot" aria-live="polite">${updatedLabel(summary)}</div>${filters}<div class="dash-results">${summary ? dashboardResult(summary) : dashboardLoadedOnce ? centeredLoading() : '<div class="dash-skeleton" aria-label="กำลังโหลดภาพรวม"><div class="skeleton-bar sk-title"></div><div class="skeleton-bar sk-row"></div></div>'}</div>`;
+      return `<section class="dash-welcome welcome-hero">${welcomeIllustration()}<div><span class="dash-eyebrow">KruVanda Classroom</span><h2>ยินดีต้อนรับ <span id="welcomeName">${esc(myProfile.fullName || session.fullName || "บัญชีครู")}</span></h2><p>ภาพรวมการเรียนรู้และการส่งงานของนักเรียน</p></div></section><div class="dash-stat-grid">${counts.map(([title, n, unit, action]) => `<button class="dash-stat" data-action="${action}"><span class="stat-symbol" aria-hidden="true">${shortcutIcon(action)}</span><span>${title}</span><strong>${n}<em class="stat-unit">${unit}</em></strong></button>`).join("")}</div><div class="dash-update-slot" aria-live="polite">${updatedLabel(summary)}</div>${filters}<div class="dash-results">${summary ? dashboardResult(summary) : centeredLoading()}</div>`;
     }
     function dashboardEmptyMessage(t) {
       if (!db.Courses.length) return "ยังไม่มีรายวิชา";
@@ -27950,7 +28034,7 @@
       if (
         dashboardCache.has(key) &&
         target &&
-        (!target.children.length || target.querySelector(".dash-skeleton, .inline-load-indicator"))
+        (!target.children.length || target.querySelector(".dash-skeleton, .inline-load-indicator, .kv-load-slot"))
       )
         target.innerHTML = dashboardResult(dashboardCache.get(key));
       try {
@@ -28491,7 +28575,7 @@
         .join("")}</div><footer>${button("รีเซ็ตรหัสผ่าน", "reset-password", id)}</footer></article>`;
     }
     async function showStudentCard(id) {
-      modal("บัตรนักเรียน", `<div class="student-card-loading">${centeredLoading("progress")}</div>`);
+      modal("บัตรนักเรียน", window.kvLoadingSlot("wheel", "กำลังเปิดบัตรนักเรียน"));
       const body = $("modalBody");
       body.dataset.studentCard = id;
       let p;
@@ -30205,7 +30289,7 @@
       const submitButtons = [...document.querySelectorAll('#modal button[type="submit"]')];
       const buttonLabels = submitButtons.map((button) => button.textContent);
       submitButtons.forEach((button) => {
-        button.textContent = "กำลังบันทึก…";
+        window.kvButtonLoading(button, true);
         button.setAttribute("aria-busy", "true");
       });
       document
@@ -30280,7 +30364,7 @@
         });
         submitButtons.forEach((button, i) => {
           button.textContent = buttonLabels[i];
-          button.removeAttribute("aria-busy");
+          window.kvButtonLoading(button, false);
         });
         if (currentPage === "students") updateStudentSelection();
       }

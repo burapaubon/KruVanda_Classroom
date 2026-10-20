@@ -30683,6 +30683,104 @@
             transform: none !important;
         }
     </style>
+
+    <style id="kv-loading-refinement">
+        .kv-load-slot {
+            min-height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            box-sizing: border-box
+        }
+
+        .kv-load-track {
+            display: block;
+            width: min(180px, 65%);
+            height: 4px;
+            border-radius: 99px;
+            overflow: hidden;
+            background: #ffe9d9
+        }
+
+        .kv-load-track::after {
+            content: "";
+            display: block;
+            width: 40%;
+            height: 100%;
+            border-radius: inherit;
+            background: #ff8a00;
+            animation: kv-load-slide 1.2s ease-in-out infinite alternate
+        }
+
+        .kv-load-wheel {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border: 3px solid #ffe3cc;
+            border-top-color: #ff8a00;
+            border-radius: 50%;
+            animation: kv-load-spin .8s linear infinite;
+            box-sizing: border-box
+        }
+
+        button.kv-button-loading::before {
+            content: "";
+            display: inline-block;
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            margin-inline-end: 7px;
+            vertical-align: -2px;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: kv-load-spin .8s linear infinite
+        }
+
+        @keyframes kv-load-slide {
+            from {
+                transform: translateX(-100%)
+            }
+
+            to {
+                transform: translateX(250%)
+            }
+        }
+
+        @keyframes kv-load-spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        @media(prefers-reduced-motion:reduce) {
+
+            .kv-load-track::after,
+            .kv-load-wheel,
+            button.kv-button-loading::before {
+                animation: none
+            }
+
+            .kv-load-track::after {
+                width: 100%
+            }
+        }
+    </style>
+    <script>
+        window.kvLoadingSlot = function (kind = 'bar', label = 'กำลังโหลดข้อมูล') {
+            const node = document.createElement('div');
+            node.className = 'kv-load-slot'; node.setAttribute('role', 'status'); node.setAttribute('aria-label', label);
+            const visual = document.createElement('span'); visual.className = kind === 'wheel' ? 'kv-load-wheel' : 'kv-load-track'; visual.setAttribute('aria-hidden', 'true'); node.appendChild(visual);
+            return node.outerHTML;
+        };
+        window.kvButtonLoading = function (button, loading) {
+            if (!button) return;
+            button.classList.toggle('kv-button-loading', loading);
+            if (loading) button.setAttribute('aria-busy', 'true');
+            else button.removeAttribute('aria-busy');
+        };
+    </script>
 </head>
 
 <body class="student-layout">
@@ -30733,7 +30831,7 @@
             <section class="workspace" id="content" aria-live="polite">
                 <div class="student-initial-loading" role="status" aria-label="กำลังโหลดข้อมูลนักเรียน">
                     <div class="student-initial-loading-track" aria-hidden="true"><span></span></div>
-                    <span>กำลังโหลดข้อมูลนักเรียน…</span>
+
                 </div>
             </section>
         </main>
@@ -32130,7 +32228,7 @@
             }
 
             function profileSkeleton() {
-                return studentLoading();
+                return window.kvLoadingSlot('wheel', 'กำลังเปิดข้อมูล');
             }
             let studentRequestCount = 0;
             function studentRequestFeedback(delta) {
@@ -32479,7 +32577,7 @@
                 return sections.join("") || '<div class="empty">ไม่มีงานตามตัวเลือกนี้</div>';
             }
             function studentLoading(detail = "กำลังโหลดข้อมูล") {
-                return `<div class="student-progress-loading" role="status" aria-label="${esc(detail)}"><div class="inline-load-indicator" aria-hidden="true"></div></div>`;
+                return window.kvLoadingSlot('bar', detail);
             }
             function overviewMetrics() {
                 return `<div class="student-summary-grid" aria-label="ภาพรวมการเรียนของฉัน">${summaryItems.map(([key, label, unit, icon, note]) => `<button type="button" class="student-summary-card" data-overview-filter="${key}" data-summary="${key}"><span class="student-summary-icon" aria-hidden="true">${shortcutIcon(icon)}</span><span class="student-summary-label">${label}</span><strong data-summary-value="${key}">${overviewSnapshot ? esc(overviewSnapshot.counts[key]) : '<span class="skeleton-bar" aria-label="กำลังโหลด"></span>'}</strong><span class="student-summary-unit">${unit}</span><small>${note}</small></button>`).join("")}</div>`;
@@ -33424,8 +33522,8 @@
                 saving = true;
                 const submit = form.querySelector("[type=submit]");
                 submit.disabled = true;
+                window.kvButtonLoading(submit, true);
                 let saved = false;
-                toast("กำลังบันทึกโปรไฟล์…", 0);
                 try {
                     ownProfile = await api("saveProfile", {
                         fullName: user.fullName,
@@ -33442,7 +33540,7 @@
                 } finally {
                     saving = false;
                     submit.disabled = false;
-                    document.getElementById("toast").hidden = true;
+                    window.kvButtonLoading(submit, false);
                 }
                 if (saved) {
                     await showOwnStudentCard();
@@ -33465,7 +33563,7 @@
                 saving = true;
                 const b = f.querySelector("button[type=submit]");
                 b.disabled = true;
-                toast("กำลังเปลี่ยนรหัสผ่าน…", 0);
+                window.kvButtonLoading(b, true);
                 try {
                     await api("changePassword", {
                         oldPassword: f.elements.oldPassword.value,
@@ -33476,7 +33574,7 @@
                 } finally {
                     saving = false;
                     b.disabled = false;
-                    document.getElementById("toast").hidden = true;
+                    window.kvButtonLoading(b, false);
                 }
             }
 
