@@ -30686,18 +30686,51 @@
 
     <style id="kv-loading-refinement">
         .kv-load-slot {
-            min-height: 96px;
+            min-height: 160px;
             display: flex;
+            flex-direction: column;
+            gap: 15px;
             align-items: center;
             justify-content: center;
-            padding: 24px;
+            padding: 36px 24px 28px;
             box-sizing: border-box
+        }
+
+        #content>.kv-load-slot {
+            min-height: clamp(220px, 38vh, 380px);
+            padding-top: clamp(48px, 8vh, 88px)
+        }
+
+        .kv-load-caption {
+            display: block;
+            color: #806552;
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: center;
+            max-width: 100%;
+            overflow-wrap: anywhere
+        }
+
+        @media(max-width:700px) {
+            .kv-load-slot {
+                min-height: 140px;
+                padding: 30px 16px 24px
+            }
+
+            #content>.kv-load-slot {
+                min-height: clamp(190px, 32svh, 300px);
+                padding-top: 40px
+            }
+
+            .kv-load-caption {
+                font-size: 13px
+            }
         }
 
         .kv-load-track {
             display: block;
-            width: min(180px, 65%);
-            height: 4px;
+            width: min(240px, 80%);
+            height: 6px;
             border-radius: 99px;
             overflow: hidden;
             background: #ffe9d9
@@ -30772,6 +30805,7 @@
             const node = document.createElement('div');
             node.className = 'kv-load-slot'; node.setAttribute('role', 'status'); node.setAttribute('aria-label', label);
             const visual = document.createElement('span'); visual.className = kind === 'wheel' ? 'kv-load-wheel' : 'kv-load-track'; visual.setAttribute('aria-hidden', 'true'); node.appendChild(visual);
+            const caption = document.createElement('span'); caption.className = 'kv-load-caption'; caption.textContent = label; node.appendChild(caption);
             return node.outerHTML;
         };
         window.kvButtonLoading = function (button, loading) {
@@ -30829,10 +30863,8 @@
             <div id="message" role="status"></div>
 
             <section class="workspace" id="content" aria-live="polite">
-                <div class="student-initial-loading" role="status" aria-label="กำลังโหลดข้อมูลนักเรียน">
-                    <div class="student-initial-loading-track" aria-hidden="true"><span></span></div>
-
-                </div>
+                <div class="kv-load-slot" role="status" aria-label="กำลังโหลดข้อมูลนักเรียน"><span class="kv-load-track"
+                        aria-hidden="true"></span><span class="kv-load-caption">กำลังโหลดข้อมูลนักเรียน</span></div>
             </section>
         </main>
     </div>
@@ -33814,6 +33846,7 @@
                     } else if (b.dataset.studentAction === "refresh-course") {
                         if (selected) await load(selected, true);
                         else {
+                            // Start the independent overview while the course list is loading.
                             void renderOverviewResults();
                             offerings = await api("studentHome");
                             overviewAt = 0;

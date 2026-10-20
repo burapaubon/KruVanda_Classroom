@@ -25225,18 +25225,51 @@
 
   <style id="kv-loading-refinement">
     .kv-load-slot {
-      min-height: 96px;
+      min-height: 160px;
       display: flex;
+      flex-direction: column;
+      gap: 15px;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 36px 24px 28px;
       box-sizing: border-box
+    }
+
+    #content>.kv-load-slot {
+      min-height: clamp(220px, 38vh, 380px);
+      padding-top: clamp(48px, 8vh, 88px)
+    }
+
+    .kv-load-caption {
+      display: block;
+      color: #806552;
+      font-size: 14px;
+      line-height: 1.6;
+      text-align: center;
+      max-width: 100%;
+      overflow-wrap: anywhere
+    }
+
+    @media(max-width:700px) {
+      .kv-load-slot {
+        min-height: 140px;
+        padding: 30px 16px 24px
+      }
+
+      #content>.kv-load-slot {
+        min-height: clamp(190px, 32svh, 300px);
+        padding-top: 40px
+      }
+
+      .kv-load-caption {
+        font-size: 13px
+      }
     }
 
     .kv-load-track {
       display: block;
-      width: min(180px, 65%);
-      height: 4px;
+      width: min(240px, 80%);
+      height: 6px;
       border-radius: 99px;
       overflow: hidden;
       background: #ffe9d9
@@ -25311,6 +25344,7 @@
       const node = document.createElement('div');
       node.className = 'kv-load-slot'; node.setAttribute('role', 'status'); node.setAttribute('aria-label', label);
       const visual = document.createElement('span'); visual.className = kind === 'wheel' ? 'kv-load-wheel' : 'kv-load-track'; visual.setAttribute('aria-hidden', 'true'); node.appendChild(visual);
+      const caption = document.createElement('span'); caption.className = 'kv-load-caption'; caption.textContent = label; node.appendChild(caption);
       return node.outerHTML;
     };
     window.kvButtonLoading = function (button, loading) {
@@ -25437,7 +25471,7 @@
 
       <section class="workspace" id="content">
         <div class="kv-load-slot" role="status" aria-label="กำลังโหลดข้อมูล"><span class="kv-load-track"
-            aria-hidden="true"></span></div>
+            aria-hidden="true"></span><span class="kv-load-caption">กำลังโหลดข้อมูล</span></div>
       </section>
     </main>
   </div>
@@ -30938,7 +30972,7 @@ body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px s
         reportExporting = true;
         const buttons = [...document.querySelectorAll(".report-format")];
         buttons.forEach((button) => (button.disabled = true));
-        if (status) status.textContent = "กำลังจัดทำรายงาน Excel…";
+        if (status) status.textContent = "กำลังจัดทำรายงาน Excel";
         try {
           await new Promise((resolve) => setTimeout(resolve, 0));
           await downloadLearningReport(report);
@@ -30982,7 +31016,7 @@ body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px s
         return navigate("settings");
       }
       if (a === "admin-undo-preview") {
-        toast("กำลังตรวจข้อมูลที่จะคืนค่า…");
+        toast("กำลังตรวจข้อมูลที่จะคืนค่า");
         const p = await api("adminUndoPreview", { id });
         const list = `<div class="admin-impact">${p.details.map((r) => `<p>${esc(adminTableNames[r.table] || r.table)} · ${esc(r.name)} · ${esc(r.operation)}${r.conflict ? " · ข้อมูลเปลี่ยนภายหลัง" : ""}</p>`).join("")}</div>`;
         if (p.conflicts)
@@ -31146,7 +31180,7 @@ body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px s
         );
       }
       if (a === "delete-group") {
-        toast("กำลังตรวจข้อมูลที่จะได้รับผลจากการลบ…");
+        toast("กำลังตรวจข้อมูลที่จะได้รับผลจากการลบ");
         const impact = await api("groupImpact", { id });
         return form(
           "ลบชั้นเรียน " + impact.group.name,
@@ -31331,7 +31365,7 @@ body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px s
         );
         if (!ids.length) throw Error("เลือกนักเรียนก่อนดำเนินการ");
         selectedDeletePreview = [];
-        modal("เตรียมรายชื่อก่อนลบ", '<p role="status">กำลังตรวจข้อมูล…</p>');
+        modal("เตรียมรายชื่อก่อนลบ", '<p role="status">กำลังตรวจสอบข้อมูล</p>');
         for (const studentId of ids)
           selectedDeletePreview.push({
             id: studentId,
@@ -31400,7 +31434,7 @@ body #modal .sandbox-change-answer { font:inherit; font-weight:600; border:1px s
         if (!studentIds.length) throw Error("เลือกนักเรียนก่อนดำเนินการ");
         batchStudentPayload = { studentIds, mode: id };
         if (id !== "move") {
-          modal("กำลังเตรียมรายการที่เลือก", '<p role="status">กำลังโหลดรายชื่อ…</p>');
+          modal("กำลังเตรียมรายการที่เลือก", '<p role="status">กำลังโหลดรายชื่อ</p>');
           const preview = await api("studentsBatchPreview", batchStudentPayload);
           batchStudentPayload.fingerprint = preview.fingerprint;
           return form(
