@@ -302,7 +302,7 @@ function updatesheet() {
 
 function diagnosticOriginal_rows_(key) {
   if (MEM[key]) return MEM[key];
-  const s = book_().getSheetByName(key);
+  const s = requestSheet_(key);
   if (!s) throw Error("เรียก updatesheet ก่อน: " + key);
   const h = SCHEMA[key],
     n = s.getLastRow();
@@ -328,6 +328,7 @@ function cell_(v) {
 }
 
 function diagnosticOriginal_write_(key, obj) {
+  clearRequestPoints_();
   const list = rows_(key),
     old = list.find((r) => String(r.id) === String(obj.id));
   const value = Object.assign({}, old || {}, obj);
@@ -337,7 +338,7 @@ function diagnosticOriginal_write_(key, obj) {
   }
   if (key === "Profiles") value.updatedAt = obj.updatedAt || new Date().toISOString();
   if (key === "Profiles") value.phone = phoneText_(value.phone);
-  const sheet = book_().getSheetByName(key),
+  const sheet = requestSheet_(key),
     row = old ? old._row : sheet.getLastRow() + 1;
   ensureRows_(sheet, row);
   if (key === "Profiles")
@@ -353,6 +354,7 @@ function diagnosticOriginal_write_(key, obj) {
 }
 
 function batch_(key, objects) {
+  clearRequestPoints_();
   if (key === "Students")
     objects = objects.map((o) =>
       Object.assign(
@@ -361,7 +363,7 @@ function batch_(key, objects) {
       ),
     );
   if (!objects.length) return;
-  const sheet = book_().getSheetByName(key),
+  const sheet = requestSheet_(key),
     start = sheet.getLastRow() + 1;
   ensureRows_(sheet, start + objects.length - 1);
   sheet
@@ -370,9 +372,27 @@ function batch_(key, objects) {
   if (MEM[key]) objects.forEach((o, i) => MEM[key].push(Object.assign({}, o, { _row: start + i })));
 }
 
+function requestSheet_(key) {
+  const sheets = MEM.$sheets || (MEM.$sheets = {});
+  return sheets[key] || (sheets[key] = book_().getSheetByName(key));
+}
+function clearRequestPoints_() {
+  delete MEM.$points;
+  delete MEM.$session;
+  delete MEM.$indexes;
+}
+function requestRowIndex_(key) {
+  const indexes = MEM.$indexes || (MEM.$indexes = {});
+  if (!indexes[key]) {
+    const index = new Map();
+    rows_(key).forEach(row => { if (!index.has(String(row.id))) index.set(String(row.id), row); });
+    indexes[key] = index;
+  }
+  return indexes[key];
+}
 function diagnosticOriginal_findRow_(key, id) {
   if (MEM[key]) return MEM[key].find((r) => String(r.id) === String(id)) || null;
-  const sheet = book_().getSheetByName(key);
+  const sheet = requestSheet_(key);
   if (!sheet) throw Error("เรียก updatesheet ก่อน: " + key);
   const count = sheet.getLastRow() - 1;
   if (count <= 0) return null;
@@ -394,6 +414,7 @@ function diagnosticOriginal_findRow_(key, id) {
 }
 
 function diagnosticOriginal_writeOne_(key, obj) {
+  clearRequestPoints_();
   if (MEM[key]) return write_(key, obj);
   const old = findRow_(key, obj.id),
     value = Object.assign({}, old || {}, obj);
@@ -402,7 +423,7 @@ function diagnosticOriginal_writeOne_(key, obj) {
     value.updatedAt = obj.updatedAt || new Date().toISOString();
   }
   if (key === "Profiles") value.updatedAt = obj.updatedAt || new Date().toISOString();
-  const sheet = book_().getSheetByName(key),
+  const sheet = requestSheet_(key),
     row = old ? old._row : sheet.getLastRow() + 1;
   ensureRows_(sheet, row);
   if (key === "Profiles") {
@@ -497,7 +518,7 @@ function resetTeacherLogin() {
 function studentRoomAccess_(studentId) {
   const student = get_("Students", studentId);
   if (student.status !== "active") throw Error("บัญชีนี้ปิดใช้งาน");
-  const group = rows_("Groups").find((g) => g.id === student.groupId);
+  const group = findRow_("Groups", student.groupId);
   if (!group || group.status !== "active")
     throw Error("ห้องเรียนนี้ยังไม่เปิดใช้งาน กรุณาติดต่อครู");
 }
@@ -599,7 +620,7 @@ function deleteGroup_(q) {
 
 function login_(q) {
   const username = name_(need_(q.username, "ชื่อผู้ใช้", 100));
-  const user = rows_("Users").find((u) => name_(u.username) === username);
+  const user = loginAccount_(username);
   if (!user) throw Error("ไม่พบชื่อผู้ใช้นี้ในชีท Users ของระบบที่เว็บกำลังเชื่อมต่อ");
   if (user.status !== "active") throw Error("บัญชีนี้ยังไม่เปิดใช้งาน");
   if (!password_(user.password, String(q.password || ""))) {
@@ -674,8 +695,7 @@ function adminAuthError_(message, reason = "") {
 function sessionInfo_(q, touch) {
   const user = auth_(q);
   const id = digest_(q.token);
-  delete MEM.Sessions;
-  const session = findRow_("Sessions", id);
+  const session = MEM.$session || findRow_("Sessions", id);
   if (
     !session ||
     Number(session.expiresAt) <= 0 ||
@@ -742,6 +762,7 @@ function diagnosticOriginal_auth_(q, role) {
   }
   if (user.role !== "teacher" && maintenance_())
     throw adminAuthError_("ระบบปิดให้นักเรียนเข้าใช้งานชั่วคราว", "ACCESS_DISABLED");
+  MEM.$session = session;
   MEM.$auth = { token: q.token, user };
   return user;
 }
@@ -817,7 +838,7 @@ function presenceHeartbeat_(q) {
   const user = auth_(q, "student"),
     now = Date.now(),
     id = digest_(q.token),
-    session = get_("Sessions", id);
+    session = MEM.$session || get_("Sessions", id);
   if (now - Number(session.lastSeenAt || 0) >= 45000) {
     const updated = writeOne_("Sessions", { id, lastSeenAt: now });
     CacheService.getScriptCache().put("kv_s_" + id, JSON.stringify(updated), 120);
@@ -898,7 +919,7 @@ function bootstrap_(q) {
 
 function dashboardRows_(key, columns) {
   if (MEM[key]) return MEM[key];
-  const sheet = book_().getSheetByName(key);
+  const sheet = requestSheet_(key);
   if (!sheet) throw Error("เรียก updatesheet ก่อน: " + key);
   const count = sheet.getLastRow() - 1;
   if (count < 1) return [];
@@ -3134,7 +3155,7 @@ function phoneText_(value) {
   return typeof value === "number" && /^\d{9}$/.test(phone) ? "0" + phone : phone;
 }
 function studentListProfile_(student) {
-  const row = rows_("Profiles").find((p) => p.id === student.id) || {};
+  const row = requestRowIndex_("Profiles").get(String(student.id)) || {};
   return Object.assign(clean_(student), {
     profile: {
       email: row.email || "",
@@ -4453,7 +4474,8 @@ function bulkPreview_(q) {
   };
 }
 function diagnosticOriginal_rewriteRows_(key, list) {
-  const sheet = book_().getSheetByName(key),
+  clearRequestPoints_();
+  const sheet = requestSheet_(key),
     previous = Math.max(0, sheet.getLastRow() - 1);
   if (key === "Profiles")
     list = list.map((r) => Object.assign({}, r, { phone: phoneText_(r.phone) }));
@@ -5885,24 +5907,30 @@ function rows_(key) {
 }
 
 function findRow_(key, id) {
-  const args = arguments;
-  return diagnosticOperation_("ค้นหารายการในชีต", String(arguments[0]), () =>
-    diagnosticOriginal_findRow_.apply(null, args),
-  );
+  if (MEM[key]) return requestRowIndex_(key).get(String(id)) || null;
+  const cache = MEM.$points || (MEM.$points = new Map());
+  const cacheKey = JSON.stringify([key, String(id)]);
+  if (cache.has(cacheKey)) return cache.get(cacheKey);
+  const value = diagnosticOperation_("ค้นหารายการในชีต", String(key), () =>
+    diagnosticOriginal_findRow_(key, id));
+  cache.set(cacheKey, value);
+  return value;
 }
 
 function writeOne_(key, obj) {
   const args = arguments;
-  return diagnosticOperation_("บันทึกรายการในชีต", String(arguments[0]), () =>
-    diagnosticOriginal_writeOne_.apply(null, args),
-  );
+  try {
+    return diagnosticOperation_("บันทึกรายการในชีต", String(arguments[0]), () =>
+      diagnosticOriginal_writeOne_.apply(null, args));
+  } finally { clearRequestPoints_(); }
 }
 
 function write_(key, obj) {
   const args = arguments;
-  return diagnosticOperation_("บันทึกข้อมูลในชีต", String(arguments[0]), () =>
-    diagnosticOriginal_write_.apply(null, args),
-  );
+  try {
+    return diagnosticOperation_("บันทึกข้อมูลในชีต", String(arguments[0]), () =>
+      diagnosticOriginal_write_.apply(null, args));
+  } finally { clearRequestPoints_(); }
 }
 
 function rewriteRows_(key, list) {
@@ -5917,4 +5945,18 @@ function auth_(q, role) {
   return diagnosticOperation_("ตรวจเซสชันและสิทธิ์", "Sessions / Users", () =>
     diagnosticOriginal_auth_.apply(null, args),
   );
+}
+function loginAccount_(username) {
+  const sheet = requestSheet_("Users");
+  if (!sheet) throw Error("เรียก updatesheet ก่อน: Users");
+  const count = sheet.getLastRow() - 1;
+  if (count <= 0) return null;
+  const column = SCHEMA.Users.indexOf("username") + 1;
+  const names = sheet.getRange(2, column, count, 1).getValues();
+  const index = names.findIndex(row => name_(row[0]) === username);
+  if (index < 0) return null;
+  const values = sheet.getRange(index + 2, 1, 1, SCHEMA.Users.length).getValues()[0];
+  const user = { _row: index + 2 };
+  SCHEMA.Users.forEach((key, i) => user[key] = values[i]);
+  return user;
 }

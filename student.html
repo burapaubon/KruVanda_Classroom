@@ -3,6 +3,70 @@
 <html lang="th">
 
 <head>
+    <script>
+        (() => {
+            const send = window.fetch.bind(window);
+            let active = 0;
+            let foreground = 0, feedbackTimer, indicator;
+            const queue = [];
+            const low = new Set(['presenceHeartbeat', 'studentPresence', 'sessionCheck']);
+            function feedback(delta) {
+                foreground = Math.max(0, foreground + delta);
+                clearTimeout(feedbackTimer);
+                if (!foreground) { if (indicator) indicator.hidden = true; return; }
+                feedbackTimer = setTimeout(() => {
+                    if (!foreground || !document.body) return;
+                    if (!indicator) {
+                        indicator = document.createElement('div');
+                        indicator.setAttribute('role', 'progressbar');
+                        indicator.setAttribute('aria-label', 'กำลังรับส่งข้อมูล');
+                        indicator.style.cssText = 'position:fixed;inset:0 0 auto;height:3px;z-index:2147483647;pointer-events:none;background:linear-gradient(90deg,#ff8a00,#ffd7b5,#ff8a00);background-size:200% 100%';
+                        document.body.appendChild(indicator);
+                        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+                            indicator.animate([{ backgroundPosition: '200% 0' }, { backgroundPosition: '0% 0' }], { duration: 1200, iterations: Infinity });
+                    }
+                    indicator.hidden = false;
+                }, 200);
+            }
+            function drain() {
+                while (active < 3 && queue.length) {
+                    const index = queue.findIndex(job => !job.background);
+                    const job = queue.splice(index < 0 ? 0 : index, 1)[0];
+                    job.signal?.removeEventListener('abort', job.cancel);
+                    if (job.signal?.aborted) { job.reject(new DOMException('Aborted', 'AbortError')); continue; }
+                    active++;
+                    send(job.input, job.init).then(async response => {
+                        const bytes = await response.arrayBuffer();
+                        const copy = new Response(bytes, { status: response.status, statusText: response.statusText, headers: response.headers });
+                        Object.defineProperty(copy, 'url', { value: response.url });
+                        Object.defineProperty(copy, 'redirected', { value: response.redirected });
+                        return copy;
+                    }).then(job.resolve, job.reject).finally(() => { active--; drain(); });
+                }
+            }
+            window.fetch = (input, init = {}) => {
+                const url = typeof input === 'string' ? input : input?.url;
+                if (!/^https:\/\/script\.google\.com\/macros\/s\//.test(url || '')) return send(input, init);
+                let action = '';
+                try { action = JSON.parse(init.body || '{}').action; } catch (_) { }
+                if (action === 'logout') return send(input, init);
+                const foregroundRequest = !low.has(action);
+                if (foregroundRequest) feedback(1);
+                return new Promise((resolve, reject) => {
+                    const signal = init.signal || input?.signal;
+                    const job = { input, init, resolve, reject, signal, background: low.has(action) };
+                    job.cancel = () => {
+                        const i = queue.indexOf(job);
+                        if (i >= 0) { queue.splice(i, 1); reject(new DOMException('Aborted', 'AbortError')); }
+                    };
+                    if (signal?.aborted) { reject(new DOMException('Aborted', 'AbortError')); return; }
+                    signal?.addEventListener('abort', job.cancel, { once: true });
+                    queue.push(job); drain();
+                }).finally(() => { if (foregroundRequest) feedback(-1); });
+            };
+        })();
+    </script>
+
     <meta charset="UTF-8" />
 
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -32000,9 +32064,8 @@
                 if (!document.hidden) heartbeat();
             });
 
-            heartbeat();
-
-            setInterval(heartbeat, 60000);
+            setTimeout(heartbeat, 12000 + Math.random() * 18000);
+            setInterval(heartbeat, 60000 + Math.floor(Math.random() * 10000));
         })();
 
         let currentUser = {};
@@ -32087,6 +32150,7 @@
                         body: JSON.stringify({ action, ...fields, token: user.token }),
                         signal: ctrl.signal,
                     });
+                    if (!res.ok) throw Error("เชื่อมต่อไม่สำเร็จ (" + res.status + ") กรุณาลองอีกครั้ง");
                     const r = await res.json();
                     if (r.status !== "success") {
                         if (r.code === "AUTH_EXPIRED") window.kruvandaSession?.expire(r.message);
@@ -32105,6 +32169,7 @@
                     ![
                         "profile",
                         "studentHome",
+                        "studentDashboard",
                         "studentCourse",
                         "readMaterial",
                         "submission",
@@ -32566,7 +32631,10 @@
                     return;
                 }
                 content.setAttribute("aria-busy", "true");
-                if (!cached) content.innerHTML = studentLoading("กำลังโหลดบทเรียนและกิจกรรมในรายวิชา");
+                if (cached) {
+                    selected = id; data = cached.data; studentPage = "course"; render();
+                    content.setAttribute("aria-busy", "true");
+                } else content.innerHTML = studentLoading("กำลังโหลดบทเรียนและกิจกรรมในรายวิชา");
                 try {
                     if (!courseRequests.has(id)) {
                         const request = api("studentCourse", { offeringId: id })
@@ -33648,6 +33716,7 @@
                     } else if (b.dataset.studentAction === "refresh-course") {
                         if (selected) await load(selected, true);
                         else {
+                            void renderOverviewResults();
                             offerings = await api("studentHome");
                             overviewAt = 0;
                             render();
@@ -33825,7 +33894,7 @@
                 }
                 try {
                     offerings = await api("studentHome");
-                    overviewAt = 0;
+                    if (!["course", "work"].includes(studentPage)) render();
                     loadOwnProfile()
                         .then(maybeShowProfileReminder)
                         .catch((error) => console.warn("Profile reminder unavailable", error));
@@ -33853,6 +33922,12 @@
 
         (() => {
             let heading;
+            let welcomePending = false;
+            const queueWelcome = () => {
+                if (welcomePending) return;
+                welcomePending = true;
+                requestAnimationFrame(() => { welcomePending = false; fitWelcome(); });
+            };
             const fitWelcome = () => {
                 const next = document.querySelector(".welcome-hero h2");
                 if (!next || !next.clientWidth) return;
@@ -33872,10 +33947,10 @@
                     heading.style.fontSize = size + "px";
                 }
             };
-            const resize = new ResizeObserver(fitWelcome);
+            const resize = new ResizeObserver(queueWelcome);
             const content = document.getElementById("content");
             if (content)
-                new MutationObserver(fitWelcome).observe(content, {
+                new MutationObserver(queueWelcome).observe(content, {
                     childList: true,
                     subtree: true,
                     characterData: true,

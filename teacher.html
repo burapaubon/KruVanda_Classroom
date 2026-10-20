@@ -2,6 +2,70 @@
 <html lang="th">
 
 <head>
+  <script>
+    (() => {
+      const send = window.fetch.bind(window);
+      let active = 0;
+      let foreground = 0, feedbackTimer, indicator;
+      const queue = [];
+      const low = new Set(['presenceHeartbeat', 'studentPresence', 'sessionCheck']);
+      function feedback(delta) {
+        foreground = Math.max(0, foreground + delta);
+        clearTimeout(feedbackTimer);
+        if (!foreground) { if (indicator) indicator.hidden = true; return; }
+        feedbackTimer = setTimeout(() => {
+          if (!foreground || !document.body) return;
+          if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.setAttribute('role', 'progressbar');
+            indicator.setAttribute('aria-label', 'กำลังรับส่งข้อมูล');
+            indicator.style.cssText = 'position:fixed;inset:0 0 auto;height:3px;z-index:2147483647;pointer-events:none;background:linear-gradient(90deg,#ff8a00,#ffd7b5,#ff8a00);background-size:200% 100%';
+            document.body.appendChild(indicator);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+              indicator.animate([{ backgroundPosition: '200% 0' }, { backgroundPosition: '0% 0' }], { duration: 1200, iterations: Infinity });
+          }
+          indicator.hidden = false;
+        }, 200);
+      }
+      function drain() {
+        while (active < 3 && queue.length) {
+          const index = queue.findIndex(job => !job.background);
+          const job = queue.splice(index < 0 ? 0 : index, 1)[0];
+          job.signal?.removeEventListener('abort', job.cancel);
+          if (job.signal?.aborted) { job.reject(new DOMException('Aborted', 'AbortError')); continue; }
+          active++;
+          send(job.input, job.init).then(async response => {
+            const bytes = await response.arrayBuffer();
+            const copy = new Response(bytes, { status: response.status, statusText: response.statusText, headers: response.headers });
+            Object.defineProperty(copy, 'url', { value: response.url });
+            Object.defineProperty(copy, 'redirected', { value: response.redirected });
+            return copy;
+          }).then(job.resolve, job.reject).finally(() => { active--; drain(); });
+        }
+      }
+      window.fetch = (input, init = {}) => {
+        const url = typeof input === 'string' ? input : input?.url;
+        if (!/^https:\/\/script\.google\.com\/macros\/s\//.test(url || '')) return send(input, init);
+        let action = '';
+        try { action = JSON.parse(init.body || '{}').action; } catch (_) { }
+        if (action === 'logout') return send(input, init);
+        const foregroundRequest = !low.has(action);
+        if (foregroundRequest) feedback(1);
+        return new Promise((resolve, reject) => {
+          const signal = init.signal || input?.signal;
+          const job = { input, init, resolve, reject, signal, background: low.has(action) };
+          job.cancel = () => {
+            const i = queue.indexOf(job);
+            if (i >= 0) { queue.splice(i, 1); reject(new DOMException('Aborted', 'AbortError')); }
+          };
+          if (signal?.aborted) { reject(new DOMException('Aborted', 'AbortError')); return; }
+          signal?.addEventListener('abort', job.cancel, { once: true });
+          queue.push(job); drain();
+        }).finally(() => { if (foregroundRequest) feedback(-1); });
+      };
+    })();
+  </script>
+
   <link rel="icon" href="data:," />
   <meta charset="UTF-8" />
   <script>
@@ -27589,7 +27653,7 @@
       }
       preparingPages = true;
       const epoch = dataEpoch;
-      const queue = ["review", "progress", "settings"].map(readyPageRequest);
+      const queue = ["review", "progress"].map(readyPageRequest);
       const worker = async () => {
         while (
           queue.length &&
@@ -27607,7 +27671,7 @@
         }
       };
       try {
-        await Promise.all([worker(), worker()]);
+        await worker();
       } finally {
         preparingPages = false;
       }
