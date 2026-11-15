@@ -34,13 +34,7 @@
           job.signal?.removeEventListener('abort', job.cancel);
           if (job.signal?.aborted) { job.reject(new DOMException('Aborted', 'AbortError')); continue; }
           active++;
-          send(job.input, job.init).then(async response => {
-            const bytes = await response.arrayBuffer();
-            const copy = new Response(bytes, { status: response.status, statusText: response.statusText, headers: response.headers });
-            Object.defineProperty(copy, 'url', { value: response.url });
-            Object.defineProperty(copy, 'redirected', { value: response.redirected });
-            return copy;
-          }).then(job.resolve, job.reject).finally(() => { active--; drain(); });
+          send(job.input, job.init).then(job.resolve, job.reject).finally(() => { active--; drain(); });
         }
       }
       window.fetch = (input, init = {}) => {
@@ -25354,6 +25348,59 @@
       else button.removeAttribute('aria-busy');
     };
   </script>
+  <style id="kv-ui-refinement">
+    /* KruVanda UI refinement — scoped, non-destructive */
+    :root {
+      --kv-accent: #f47b20;
+      --kv-accent-deep: #db6012;
+      --kv-focus: rgba(244, 123, 32, .24);
+    }
+
+    :where(button, input, select, textarea, a) {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :where(button, [role="button"], a) {
+      touch-action: manipulation;
+    }
+
+    :where(button, a, input, select, textarea):focus-visible {
+      outline: 3px solid var(--kv-focus);
+      outline-offset: 3px;
+    }
+
+    :where(button, [role="button"]) {
+      transition: background-color .17s ease, border-color .17s ease, box-shadow .17s ease, color .17s ease, transform .17s ease;
+    }
+
+    @media (hover:hover) and (pointer:fine) {
+      :where(button:not(:disabled), [role="button"]:not([aria-disabled="true"])):active {
+        transform: scale(.985);
+      }
+    }
+
+    :where(button, input, select, textarea) {
+      font: inherit;
+    }
+
+    :where(input, select, textarea) {
+      max-width: 100%;
+    }
+
+    :where(img) {
+      max-width: 100%;
+    }
+
+    :where([aria-busy="true"]) {
+      cursor: progress;
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      :where(button, [role="button"], a) {
+        transition: none !important;
+      }
+    }
+  </style>
 </head>
 
 <body>
