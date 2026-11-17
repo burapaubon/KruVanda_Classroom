@@ -60,7 +60,7 @@
     })();
   </script>
 
-  <link rel="icon" href="data:," />
+  <link rel="icon" type="image/png" href="Kruvanda.png" />
   <meta charset="UTF-8" />
   <script>
     (() => {
@@ -25209,7 +25209,14 @@
         position: fixed !important;
       }
     }
-  </style>
+  
+/* KruVanda official logo: branding only */
+.kv-brand-logo { width: 42px; height: 42px; flex: 0 0 42px; object-fit: contain; border-radius: 50%; display: block; }
+.wordmark.kv-with-logo { display: inline-flex !important; flex-direction: row !important; align-items: center !important; gap: 10px !important; }
+.kv-brand-copy { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+@media(max-width: 600px) { .kv-brand-logo { width: 34px; height: 34px; flex-basis: 34px; } .wordmark.kv-with-logo { gap: 7px !important; } }
+
+</style>
   <style id="teacher-game-map-update">
     body #modal .sandbox-map-label {
       display: none !important;
@@ -25519,10 +25526,11 @@
 
   <div class="app">
     <aside class="sidebar">
-      <button type="button" class="logo wordmark" id="brandReload" aria-label="KruVanda Classroom รีเฟรชหน้าเว็บ"
+      <button type="button" class="logo wordmark kv-with-logo" id="brandReload" aria-label="KruVanda Classroom รีเฟรชหน้าเว็บ"
         title="รีเฟรช">
-        <span class="brand-name">Kru<span>Vanda</span><i aria-hidden="true">.</i></span>
-        <span class="brand-subtitle">CLASSROOM</span>
+        <img class="kv-brand-logo" src="Kruvanda.png" alt="" aria-hidden="true" width="42" height="42" decoding="async" />
+<span class="kv-brand-copy"><span class="brand-name">Kru<span>Vanda</span><i aria-hidden="true">.</i></span>
+        <span class="brand-subtitle">CLASSROOM</span></span>
       </button>
 
       <div class="menu">
